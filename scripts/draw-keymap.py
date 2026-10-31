@@ -24,9 +24,15 @@ def main():
     parsed = "keymap-drawer/nano35.yaml"
     run("parse", "-z", "config/nano35.keymap", "-o", parsed)
     data = yaml.safe_load((ROOT / parsed).read_text(encoding="utf-8"))
-    assert list(data["layers"]) == ["QWERTY", "NAV", "NUM", "OSL", "MOUSE", "SCROLL", "SNIPE"]
-    assert all(len(keys) == 35 for keys in data["layers"].values()), "Expected 35 positions per layer"
-    assert all(0 <= p < 35 for combo in data.get("combos", []) for p in combo["p"])
+    # Keymap Editor may change display-name/label. Names and layer count are user data.
+    layers = data.get("layers", {})
+    if not layers:
+        raise SystemExit("No keymap layers were parsed")
+    for name, keys in layers.items():
+        if len(keys) != 35:
+            raise SystemExit(f"Layer {name!r}: expected 35 positions, got {len(keys)}")
+    if any(not 0 <= position < 35 for combo in data.get("combos", []) for position in combo["p"]):
+        raise SystemExit("Combo position outside the Nano35 range 0..34")
     # Reuse the actual firmware layout; no independent hand-maintained key order.
     data["layout"] = {"dts_layout": "boards/shields/nano35/nano35.dtsi", "layout_name": "nano35_layout"}
     # Show applicability on each separate combo diagram (0..6 match firmware layers).
@@ -41,7 +47,7 @@ def main():
     (ROOT / parsed).write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8", newline="\n")
     run("draw", parsed, "--keys-only", "-o", "keymap-drawer/nano35.svg")
     run("draw", parsed, "--combos-only", "-o", "keymap-drawer/nano35-combos.svg")
-    run("draw", parsed, "--keys-only", "-s", "QWERTY", "-o", "keymap-drawer/nano35-base.svg")
+    run("draw", parsed, "--keys-only", "-s", names[0], "-o", "keymap-drawer/nano35-base.svg")
     print(f"Generated {len(data['layers'])} x 35 keys and {len(data.get('combos', []))} combos")
 
 if __name__ == "__main__":

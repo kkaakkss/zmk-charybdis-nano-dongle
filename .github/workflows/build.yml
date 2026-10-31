@@ -11,7 +11,7 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - run: python3 -m pip install PyYAML==6.0.3
       - id: matrix
         run: |
@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - name: Initialize dependencies
         shell: bash
         run: |
@@ -70,7 +70,7 @@ jobs:
           test -s build/zephyr/zmk.uf2
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
           cp build/zephyr/zmk.uf2 "$GITHUB_WORKSPACE/artifacts/$ARTIFACT.uf2"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (Node 24)
         with:
           name: ${{ matrix.artifact-name }}
           path: artifacts/*.uf2

@@ -2,7 +2,7 @@ layout:
   dts_layout: boards/shields/nano35/nano35.dtsi
   layout_name: nano35_layout
 layers:
-  QWERTY:
+  QWER:
   - t: V
     s: V
   - t: W
@@ -47,11 +47,11 @@ layers:
   - LCTRL
   - LALT
   - t: SPACE
-    h: NAV
-  - t: SPACE
-    h: LEFT SHIFT
+    h: f & navi
   - RIGHT ALT
-  NAV:
+  - t: SPACE
+    h: LSHIFT
+  f & navi:
   - '`'
   - F2
   - F3
@@ -96,12 +96,14 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  NUM:
-  - t: PG UP
-    h: Ctl+HOME
-  - HOME
-  - UP
-  - END
+  Cp | Num:
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - Sft+F2
+  - t: ▽
+    type: trans
   - t: ▽
     type: trans
   - +
@@ -109,11 +111,13 @@ layers:
   - '8'
   - '9'
   - '*'
-  - t: PG DN
-    h: Ctl+END
-  - LEFT
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
   - LEFT SHIFT
-  - RIGHT
+  - t: ▽
+    type: trans
   - t: ▽
     type: trans
   - '-'
@@ -125,7 +129,7 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - Sft+ENTER
+  - Sft+F3
   - t: ▽
     type: trans
   - t: ▽
@@ -141,8 +145,8 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - t: SPACE
+    h: LEFT SHIFT
   - '0'
   OSL:
   - Alt+F4
@@ -400,7 +404,7 @@ combos:
     t: ENTER
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -410,7 +414,7 @@ combos:
     t: ENTER
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -420,9 +424,9 @@ combos:
     t: DELETE
     s: L0,2,1
   l:
-  - QWERTY
-  - NUM
-  - NAV
+  - QWER
+  - Cp | Num
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -432,9 +436,9 @@ combos:
     t: DELETE
     s: L0,1,2
   l:
-  - QWERTY
-  - NAV
-  - NUM
+  - QWER
+  - f & navi
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -444,9 +448,9 @@ combos:
     t: BACKSPACE
     s: L0,2,1
   l:
-  - QWERTY
-  - NUM
-  - NAV
+  - QWER
+  - Cp | Num
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -456,9 +460,9 @@ combos:
     t: BACKSPACE
     s: L0,2,1
   l:
-  - QWERTY
-  - NUM
-  - NAV
+  - QWER
+  - Cp | Num
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -468,7 +472,7 @@ combos:
     t: CAPSLOCK
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -478,7 +482,7 @@ combos:
     t: ESCAPE
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -490,7 +494,7 @@ combos:
     h: sticky
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -500,7 +504,7 @@ combos:
     t: Sft+HOME
     s: L1
   l:
-  - NAV
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -510,7 +514,7 @@ combos:
     t: Sft+END
     s: L1
   l:
-  - NAV
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -520,7 +524,7 @@ combos:
     t: Ctl+LEFT ARROW
     s: L1
   l:
-  - NAV
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -530,7 +534,7 @@ combos:
     t: Ctl+RIGHT
     s: L1
   l:
-  - NAV
+  - f & navi
   w: 100
   h: 46
 - p:
@@ -540,7 +544,7 @@ combos:
     t: SPACE
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -550,8 +554,8 @@ combos:
     t: TAB
     s: L0,2
   l:
-  - QWERTY
-  - NUM
+  - QWER
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -561,7 +565,7 @@ combos:
     t: '-'
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -571,7 +575,7 @@ combos:
     t: ''''
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -582,7 +586,7 @@ combos:
     h: hold
     s: L0 / 2x toggle
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -592,9 +596,9 @@ combos:
     t: (
     s: L0,1,2,3
   l:
-  - QWERTY
-  - NAV
-  - NUM
+  - QWER
+  - f & navi
+  - Cp | Num
   - OSL
   w: 100
   h: 46
@@ -605,9 +609,9 @@ combos:
     t: )
     s: L0,1,2,3
   l:
-  - QWERTY
-  - NAV
-  - NUM
+  - QWER
+  - f & navi
+  - Cp | Num
   - OSL
   w: 100
   h: 46
@@ -618,9 +622,9 @@ combos:
     t: '['
     s: L0,1,2,3
   l:
-  - QWERTY
-  - NAV
-  - NUM
+  - QWER
+  - f & navi
+  - Cp | Num
   - OSL
   w: 100
   h: 46
@@ -631,9 +635,9 @@ combos:
     t: ']'
     s: L0,1,2,3
   l:
-  - QWERTY
-  - NAV
-  - NUM
+  - QWER
+  - f & navi
+  - Cp | Num
   - OSL
   w: 100
   h: 46
@@ -645,7 +649,7 @@ combos:
     t: Gui+L
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -655,7 +659,7 @@ combos:
     t: Sft+HOME
     s: L2
   l:
-  - NUM
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -665,7 +669,7 @@ combos:
     t: Sft+END
     s: L2
   l:
-  - NUM
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -675,7 +679,7 @@ combos:
     t: Ctl+LEFT
     s: L2
   l:
-  - NUM
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -685,7 +689,7 @@ combos:
     t: Ctl+RIGHT
     s: L2
   l:
-  - NUM
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -695,7 +699,7 @@ combos:
     t: '`'
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -705,7 +709,7 @@ combos:
     t: \
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -715,7 +719,7 @@ combos:
     t: B
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -725,7 +729,7 @@ combos:
     t: Sft+T
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -735,7 +739,7 @@ combos:
     t: BASE
     s: L2
   l:
-  - NUM
+  - Cp | Num
   w: 100
   h: 46
 - p:
@@ -746,7 +750,7 @@ combos:
     t: F2
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -756,7 +760,7 @@ combos:
     t: '?'
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -766,7 +770,7 @@ combos:
     t: Sft+R
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -776,7 +780,7 @@ combos:
     t: Sft+E
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -786,7 +790,7 @@ combos:
     t: Sft+O
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -796,7 +800,7 @@ combos:
     t: C
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -806,7 +810,7 @@ combos:
     t: Sft+P
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -816,7 +820,7 @@ combos:
     t: Sft+W
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -826,7 +830,7 @@ combos:
     t: Sft+Q
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -836,7 +840,7 @@ combos:
     t: P
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -846,7 +850,7 @@ combos:
     t: V
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -856,17 +860,17 @@ combos:
     t: Z
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
   - 18
   - 16
   k:
-    t: P
+    t: RIGHT ALT
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -876,7 +880,7 @@ combos:
     t: '?'
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
@@ -886,12 +890,24 @@ combos:
     t: MOUSE
     s: L0
   l:
-  - QWERTY
+  - QWER
   w: 100
   h: 46
 - p:
   - 17
   - 18
+  k:
+    t: MMB
+    s: L4,5,6
+  l:
+  - MOUSE
+  - SCROLL
+  - SNIPE
+  w: 100
+  h: 46
+- p:
+  - 12
+  - 13
   k:
     t: MMB
     s: L4,5,6

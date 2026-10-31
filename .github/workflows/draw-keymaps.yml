@@ -26,14 +26,14 @@ jobs:
   draw:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - name: Install drawer
         run: |
           python3 -m venv "$RUNNER_TEMP/keymap-env"
           "$RUNNER_TEMP/keymap-env/bin/python" -m pip install -r requirements-draw.txt
       - name: Draw and validate 35-key layouts
         run: '"$RUNNER_TEMP/keymap-env/bin/python" scripts/draw-keymap.py'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (Node 24)
         with:
           name: keymap-drawer
           path: keymap-drawer/
@@ -44,10 +44,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
         with:
           ref: ${{ github.ref_name }}
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2 (Node 24)
         with:
           name: keymap-drawer
           path: keymap-drawer/
