@@ -23,6 +23,18 @@ QWERTY/NAV/NUM/OSL 뒤에 Keyball39의 MOUSE/SCROLL/SNIPE를 이식했습니다.
 키맵을 수정해 push하면 **Draw ZMK keymap** Actions가 그림을 생성하고 기본 브랜치에 갱신합니다.
 로컬 생성: `python -m pip install -r requirements-draw.txt` 후 `python scripts/draw-keymap.py`.
 
+## Keymap Editor로 편집
+
+[Keymap Editor](https://nickcoutsos.github.io/keymap-editor/)에서 이 저장소의 `main` 브랜치와
+`config/nano35.keymap`을 선택합니다. 같은 폴더의 `config/info.json`이 35키 레이아웃을 제공합니다.
+왼손 3개·오른손 2개 엄지와 키 순서는 펌웨어의 `nano35.dtsi`에 맞췄습니다.
+케이스 곡면 형상을 생략한 평면 도식입니다.
+
+이미 열려 있으면 새로고침 후 저장소/브랜치를 다시 선택해 최신 파일을 불러옵니다.
+수정 내용을 저장하면 GitHub가 OLED UF2와 키맵 그림을 다시 생성합니다.
+Studio 펌웨어는 필요하지 않습니다. 편집기의 `row`/`col`은 화면상의 위치이며 실제 GPIO 매트릭스 번호가 아닙니다.
+레이아웃 형식은 [공식 문서](https://github.com/nickcoutsos/keymap-editor/wiki/Defining-keyboard-layouts)를 따릅니다.
+
 ## 트랙볼 빠른 조작
 
 기본 레이어에서 공을 움직이면 Mouse가 자동 진입합니다. V+P로 수동 진입할 수도 있습니다.
