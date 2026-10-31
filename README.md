@@ -34,16 +34,20 @@ Snipe의 T 위치는 부트로더 진입입니다. 자세한 타이머·감도 �
 
 GitHub의 **Actions → Build Nano35 firmware → 성공한 실행 → Artifacts**에서 받습니다.
 
-| 파일 | 대상 |
-|---|---|
-| nano35-dongle.uf2 | 기본 USB 동글 |
-| nano35-left.uf2 | 왼손 |
-| nano35-right.uf2 | 오른손 + PMW3610 |
-| nano35-settings-reset.uf2 | 본드/설정 초기화 |
-| nano35-dongle-oled.uf2 | 동글 + SH1106 봉고캣·레이어·상태 화면 |
-| nano35-dongle-studio.uf2 | 동글 + USB ZMK Studio |
+현재 자동 빌드는 **`nano35-dongle-oled.uf2` 하나만** 생성합니다.
+이미 연결된 좌우 반쪽은 그대로 사용하고 동글만 업데이트합니다.
 
-OLED와 Studio는 각각 별도 선택 동글 빌드입니다.
+기본 동글·왼손·오른손·초기화·Studio의 소스와 전체 빌드 목록은
+`build-all.yaml`에 보존합니다. 나중에 모두 다시 만들려면 다음과 같이 목록을 복원하고 push합니다.
+
+```powershell
+Copy-Item -LiteralPath .\build-all.yaml -Destination .\build.yaml
+git add build.yaml
+git commit -m "Restore all firmware build targets"
+git push
+```
+
+전체 목록의 OLED와 Studio는 각각 별도 선택 동글 빌드입니다.
 [설치·복구](docs/flashing.md), [OLED 수정 기록](docs/oled-repair.md),
 [호환성](docs/compatibility.md), [검증 상태](docs/validation.md)를 먼저 확인하세요.
 기본 동글 USB 및 OLED 복구는 사용자 실기기 확인을 받았습니다.

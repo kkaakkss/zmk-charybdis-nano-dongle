@@ -1,22 +1,5 @@
 include:
-  - board: nice_nano_v2
-    shield: nano35_dongle
-    artifact-name: nano35-dongle
-  - board: nice_nano_v2
-    shield: nano35_left
-    artifact-name: nano35-left
-  - board: nice_nano_v2
-    shield: nano35_right
-    artifact-name: nano35-right
-  - board: nice_nano_v2
-    shield: settings_reset
-    artifact-name: nano35-settings-reset
-  - board: nice_nano_v2
-    shield: nano35_dongle nano35_status
-    snippet: nano35-oled
-    artifact-name: nano35-dongle-oled
-  - board: nice_nano_v2
-    shield: nano35_dongle
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_ZMK_STUDIO=y
-    artifact-name: nano35-dongle-studio
+- board: nice_nano_v2
+  shield: nano35_dongle nano35_status
+  snippet: nano35-oled
+  artifact-name: nano35-dongle-oled

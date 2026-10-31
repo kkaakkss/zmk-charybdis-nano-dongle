@@ -7,11 +7,14 @@ west 의존성은 `config/west.lock.yml`로 고정합니다.
 Windows에서 준비된 west 작업 공간·Python 환경·SDK 경로를 넘깁니다.
 
 ```powershell
-.\scripts\build-local.ps1 -Workspace C:\zmk-work -Python C:\zmk-tools\venv\Scripts\python.exe -Sdk C:\zmk-tools\zephyr-sdk-0.16.8 -Target 4
+.\scripts\build-local.ps1 -Workspace C:\zmk-work -Python C:\zmk-tools\venv\Scripts\python.exe -Sdk C:\zmk-tools\zephyr-sdk-0.16.8 -Target 0 -Pristine
 ```
 
-위 경로는 예시이며 실제 설치 위치로 바꿉니다. Target 0=동글, 1=왼손, 2=오른손, 3=초기화,
-4=OLED, 5=Studio입니다. 생략하면 전체를 빌드합니다. 출력은 `artifacts/`입니다.
+위 경로는 예시이며 실제 설치 위치로 바꿉니다. 현재 `build.yaml`에는 OLED 하나만 있으므로
+Target 0=OLED입니다. 생략해도 OLED만 빌드합니다. 출력은 `artifacts/`입니다.
+`build-all.yaml`을 `build.yaml`로 복원하면 기존 순서(0=기본 동글, 1=왼손, 2=오른손,
+3=초기화, 4=OLED, 5=Studio)로 6개를 다시 만들 수 있습니다.
+목록 변경 후 첫 로컬 빌드는 `-Pristine`으로 기존 인덱스의 캐시를 재사용하지 않도록 합니다.
 소스 경로에 공백이 있으면 실행기가 공백 없는 작업 공간에 junction을 만들어 참조합니다.
 
 전체 빌드 후 `python scripts/verify-builds.py --workspace C:\zmk-work`로 생성 설정을 검사합니다.
