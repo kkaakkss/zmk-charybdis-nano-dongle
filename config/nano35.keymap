@@ -267,11 +267,11 @@
             bindings = <&bt BT_SEL 0 &out OUT_TOG>;
             label = "BLUETOOTH";
         };
-    
+
         lclick_to0: lclick_to0 {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_tap>, <&mkp LCLK>, <&to 0>;
+            bindings = <&macro_tap>, <&mkp LCLK &to 0>;
         };
 
         alt_Lclick: alt_click {
@@ -303,12 +303,12 @@
 
     combos {
         compatible = "zmk,combos";
+
         nano35_studio_unlock {
             bindings = <&studio_unlock>;
             key-positions = <0 9>;
             layers = <3>;
         };
-
 
         enter_r {
             bindings = <&kp ENTER>;
@@ -575,7 +575,7 @@
         };
 
         R_p2 {
-            bindings = <&kp P>;
+            bindings = <&kp RIGHT_ALT>;
             key-positions = <18 16>;
             layers = <0>;
         };
@@ -585,16 +585,23 @@
             key-positions = <26 18>;
             layers = <0>;
         };
-    
+
         nano35_mouse_manual {
-            bindings = <&to MOUSE>;
+            bindings = <&to 4>;
             key-positions = <0 9>;
             layers = <0>;
         };
+
         nano35_mouse_middle {
             bindings = <&mkp MCLK>;
             key-positions = <17 18>;
-            layers = <MOUSE SCROLL SNIPE>;
+            layers = <4 5 6>;
+        };
+
+        L_MCLK {
+            bindings = <&mkp MCLK>;
+            key-positions = <12 13>;
+            layers = <4 5 6>;
         };
     };
 
@@ -602,35 +609,35 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            label = "QWERTY";
-            display-name = "QWERTY";
+            label = "QWER";
+            display-name = "QWER";
             bindings = <
-        &ctrl_guard_alt_v  &ctrl_guard_alt_w  &ctrl_guard_alt_e  &alt_r_4  &alt_t_5  &kp Y  &kp U  &kp I  &kp O  &kp P
-        &kp C  &kp S  &hrm_L LSHFT D  &hrm_L LSHFT F  &ctrl_g_h  &kp H  &hrm_r LSHIFT J  &hrm_r LSHIFT K  &kp L  &kp SEMICOLON
-        &kp Z  &kp X  &kp A  &kp Q  &kp B  &kp N  &kp M  &kp COMMA  &kp DOT  &ht QUESTION SLASH
-        &kp LCTRL  &kp LALT  &lt 1 SPACE  &space_shift LEFT_SHIFT SPACE  &kp RIGHT_ALT
+&ctrl_guard_alt_v  &ctrl_guard_alt_w  &ctrl_guard_alt_e  &alt_r_4        &alt_t_5           &kp Y          &kp U                      &kp I            &kp O    &kp P
+&kp C              &kp S              &hrm_L LSHFT D     &hrm_L LSHFT F  &ctrl_g_h          &kp H          &hrm_r LSHIFT J            &hrm_r LSHIFT K  &kp L    &kp SEMICOLON
+&kp Z              &kp X              &kp A              &kp Q           &kp B              &kp N          &kp M                      &kp COMMA        &kp DOT  &ht QUESTION SLASH
+                                      &kp LCTRL          &kp LALT        &lt 1 SPACE        &kp RIGHT_ALT  &space_shift LSHIFT SPACE
             >;
         };
 
         f_grave_navi_bt_layer {
-            label = "`\f & navi";
-            display-name = "NAV";
+            label = "F | Nav";
+            display-name = "f & navi";
             bindings = <
-        &kp GRAVE  &kp F2  &kp F3  &kp F4  &kp F5  &bt BT_SEL 0  &kp HOME  &kp UP_ARROW  &kp END  &ht LC(HOME) PG_UP
-        &kp LC(A)  &kp LC(S)  &kp LC(PG_UP)  &kp LC(PAGE_DOWN)  &none  &bt BT_SEL 1  &kp LEFT_ARROW  &kp DOWN  &kp RIGHT  &ht LC(END) PAGE_DOWN
-        &kp LC(Z)  &kp LC(X)  &kp LC(C)  &kp LC(V)  &kp LC(B)  &bt BT_SEL 2  &none  &kp LS(ENTER)  &none  &none
-        &trans  &trans  &trans  &trans  &trans
+&kp GRAVE  &kp F2     &kp F3         &kp F4             &kp F5           &bt BT_SEL 0  &kp HOME        &kp UP_ARROW   &kp END    &ht LC(HOME) PG_UP
+&kp LC(A)  &kp LC(S)  &kp LC(PG_UP)  &kp LC(PAGE_DOWN)  &none            &bt BT_SEL 1  &kp LEFT_ARROW  &kp DOWN       &kp RIGHT  &ht LC(END) PAGE_DOWN
+&kp LC(Z)  &kp LC(X)  &kp LC(C)      &kp LC(V)          &kp LC(B)        &bt BT_SEL 2  &none           &kp LS(ENTER)  &none      &none
+                      &trans         &trans             &trans           &trans        &trans
             >;
         };
 
         navi_num {
-            label = "navi, num";
-            display-name = "NUM";
+            label = "C | No.";
+            display-name = "Cp | Num";
             bindings = <
-        &ht LC(HOME) PG_UP  &kp HOME  &kp UP  &kp END  &trans  &kp PLUS  &kp N7  &kp N8  &kp N9  &kp ASTERISK
-        &ht LC(END) PG_DN  &kp LEFT  &kp LEFT_SHIFT  &kp RIGHT  &trans  &kp MINUS  &kp N4  &kp N5  &kp N6  &kp SLASH
-        &trans  &trans  &kp LS(ENTER)  &trans  &trans  &kp EQUAL  &kp N1  &kp N2  &kp N3  &kp COMMA
-        &trans  &trans  &trans  &trans  &kp NUMBER_0
+&trans  &trans  &kp LS(F2)      &trans  &trans        &kp PLUS                       &kp N7        &kp N8  &kp N9  &kp ASTERISK
+&trans  &trans  &kp LEFT_SHIFT  &trans  &trans        &kp MINUS                      &kp N4        &kp N5  &kp N6  &kp SLASH
+&trans  &trans  &kp LS(F3)      &trans  &trans        &kp EQUAL                      &kp N1        &kp N2  &kp N3  &kp COMMA
+                &trans          &trans  &trans        &space_shift LEFT_SHIFT SPACE  &kp NUMBER_0
             >;
         };
 
@@ -638,41 +645,41 @@
             label = "OSL";
             display-name = "OSL";
             bindings = <
-        &kp LA(F4)  &kp F23  &kp F22  &kp LG(R)  &kp LS(F2)  &bt BT_SEL 0  &trans  &trans  &trans  &trans
-        &kp LC(GRAVE)  &kp LG(NUMBER_1)  &kp LG(NUMBER_2)  &kp LG(NUMBER_3)  &kp LS(F3)  &bt BT_SEL 1  &trans  &trans  &trans  &trans
-        &kp F21  &kp F19  &kp F20  &kp F18  &kp LG(HOME)  &bt BT_SEL 2  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans
+&kp LA(F4)     &kp F23           &kp F22           &kp LG(R)         &kp LS(F2)          &bt BT_SEL 0  &trans  &trans  &trans  &trans
+&kp LC(GRAVE)  &kp LG(NUMBER_1)  &kp LG(NUMBER_2)  &kp LG(NUMBER_3)  &kp LS(F3)          &bt BT_SEL 1  &trans  &trans  &trans  &trans
+&kp F21        &kp F19           &kp F20           &kp F18           &kp LG(HOME)        &bt BT_SEL 2  &trans  &trans  &trans  &trans
+                                 &trans            &trans            &trans              &trans        &trans
             >;
         };
-    
-    mouse_layer {
-        display-name = "MOUSE";
-        bindings = <
-        &none  &none  &mo 5  &mo 6  &none  &none  &msc SCRL_LEFT  &msc SCRL_UP  &msc SCRL_RIGHT  &none
-        &none  &none  &mkp LCLK  &mkp RCLK  &none  &none  &none  &mkp LCLK  &mkp RCLK  &none
-        &none  &none  &alt_Lclick  &alt_Rclick  &none  &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)  &none
-        &trans  &trans  &trans  &to 0  &to 0
-        >;
-    };
 
-    scroll_layer {
-        display-name = "SCROLL";
-        bindings = <
-        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans
-        >;
-    };
+        mouse_layer {
+            display-name = "MOUSE";
+            bindings = <
+&none  &none  &mo 5        &mo 6        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
+&none  &none  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
+&none  &none  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
+              &trans       &trans       &trans        &to 0        &to 0
+            >;
+        };
 
-    snipe_layer {
-        display-name = "SNIPE";
-        bindings = <
-        &trans  &trans  &trans  &trans  &bootloader  &trans  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-        &trans  &trans  &trans  &trans  &trans
-        >;
-    };
+        scroll_layer {
+            display-name = "SCROLL";
+            bindings = <
+&trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans        &trans  &trans
+            >;
+        };
+
+        snipe_layer {
+            display-name = "SNIPE";
+            bindings = <
+&trans  &trans  &trans  &trans  &bootloader        &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans             &trans  &trans
+            >;
+        };
     };
 };
