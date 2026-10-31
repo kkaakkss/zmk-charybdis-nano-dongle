@@ -1,0 +1,7 @@
+name: charybdis-nano-dongle
+build:
+  cmake: zephyr
+  settings:
+    board_root: .
+    dts_root: .
+    snippet_root: .

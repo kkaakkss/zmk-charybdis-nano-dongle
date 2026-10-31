@@ -1,0 +1,86 @@
+# Keyball39 트랙볼 모드 이식
+
+현재 토템 35키의 QWERTY/NAV/NUM/OSL(0–3)은 유지하고, Keyball39의 Mouse/Scroll/Snipe를
+4/5/6으로 추가했다. 각 레이어는 35개 바인딩이다. Keyball39 원본 저장소는 수정하지 않았다.
+
+## 사용하는 방법
+
+| 조작 | 동작 |
+|---|---|
+| 기본 레이어에서 공 움직이기 | 한 XY 프레임의 이동량 합이 5를 넘으면 Mouse 자동 활성화 |
+| 기본 레이어의 V+P 동시 누르기 | Mouse 수동 진입(추가한 보조 진입 방법) |
+| Mouse에서 E 위치 홀드 | Scroll: 공을 굴려 가로/세로 스크롤 |
+| Mouse에서 R 위치 홀드 | Snipe: 기본 포인터의 1/4 속도로 정밀 이동 |
+| Mouse의 D / F 위치 | 왼쪽 / 오른쪽 클릭 |
+| Mouse의 K / L 위치 | 왼쪽 / 오른쪽 클릭 |
+| Mouse/Scroll/Snipe의 K+L 위치 | 가운데 클릭 |
+| Mouse의 A / Q 위치 | Alt+왼쪽 / Alt+오른쪽 클릭; 홀드 중 버튼/Alt 유지 |
+| Mouse의 U / I / O 위치 | 왼쪽 / 위 / 오른쪽 휠 |
+| Mouse의 쉼표 위치 | 아래 휠 |
+| Mouse의 M / 마침표 위치 | Alt+왼쪽 / Alt+오른쪽 화살표(뒤로/앞으로) |
+| Mouse의 N 위치 | 왼쪽 클릭 후 기본 레이어로 복귀 |
+| Mouse의 오른손 엄지 두 개 중 하나 | 기본 레이어로 복귀 |
+| Snipe 홀드 중 T 위치 | 원본처럼 **동글 부트로더 진입** |
+
+표의 글자는 기본 레이어의 물리 위치를 뜻한다. 공은 Mouse가 꺼져 있어도 평소대로 움직인다.
+Scroll/Snipe 키를 놓으면 Mouse로 돌아온다. 원본처럼 임계값을 넘는 일반 이동이 자동
+Mouse의 30초 타이머를 갱신한다. Scroll/Snipe 이동은 타이머를 갱신하지 않는다.
+장시간 모드를 유지하면 30초 후 아래 Mouse 레이어가 해제될 수 있으므로 이 경계도 실물에서 확인한다.
+즉시 타이핑하려면 오른손 엄지로 기본 레이어에 복귀한다.
+
+NAV/NUM/OSL 중에는 공을 움직여도 Mouse를 자동으로 덮어씌우지 않도록 했다.
+기존 46개 키보드 콤보는 원래 4개 레이어에서 유지한다. 기존에 레이어 제한이 없던 괄호
+콤보에는 0–3 범위를 명시하여 Mouse 클릭을 가로채지 않도록 했다.
+가운데 클릭은 Scroll/Snipe에서도 쓸 수 있도록 확장했다. OSL의 V+P Studio unlock은 유지한다.
+
+## 처리 위치와 감도
+
+Keyball39는 오른손 Central의 tangbonze 드라이버가 레이어를 읽고 동작을 바꾼다.
+Nano는 USB 동글이 Central이고 오른손은 센서 데이터를 split으로 보내므로,
+현재 검증된 badjeff 센서 드라이버를 교체하지 않고 동글의 input processor에서 처리한다.
+오른손의 400 CPI·축 변환·REPORT_INTERVAL_MIN=0, GPIO와 split 경로는 유지한다.
+OLED 배선·메모리·화면 레이아웃·봉고캣도 유지하며 새 레이어 이름만 표시한다.
+
+| 구분 | 원본 Keyball 설정 | Nano의 동글 처리 |
+|---|---|---|
+| 일반 이동 | 센서 1600 CPI ÷ 4 | 기존 센서 400 CPI, 추가 배율 없음 |
+| Snipe | 센서 400 CPI ÷ 4 | 기존 400 CPI 입력을 1/4로 축소 |
+| Scroll | 1600 CPI에서 32 counts/tick | 기존 400 CPI에서 8 counts/tick |
+| Scroll 방향 | INVERT_SCROLL_X=y, Y=n | +X → +HWHEEL, +Y → -WHEEL |
+| 키보드 휠 | 기본 SCRL 값 30 | 동일한 값 30 |
+
+위 비율은 거리 기준 환산이다. 실제 센서 CPI 변경/샘플링은 재현하지 않으므로 손맛이
+완전히 같다고 보증하지 않는다. 특히 기존 오른손의 샘플 주기에서 자동 진입 임계값 느낌은 확인해야 한다.
+Snipe와 Scroll의 분수 나머지는 양 축별로 보존한다. 1-count 움직임도 모이면 출력되며,
+모드 전환 시 나머지를 지워 과거 모드의 잔여 입력이 새 모드로 새지 않게 했다.
+원본의 매번 정수 나눗셈으로 사라지는 미세 Snipe 입력과, Scroll 중 다른 축 잔여 삭제는 따라 하지 않았다.
+
+## 출처와 검증 경계
+
+- 사용자 Keyball39 `config/keyball39.keymap`, `keyball39_right.overlay`, `keyball39_right.conf` 참조.
+- 원본 manifest가 가리키는 `tangbonze/zmk-pmw3610-driver`의 읽기 전용 참조:
+  `9c442063c4c63cad9058707d7118c4fbc7fd97d2`. 이 외부 드라이버를 Nano 의존성으로 추가하지 않았다.
+- 실제 적용 코드는 `src/trackball_modes.c`, `src/trackball_math.h`와 동글 overlay의 processor다.
+  자동 타이머/레이어 관리는 고정 ZMK의 temp-layer processor를 사용한다.
+- `scripts/test-trackball-modes.py`: 실제 새 C 처리기와 고정 ZMK input listener를 ARM으로 컴파일해
+  16,388개 signed 축 검사, 정밀/스크롤 나머지, 모드 복귀, XY sync, 임계값/키보드 레이어 보호,
+  세 버튼 드래그·해제를 실행한다. 커널 잠금·스케줄링·레이어 API·최종 HID/USB는 테스트 더블이다.
+  이 ARM 에뮬레이션에는 UBSan이 없다. 실제 자동 타이머 경과/동시 이벤트 경합은 실기기에서 확인한다.
+- `scripts/test-keyball-port.py`: 원본의 105개 Mouse/Scroll/Snipe 바인딩과 3개 매크로를 대조하고,
+  생성 DTS의 모드 키·버튼·복귀 엄지·키보드 콤보 격리를 검사한다.
+- 기존 `test-keymap-port.py`는 토템 140개 바인딩·46개 콤보가 원래 4개 레이어에서 유지되는지 검사한다.
+- 기존 `test-motion.py`의 passthrough 필터는 **원시 센서/기본 MOVE 경로만** 검사한다.
+  그 기록을 새 processor 모드의 검증으로 간주하지 않는다. 새 processor는 별도 테스트로 검증한다.
+
+## 설치와 실기기 확인
+
+새 OLED 동글 UF2만 동글에 설치한다. 오른손/왼손 교체나 본드 초기화는 필요하지 않다.
+이전 토템35 OLED는 복구용으로 보존한다. Studio 파일은 별도의 선택 동글 펌웨어다.
+
+1. 공 이동으로 Mouse 자동 진입, >5 임계값과 30초 만료, 오른손 엄지 즉시 복귀를 확인한다.
+2. 좌·우·가운데 클릭과 드래그, 모드를 바꾼 뒤 버튼 해제, Alt+클릭 해제를 확인한다.
+3. E 홀드 중 가로/세로/대각선 스크롤, 손을 떼면 커서 이동으로 돌아오는지 확인한다.
+4. R 홀드 중 미세 이동, 홀드를 놓고 평소 속도로 복귀하는지 확인한다.
+5. NAV/NUM/OSL 사용 중 움직임과 일반 타이핑 콤보, USB 재삽입과 10분 사용을 확인한다.
+
+빌드/소프트웨어 검사가 통과해도 이 새 기능의 실기기 동작은 별도 확인 대상이다.

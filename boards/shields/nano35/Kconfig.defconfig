@@ -1,0 +1,11 @@
+if SHIELD_NANO35_DONGLE || SHIELD_NANO35_LEFT || SHIELD_NANO35_RIGHT
+config ZMK_KEYBOARD_NAME
+    default "Nano35 Dongle"
+config ZMK_SPLIT
+    default y
+endif
+
+if SHIELD_NANO35_DONGLE
+config ZMK_SPLIT_ROLE_CENTRAL
+    default y
+endif

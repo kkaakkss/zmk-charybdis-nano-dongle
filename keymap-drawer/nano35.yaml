@@ -1,0 +1,903 @@
+layout:
+  dts_layout: boards/shields/nano35/nano35.dtsi
+  layout_name: nano35_layout
+layers:
+  QWERTY:
+  - t: V
+    s: V
+  - t: W
+    s: W
+  - t: E
+    s: E
+  - t: R
+    s: '4'
+  - t: T
+    s: '5'
+  - Y
+  - U
+  - I
+  - O
+  - P
+  - C
+  - S
+  - t: D
+    h: LSHFT
+  - t: F
+    h: LSHFT
+  - t: G
+    s: H
+  - H
+  - t: J
+    h: LSHIFT
+  - t: K
+    h: LSHIFT
+  - L
+  - ;
+  - Z
+  - X
+  - A
+  - Q
+  - B
+  - N
+  - M
+  - ','
+  - .
+  - t: /
+    h: '?'
+  - LCTRL
+  - LALT
+  - t: SPACE
+    h: NAV
+  - t: SPACE
+    h: LEFT SHIFT
+  - RIGHT ALT
+  NAV:
+  - '`'
+  - F2
+  - F3
+  - F4
+  - F5
+  - t: BT
+    h: '0'
+  - HOME
+  - UP ARROW
+  - END
+  - t: PG UP
+    h: Ctl+HOME
+  - Ctl+A
+  - Ctl+S
+  - Ctl+PG UP
+  - Ctl+PAGE DOWN
+  - ''
+  - t: BT
+    h: '1'
+  - LEFT ARROW
+  - DOWN
+  - RIGHT
+  - t: PAGE DOWN
+    h: Ctl+END
+  - Ctl+Z
+  - Ctl+X
+  - Ctl+C
+  - Ctl+V
+  - Ctl+B
+  - t: BT
+    h: '2'
+  - ''
+  - Sft+ENTER
+  - ''
+  - ''
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - type: held
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  NUM:
+  - t: PG UP
+    h: Ctl+HOME
+  - HOME
+  - UP
+  - END
+  - t: ▽
+    type: trans
+  - +
+  - '7'
+  - '8'
+  - '9'
+  - '*'
+  - t: PG DN
+    h: Ctl+END
+  - LEFT
+  - LEFT SHIFT
+  - RIGHT
+  - t: ▽
+    type: trans
+  - '-'
+  - '4'
+  - '5'
+  - '6'
+  - /
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - Sft+ENTER
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - '='
+  - '1'
+  - '2'
+  - '3'
+  - ','
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - '0'
+  OSL:
+  - Alt+F4
+  - F23
+  - F22
+  - Gui+R
+  - Sft+F2
+  - t: BT
+    h: '0'
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - Ctl+`
+  - t: Gui+1
+    type: held
+  - t: Gui+2
+    type: held
+  - t: Gui+3
+    type: held
+  - Sft+F3
+  - t: BT
+    h: '1'
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - F21
+  - F19
+  - F20
+  - F18
+  - Gui+HOME
+  - t: BT
+    h: '2'
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  MOUSE:
+  - ''
+  - ''
+  - SCROLL
+  - SNIPE
+  - ''
+  - ''
+  - Wheel Left
+  - Wheel Up
+  - Wheel Right
+  - ''
+  - ''
+  - ''
+  - LMB
+  - RMB
+  - ''
+  - ''
+  - ''
+  - LMB
+  - RMB
+  - ''
+  - ''
+  - ''
+  - Alt+LMB
+  - Alt+RMB
+  - ''
+  - t: LMB
+    h: then BASE
+  - Alt+LEFT ARROW
+  - Wheel Down
+  - Alt+RIGHT
+  - ''
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - BASE
+  - BASE
+  SCROLL:
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - type: held
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  SNIPE:
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - type: held
+  - BOOT
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+combos:
+- p:
+  - 0
+  - 9
+  k:
+    t: Studio Unlock
+    s: L3
+  l:
+  - OSL
+  w: 100
+  h: 46
+- p:
+  - 16
+  - 17
+  k:
+    t: ENTER
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 12
+  - 13
+  k:
+    t: ENTER
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 27
+  - 28
+  k:
+    t: DELETE
+    s: L0,2,1
+  l:
+  - QWERTY
+  - NUM
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 22
+  - 23
+  k:
+    t: DELETE
+    s: L0,1,2
+  l:
+  - QWERTY
+  - NAV
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 26
+  - 27
+  k:
+    t: BACKSPACE
+    s: L0,2,1
+  l:
+  - QWERTY
+  - NUM
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 21
+  - 22
+  k:
+    t: BACKSPACE
+    s: L0,2,1
+  l:
+  - QWERTY
+  - NUM
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 20
+  - 21
+  k:
+    t: CAPSLOCK
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 0
+  - 1
+  k:
+    t: ESCAPE
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 12
+  - 13
+  k:
+    t: OSL
+    h: sticky
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 7
+  - 6
+  k:
+    t: Sft+HOME
+    s: L1
+  l:
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 8
+  - 7
+  k:
+    t: Sft+END
+    s: L1
+  l:
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 16
+  - 17
+  k:
+    t: Ctl+LEFT ARROW
+    s: L1
+  l:
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 17
+  - 18
+  k:
+    t: Ctl+RIGHT
+    s: L1
+  l:
+  - NAV
+  w: 100
+  h: 46
+- p:
+  - 23
+  - 24
+  k:
+    t: SPACE
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 10
+  k:
+    t: TAB
+    s: L0,2
+  l:
+  - QWERTY
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 6
+  - 7
+  k:
+    t: '-'
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 18
+  - 19
+  k:
+    t: ''''
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 23
+  k:
+    t: NUM
+    h: hold
+    s: L0 / 2x toggle
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 3
+  - 4
+  k:
+    t: (
+    s: L0,1,2,3
+  l:
+  - QWERTY
+  - NAV
+  - NUM
+  - OSL
+  w: 100
+  h: 46
+- p:
+  - 6
+  - 5
+  k:
+    t: )
+    s: L0,1,2,3
+  l:
+  - QWERTY
+  - NAV
+  - NUM
+  - OSL
+  w: 100
+  h: 46
+- p:
+  - 13
+  - 14
+  k:
+    t: '['
+    s: L0,1,2,3
+  l:
+  - QWERTY
+  - NAV
+  - NUM
+  - OSL
+  w: 100
+  h: 46
+- p:
+  - 16
+  - 15
+  k:
+    t: ']'
+    s: L0,1,2,3
+  l:
+  - QWERTY
+  - NAV
+  - NUM
+  - OSL
+  w: 100
+  h: 46
+- p:
+  - 1
+  - 2
+  - 0
+  k:
+    t: Gui+L
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 1
+  - 2
+  k:
+    t: Sft+HOME
+    s: L2
+  l:
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 2
+  - 3
+  k:
+    t: Sft+END
+    s: L2
+  l:
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 12
+  k:
+    t: Ctl+LEFT
+    s: L2
+  l:
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 12
+  - 13
+  k:
+    t: Ctl+RIGHT
+    s: L2
+  l:
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 7
+  - 8
+  k:
+    t: '`'
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 28
+  - 29
+  k:
+    t: \
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 25
+  - 26
+  k:
+    t: B
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 12
+  - 11
+  k:
+    t: Sft+T
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 23
+  k:
+    t: BASE
+    s: L2
+  l:
+  - NUM
+  w: 100
+  h: 46
+- p:
+  - 1
+  - 2
+  - 3
+  k:
+    t: F2
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 17
+  - 26
+  k:
+    t: '?'
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 2
+  - 3
+  k:
+    t: Sft+R
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 2
+  - 1
+  k:
+    t: Sft+E
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 6
+  - 8
+  k:
+    t: Sft+O
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 13
+  k:
+    t: C
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 26
+  - 28
+  k:
+    t: Sft+P
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 22
+  k:
+    t: Sft+W
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 23
+  - 12
+  k:
+    t: Sft+Q
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 18
+  - 17
+  k:
+    t: P
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 1
+  - 3
+  k:
+    t: V
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 21
+  - 23
+  k:
+    t: Z
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 18
+  - 16
+  k:
+    t: P
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 26
+  - 18
+  k:
+    t: '?'
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 0
+  - 9
+  k:
+    t: MOUSE
+    s: L0
+  l:
+  - QWERTY
+  w: 100
+  h: 46
+- p:
+  - 17
+  - 18
+  k:
+    t: MMB
+    s: L4,5,6
+  l:
+  - MOUSE
+  - SCROLL
+  - SNIPE
+  w: 100
+  h: 46

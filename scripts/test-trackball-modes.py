@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""Actual Nano processor + pinned ZMK listener C, executed in ARM emulation.
+
+Kernel locks/layer scheduling and HID/USB endpoints are doubles. Sensor/BLE,
+real timing, RF, optical resolution and device ergonomics are not simulated.
+"""
+from pathlib import Path
+import argparse,subprocess,tempfile
+
+p=argparse.ArgumentParser(description=__doc__)
+p.add_argument('--workspace',type=Path,required=True)
+p.add_argument('--arm-gcc',type=Path,required=True)
+a=p.parse_args()
+repo=Path(__file__).resolve().parents[1]; ws=a.workspace.resolve()
+
+def function(s,signature):
+    start=s.index(signature); end=s.index('{',start)+1; depth=1
+    while depth:
+        depth+=(s[end]=='{')-(s[end]=='}'); end+=1
+    return s[start:end]
+
+processor=(repo/'src/trackball_modes.c').read_text(encoding='utf-8')
+listener=(ws/'zmk/app/src/pointing/input_listener.c').read_text(encoding='utf-8')
+header=r'''
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "trackball_math.h"
+#define CONFIG_ZMK_POINTING_SMOOTH_SCROLLING 0
+#define IS_ENABLED(x) (x)
+#define LOG_ERR(...) ((void)0)
+#define BIT(x) (1u<<(x))
+#define WRITE_BIT(v,n,b) ((v)=(b)?((v)|BIT(n)):((v)&~BIT(n)))
+#define K_FOREVER 0
+#define INPUT_EV_KEY 1
+#define INPUT_EV_REL 2
+#define INPUT_EV_ABS 3
+#define INPUT_REL_X 0
+#define INPUT_REL_Y 1
+#define INPUT_REL_WHEEL 8
+#define INPUT_REL_HWHEEL 6
+#define INPUT_BTN_0 0x100
+#define INPUT_BTN_1 0x101
+#define INPUT_BTN_2 0x102
+#define INPUT_BTN_3 0x103
+#define INPUT_BTN_4 0x104
+#define ZMK_HID_MOUSE_NUM_BUTTONS 5
+#define ZMK_INPUT_PROC_CONTINUE 0
+#define ZMK_INPUT_PROC_STOP 1
+#define ZMK_EV_EVENT_BUBBLE 0
+#define MOUSE_LAYER 4
+#define SCROLL_LAYER 5
+#define SNIPE_LAYER 6
+#define AUTO_TIMEOUT 30000
+struct device {int unused;};
+struct input_event {const struct device *dev; uint8_t type; uint16_t code; int32_t value; bool sync;};
+struct zmk_input_processor_state {uint8_t input_device_index; int16_t *remainder;};
+struct zmk_input_processor_entry {int unused;};
+typedef int zmk_event_t;
+static struct device sensor;
+static const struct device *temporary_layer=&sensor;
+static struct nano35_ball_state ball;
+static int ball_lock,lock_depth,highest,auto_calls,failure;
+static int k_mutex_lock(int *l,int timeout) {if(lock_depth) failure=90;lock_depth++;return 0;}
+static int k_mutex_unlock(int *l) {lock_depth--;return 0;}
+static int zmk_keymap_highest_layer_active(void) {return highest;}
+static int zmk_input_processor_handle_event(const struct device *dev,struct input_event *event,uint32_t layer,uint32_t timeout,struct zmk_input_processor_state *state) {
+    if(lock_depth || layer!=4 || timeout!=30000) failure=91;
+    auto_calls++;return 0;
+}
+'''
+parts=[header]
+parts += [function(processor,s) for s in ['static enum nano35_ball_mode current_mode(', 'static int modes_layer_event(', 'static int modes_handle_event(']]
+parts += [listener[listener.index('enum input_listener_xy_data_mode'):listener.index('static void handle_rel_code')]]
+parts += [r'''
+static int16_t hid_x,hid_y,wheel_x,wheel_y;
+static int32_t total_x,total_y,total_wx,total_wy;
+static unsigned buttons,reports;
+static int filter_with_input_config(const struct input_listener_config *cfg,struct input_listener_data *data,struct input_event *event) {
+    return modes_handle_event(&sensor,event,0,0,NULL);
+}
+static void zmk_hid_mouse_movement_set(int16_t x,int16_t y) {hid_x=x;hid_y=y;}
+static void zmk_hid_mouse_scroll_set(int16_t x,int16_t y) {wheel_x=x;wheel_y=y;}
+static void zmk_hid_mouse_button_press(int b) {buttons|=BIT(b);}
+static void zmk_hid_mouse_button_release(int b) {buttons&=~BIT(b);}
+static int zmk_endpoints_send_mouse_report(void) {reports++;total_x+=hid_x;total_y+=hid_y;total_wx+=wheel_x;total_wy+=wheel_y;return 0;}
+''']
+parts += [function(listener,s) for s in ['static void handle_rel_code(', 'static void handle_abs_code(', 'static void handle_key_code(', 'static void clear_xy_data(', 'static void input_handler(']]
+parts += [r'''
+static struct input_listener_config cfg;
+static struct input_listener_data data;
+static void layer(int n) {highest=n;modes_layer_event(NULL);}
+static void frame(int x,int y) {
+    struct input_event ex={&sensor,INPUT_EV_REL,INPUT_REL_X,x,false};
+    struct input_event ey={&sensor,INPUT_EV_REL,INPUT_REL_Y,y,true};
+    input_handler(&cfg,&data,&ex);input_handler(&cfg,&data,&ey);
+    if(hid_x || hid_y || wheel_x || wheel_y) failure=92;
+}
+static void button(int b,bool pressed) {
+    struct input_event e={&sensor,INPUT_EV_KEY,INPUT_BTN_0+b,pressed,true};
+    input_handler(&cfg,&data,&e);
+}
+int main(void) {
+    // All actual post-orientation 12-bit values, including +2048.
+    for(int mode=1;mode<=2;mode++) for(int axis=0;axis<2;axis++) {
+        for(int v=-2048;v<=2048;v++) {
+            struct nano35_ball_state s={0};nano35_ball_set_mode(&s,mode);
+            int div=mode==NANO35_SNIPE?4:8;
+            int result=nano35_ball_axis(&s,axis,v);
+            if(mode==NANO35_SCROLL && axis==1) result=-result;
+            if(result!=v/div || result*div+s.remainder[axis]!=v) return 1;
+        }
+    }
+    layer(0);frame(2,3);if(auto_calls) return 2;
+    frame(3,3);if(auto_calls!=1) return 3;
+    for(int n=1;n<=3;n++) {layer(n);frame(100,100);}
+    if(auto_calls!=1) return 4; // Keyboard layers aren't automatically masked.
+    layer(4);frame(10,0);if(auto_calls!=2) return 5;
+    int bx=total_x,by=total_y,wx=total_wx,wy=total_wy;
+    layer(5);frame(7,-7);
+    if(total_wx!=wx || total_wy!=wy || total_x!=bx || total_y!=by) return 6;
+    frame(1,-1);if(total_wx-wx!=1 || total_wy-wy!=1) return 7;
+    frame(-8,8);if(total_wx!=wx || total_wy!=wy) return 8;
+    // Both axes accumulate independently. No orthogonal-axis reset.
+    for(int i=0;i<8;i++) frame(1,1);
+    if(total_wx-wx!=1 || total_wy-wy!=-1) return 9;
+    // Leave and re-enter without any movement in between: clear stale fractions.
+    frame(7,7);layer(4);layer(5);wx=total_wx;wy=total_wy;frame(1,1);
+    if(total_wx!=wx || total_wy!=wy) return 10;
+    layer(6);bx=total_x;by=total_y;
+    for(int i=0;i<4;i++) frame(1,-1);
+    if(total_x-bx!=1 || total_y-by!=-1) return 11;
+    frame(3,3);layer(4);layer(6);bx=total_x;by=total_y;frame(1,1);
+    if(total_x!=bx || total_y!=by) return 12;
+    // Press/drag across every mode, then release after returning to base.
+    for(int b=0;b<3;b++) {
+        layer(4);button(b,true);frame(20,-20);
+        layer(5);frame(16,-16);layer(6);frame(4,-4);layer(0);button(b,false);
+        if(buttons) return 13;
+    }
+    unsigned before=reports;frame(0,0);
+    if(reports-before!=1) return 14; // One final sync, never two axis reports.
+    // Restore unscaled cursor operation, with no drift after repeated zeros.
+    layer(0);bx=total_x;by=total_y;frame(-2048,2048);
+    if(total_x-bx!=-2048 || total_y-by!=2048) return 15;
+    bx=total_x;by=total_y;wx=total_wx;wy=total_wy;
+    for(int i=0;i<100;i++) frame(0,0);
+    if(total_x!=bx || total_y!=by || total_wx!=wx || total_wy!=wy) return 16;
+    return failure;
+}
+''']
+with tempfile.TemporaryDirectory(prefix='nano-ball-test-') as tmp:
+    tmp=Path(tmp); c=tmp/'test.c'; elfpath=tmp/'test.elf'
+    c.write_text('\n'.join(parts),encoding='utf-8')
+    subprocess.run([str(a.arm_gcc),'-std=c99','-O0','-ffreestanding','-fno-builtin','-nostdlib','-mcpu=cortex-m4','-mthumb','-Wl,-Ttext=0x10000,-e,main','-I',str(repo/'src'),str(c),'-o',str(elfpath)],check=True)
+    from elftools.elf.elffile import ELFFile
+    from unicorn import Uc,UC_ARCH_ARM,UC_MODE_THUMB,UC_MODE_MCLASS
+    from unicorn.arm_const import UC_ARM_REG_SP,UC_ARM_REG_LR,UC_ARM_REG_R0,UC_ARM_REG_PC
+    emu=Uc(UC_ARCH_ARM,UC_MODE_THUMB|UC_MODE_MCLASS)
+    emu.mem_map(0x20000000,0x10000);emu.mem_map(0x30000000,0x1000)
+    with elfpath.open('rb') as f:
+        elf=ELFFile(f); segments=[s for s in elf.iter_segments() if s['p_type']=='PT_LOAD']
+        first=min(s['p_vaddr'] for s in segments)&~0xfff
+        last=max(s['p_vaddr']+s['p_memsz'] for s in segments)
+        emu.mem_map(first,(last-first+0xfff)&~0xfff)
+        for seg in segments:
+            if seg['p_filesz']: emu.mem_write(seg['p_vaddr'],seg.data())
+        entry=elf.header['e_entry']
+    emu.reg_write(UC_ARM_REG_SP,0x2000fff0);emu.reg_write(UC_ARM_REG_LR,0x30000001)
+    emu.emu_start(entry|1,0x30000000,count=20000000)
+    assert emu.reg_read(UC_ARM_REG_PC)==0x30000000,'test did not finish'
+    assert emu.reg_read(UC_ARM_REG_R0)==0,f'C test failed case {emu.reg_read(UC_ARM_REG_R0)}'
+print('PASS: 16388 signed-axis cases; 1/4 snipe, 1/8 scroll, sign, fractions and mode-reset')
+print('PASS: actual processor + actual ZMK listener; XY sync, auto threshold/keyboard-layer guard, 3-button drag/release across modes, no drift')
+print('LIMIT: kernel scheduling/layers/endpoints are doubles; no USB/BLE/I2C hardware simulation or UBSan')

@@ -1,0 +1,19 @@
+description: Nano35 central-side Keyball mouse, scroll and snipe modes
+compatible: "nano35,trackball-modes"
+include: ip_zero_param.yaml
+properties:
+  mouse-layer:
+    type: int
+    required: true
+  scroll-layer:
+    type: int
+    required: true
+  snipe-layer:
+    type: int
+    required: true
+  automouse-timeout-ms:
+    type: int
+    required: true
+  temporary-layer:
+    type: phandle
+    required: true

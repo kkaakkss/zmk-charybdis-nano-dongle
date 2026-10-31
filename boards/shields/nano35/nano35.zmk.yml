@@ -1,0 +1,7 @@
+file_format: "1"
+id: nano35
+name: Charybdis Nano 35 Dongle
+type: shield
+requires: [pro_micro]
+features: [keys, pointer]
+siblings: [nano35_dongle, nano35_left, nano35_right]

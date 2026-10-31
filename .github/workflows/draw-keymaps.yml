@@ -1,0 +1,65 @@
+name: Draw ZMK keymap
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config/*.keymap'
+      - 'boards/shields/nano35/nano35.dtsi'
+      - 'keymap_drawer.config.yaml'
+      - 'requirements-draw.txt'
+      - 'scripts/draw-keymap.py'
+      - '.github/workflows/draw-keymaps.yml'
+  pull_request:
+    paths:
+      - 'config/*.keymap'
+      - 'boards/shields/nano35/nano35.dtsi'
+      - 'keymap_drawer.config.yaml'
+      - 'requirements-draw.txt'
+      - 'scripts/draw-keymap.py'
+      - '.github/workflows/draw-keymaps.yml'
+permissions:
+  contents: read
+concurrency:
+  group: keymap-drawer-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  draw:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install drawer
+        run: |
+          python3 -m venv "$RUNNER_TEMP/keymap-env"
+          "$RUNNER_TEMP/keymap-env/bin/python" -m pip install -r requirements-draw.txt
+      - name: Draw and validate 35-key layouts
+        run: '"$RUNNER_TEMP/keymap-env/bin/python" scripts/draw-keymap.py'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: keymap-drawer
+          path: keymap-drawer/
+  publish:
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    needs: draw
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: keymap-drawer
+          path: keymap-drawer/
+      - name: Commit refreshed diagrams
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          # A newer source commit will run its own draw job; never publish stale diagrams.
+          if [ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]; then exit 0; fi
+          git add -- keymap-drawer/
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs: refresh keymap diagrams'
+          git push

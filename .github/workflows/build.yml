@@ -1,0 +1,77 @@
+name: Build Nano35 firmware
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: python3 -m pip install PyYAML==6.0.3
+      - id: matrix
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, yaml
+          print('matrix=' + json.dumps(yaml.safe_load(open('build.yaml'))))
+          PY
+  build:
+    needs: matrix
+    runs-on: ubuntu-24.04
+    # Zephyr 3.5 image, pinned to the linux/amd64 manifest.
+    container: zmkfirmware/zmk-build-arm:3.5@sha256:ba4e851529ac9a5cf6b02e7dd3297b78bd1b0e75546b9f1bb22023437836373e
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Initialize dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/nano35/config
+          cp config/west.lock.yml /tmp/nano35/config/west.yml
+          cd /tmp/nano35
+          west init -l config
+          west update --narrow --fetch-opt=--filter=tree:0
+      - name: Check trackball C regression tests
+        if: matrix.shield == 'nano35_right'
+        shell: bash
+        run: python3 scripts/test-motion.py --workspace /tmp/nano35
+      - name: Check OLED C regression tests
+        if: matrix.snippet == 'nano35-oled'
+        shell: bash
+        run: python3 scripts/test-display.py --workspace /tmp/nano35
+      - name: Build selected UF2
+        shell: bash
+        env:
+          BOARD: ${{ matrix.board }}
+          SHIELD: ${{ matrix.shield }}
+          SNIPPET: ${{ matrix.snippet }}
+          EXTRA_ARGS: ${{ matrix.cmake-args }}
+          ARTIFACT: ${{ matrix.artifact-name }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 2
+        run: |
+          set -euo pipefail
+          cd /tmp/nano35
+          args=()
+          if [ -n "$SNIPPET" ]; then args+=(-S "$SNIPPET"); fi
+          extra=()
+          read -r -a extra <<< "$EXTRA_ARGS" || true
+          west build -s zmk/app -d build -b "$BOARD" "${args[@]}" -- \
+            -DZephyr_DIR=/tmp/nano35/zephyr/share/zephyr-package/cmake \
+            -DZMK_CONFIG="$GITHUB_WORKSPACE/config" \
+            -DZMK_EXTRA_MODULES="$GITHUB_WORKSPACE" \
+            -DSHIELD="$SHIELD" "${extra[@]}"
+          test -s build/zephyr/zmk.uf2
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          cp build/zephyr/zmk.uf2 "$GITHUB_WORKSPACE/artifacts/$ARTIFACT.uf2"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: artifacts/*.uf2
+          if-no-files-found: error

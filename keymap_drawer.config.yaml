@@ -1,0 +1,27 @@
+draw_config:
+  separate_combo_diagrams: true
+  combo_diagrams_scale: 3
+  shrink_wide_legends: 7
+  footer_text: "Nano35 | schematic positions, not case geometry"
+parse_config:
+  raw_binding_map:
+    "&mkp LCLK": "LMB"
+    "&mkp RCLK": "RMB"
+    "&mkp MCLK": "MMB"
+    "&msc SCRL_LEFT": "Wheel Left"
+    "&msc SCRL_RIGHT": "Wheel Right"
+    "&msc SCRL_UP": "Wheel Up"
+    "&msc SCRL_DOWN": "Wheel Down"
+    "&alt_Lclick": "Alt+LMB"
+    "&alt_Rclick": "Alt+RMB"
+    "&lclick_to0": {t: LMB, h: "then BASE"}
+    "&bootloader": "BOOT"
+    "&studio_unlock": "Studio Unlock"
+    "&to 0": "BASE"
+    "&to 4": "MOUSE"
+    "&mo_dtap_to_NavNum": {t: NUM, h: hold, s: "2x toggle"}
+    "&mo_NumNav_dt_to_NavNum": {t: NUM, h: "tap BASE", s: "2x NUM"}
+    "&n_b": {t: N, s: "2x B"}
+    "&b_n": {t: B, s: "2x N"}
+    "&t_dot_dt_to0": {t: '.', s: "2x BASE"}
+    "&space_to0": {t: SPACE, s: "2x BASE"}

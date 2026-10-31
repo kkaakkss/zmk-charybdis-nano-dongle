@@ -1,0 +1,16 @@
+# Local firmware outputs and installation backups
+/build/
+/artifacts/
+/설치파일/
+# Historical logs and machine-specific development notes stay local
+/docs/archive/
+.west/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+Thumbs.db
+.DS_Store

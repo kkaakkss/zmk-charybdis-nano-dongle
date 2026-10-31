@@ -1,0 +1,3 @@
+#include "nano35.dtsi"
+#include "matrix.dtsi"
+&trackball_split { status = "disabled"; };

@@ -1,0 +1,4 @@
+name: nano35-oled
+append:
+  EXTRA_DTC_OVERLAY_FILE: nano35-oled.overlay
+  EXTRA_CONF_FILE: nano35-oled.conf

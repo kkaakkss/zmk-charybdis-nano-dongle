@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: MIT
+if(CONFIG_ZMK_SPLIT_ROLE_CENTRAL AND CONFIG_DT_HAS_NANO35_TRACKBALL_MODES_ENABLED)
+  zephyr_library_named(nano35_trackball_modes)
+  zephyr_library_sources("${CMAKE_CURRENT_LIST_DIR}/../src/trackball_modes.c")
+  zephyr_library_include_directories(${APPLICATION_SOURCE_DIR}/include)
+endif()
