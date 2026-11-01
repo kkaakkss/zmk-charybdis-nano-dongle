@@ -29,6 +29,5 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM AND ((NOT CONF
     endif()
     if (CONFIG_ZMK_DONGLE_DISPLAY_WPM)
         zephyr_library_sources(widgets/wpm_status.c)
-        zephyr_library_sources(widgets/wpm_status_sym.c)
     endif()
 endif()

@@ -66,6 +66,9 @@ static int zmk_wpm_get_state(void) { return 17; }
 static uint8_t zmk_hid_indicators_get_current_profile(void) { return 5; }
 struct bongo_cat_wpm_status_state { uint8_t wpm; };
 struct hid_indicators_state { uint8_t hid_indicators; };
+struct wpm_status_state { int wpm; const char *layer; };
+static uint8_t zmk_keymap_highest_layer_active(void) { return 0; }
+static const char *zmk_keymap_layer_name(uint8_t index) { return NULL; }
 
 // SH1106 driver command/data transport double, backed by its 132-column RAM.
 struct device { const void *config; };
@@ -96,6 +99,8 @@ parts.append(function(mono.read_text(), 'void lvgl_rounder_cb_mono('))
 parts.append(function(lvgl.read_text(), 'static uint32_t get_max_row(lv_disp_t * disp, lv_coord_t area_w, lv_coord_t area_h)\n{'))
 parts.append(function((widgets / 'bongo_cat.c').read_text(), 'struct bongo_cat_wpm_status_state bongo_cat_wpm_status_get_state('))
 parts.append(function((widgets / 'hid_indicators.c').read_text(), 'static struct hid_indicators_state hid_indicators_get_state('))
+parts.append(function((widgets / 'wpm_status.c').read_text(), 'static struct wpm_status_state get_state('))
+parts.append(function((widgets / 'wpm_status.c').read_text(), 'static uint16_t cpm_from_wpm('))
 parts.append(r'''
 int main(void) {
     struct lvgl_disp_data data = { .cap = { .screen_info = SCREEN_INFO_MONO_VTILED, .x_resolution = 129 } };
@@ -143,6 +148,11 @@ int main(void) {
     // A partial refresh at logical x=127 must also reach the last visible column.
     desc.width=1; desc.height=8; blank[0]=0x00;
     if (ssd1306_write_sh1106(&dev,127,56,&desc,blank,1) || panel_ram[7][129]!=0x00 || panel_ram[7][128]!=0xff) return 15;
+    // New speed widget must initialize without an event or a layer display-name.
+    if (get_state(NULL).wpm!=17 || get_state(NULL).layer!=NULL) return 16;
+    if (get_state(&wpm).wpm!=82 || get_state(&unrelated).wpm!=17) return 17;
+    if (cpm_from_wpm(0)!=0 || cpm_from_wpm(82)!=410 || cpm_from_wpm(255)!=1275) return 18;
+    if (cpm_from_wpm(-1)!=0 || cpm_from_wpm(999)!=1275) return 19;
     return 0;
 }
 ''')
@@ -183,4 +193,5 @@ with tempfile.TemporaryDirectory(prefix='display-test-') as tmp:
 print('PASS: actual LVGL/Zephyr C reproduces old zero-row refresh; 1024 corrected row cases advance')
 print('PASS: actual bongo/HID getters handle NULL startup, real events and unrelated events')
 print('PASS: actual SH1106 writer reproduces stale edge at offset=1 and refreshes all 128 visible columns at offset=2; full frame and x=127 partial update')
+print('PASS: actual speed getter handles NULL/unrelated events and unnamed layers; CPM conversion is bounded to 0..1275')
 print('LIMIT: metadata/event/bus APIs and panel RAM mapping are doubles; USB/I2C/BLE/hardware are not emulated')

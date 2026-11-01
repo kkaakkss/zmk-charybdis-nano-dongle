@@ -34,3 +34,5 @@ RAM을 읽은 것은 아니므로, 표준 중앙128열 배치에 대한 이 수�
 
 근거: [Zephyr SH1106 바인딩](https://docs.zephyrproject.org/latest/build/dts/api/bindings/display/sinowealth,sh1106-i2c.html)의
 132열 컨트롤러와 시작 열 정의, [Adafruit 공식 SH1106G 드라이버](https://github.com/adafruit/Adafruit_SH110x/blob/master/Adafruit_SH1106G.cpp)의 시작 오프셋2.
+
+2026-11-01 사용자 실기기 확인: 오른쪽 흰 점이 사라짐.

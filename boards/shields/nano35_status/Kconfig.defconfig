@@ -51,7 +51,7 @@ config ZMK_DONGLE_DISPLAY_LAYER_TEXT_ALIGN
         Text alignment for the layer name label. Valid values: "left", "center", "right".
 
 config ZMK_DONGLE_DISPLAY_WPM
-    bool "Display the WPM widget"
+    bool "Display estimated CPM typing speed beside battery"
     default n
 
 config ZMK_DONGLE_DISPLAY_WPM_DISABLED_LAYERS

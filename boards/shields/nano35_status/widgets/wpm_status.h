@@ -9,6 +9,9 @@
 #include <lvgl.h>
 #include <zephyr/kernel.h>
 
+// Between the output icons (x<=32) and the full 100% battery text (x>=77).
+enum { NANO35_CPM_X = 38, NANO35_CPM_Y = 0, NANO35_CPM_WIDTH = 36, NANO35_CPM_HEIGHT = 18 };
+
 struct zmk_widget_wpm_status
 {
     sys_snode_t node;

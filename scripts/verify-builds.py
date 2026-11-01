@@ -82,6 +82,7 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert config['CONFIG_LV_Z_MEM_POOL_SIZE']=='12288'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_BONGO_CAT']=='y'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_LAYER']=='y'
+                assert config['CONFIG_ZMK_WPM']=='y' and config['CONFIG_ZMK_DONGLE_DISPLAY_WPM']=='y'
                 # Layer display names are editable user data, not firmware invariants.
             if t.get('snippet')=='studio-rpc-usb-uart':
                 assert config['CONFIG_ZMK_STUDIO']=='y'
