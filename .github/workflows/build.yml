@@ -46,6 +46,10 @@ jobs:
         if: matrix.snippet == 'nano35-oled'
         shell: bash
         run: python3 scripts/test-display.py --workspace /tmp/nano35
+      - name: Check timed pointer acceleration and modes with UBSan
+        if: matrix.snippet == 'nano35-oled'
+        shell: bash
+        run: python3 scripts/test-trackball-modes.py --workspace /tmp/nano35 --host-cc gcc
       - name: Build selected UF2
         shell: bash
         env:

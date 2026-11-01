@@ -4,24 +4,67 @@
 #include <stdbool.h>
 
 enum nano35_ball_mode { NANO35_MOVE, NANO35_SCROLL, NANO35_SNIPE };
+// Q8 gain: slow movement 1x, progressively up to 1.75x. Speeds are raw
+// 400-CPI counts/second, estimated over >=16 ms on the USB central.
+#define NANO35_ACCEL_ONE 256
+#define NANO35_ACCEL_MAX 448
+#define NANO35_ACCEL_START_CPS 400
+#define NANO35_ACCEL_FULL_CPS 1600
+#define NANO35_ACCEL_WINDOW_MS 16
+#define NANO35_ACCEL_RESET_MS 100
+
 struct nano35_ball_state {
     enum nano35_ball_mode mode;
     int32_t remainder[2];
     int32_t frame_magnitude;
+    int32_t frame_abs[2];
+    int32_t accel_remainder[2];
+    uint32_t accel_window_at, last_frame_at, frame_time, window_distance;
+    uint16_t accel_gain;
+    bool frame_open, accel_valid, accel_skip_frame;
 };
+
+static inline void nano35_ball_reset_accel(struct nano35_ball_state *s) {
+    s->accel_gain = NANO35_ACCEL_ONE;
+    s->accel_remainder[0] = s->accel_remainder[1] = 0;
+    s->frame_abs[0] = s->frame_abs[1] = 0;
+    s->window_distance = 0;
+    s->frame_open = s->accel_valid = s->accel_skip_frame = false;
+}
 
 static inline void nano35_ball_set_mode(struct nano35_ball_state *s, enum nano35_ball_mode mode) {
     if (s->mode != mode) {
         s->mode = mode;
         s->remainder[0] = s->remainder[1] = s->frame_magnitude = 0;
+        nano35_ball_reset_accel(s);
     }
+}
+
+static inline void nano35_ball_begin_frame(struct nano35_ball_state *s, uint32_t now) {
+    if (s->frame_open) { return; }
+    // Unsigned subtraction also handles the 32-bit uptime wrap.
+    if (!s->accel_valid || (uint32_t)(now - s->last_frame_at) >= NANO35_ACCEL_RESET_MS) {
+        nano35_ball_reset_accel(s);
+        s->accel_window_at = now;
+        s->accel_valid = true;
+        // The first sample has no known interval. Never infer speed from it.
+        s->accel_skip_frame = true;
+    }
+    s->frame_time = now;
+    s->frame_open = true;
 }
 
 // Input is already oriented by the unchanged sensor driver on the peripheral.
 static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axis, int32_t value) {
     if (s->mode == NANO35_MOVE) {
-        s->frame_magnitude += value < 0 ? -value : value;
-        return value;
+        int32_t magnitude = value < 0 ? -value : value;
+        s->frame_magnitude += magnitude; // Auto Mouse threshold stays in raw counts.
+        s->frame_abs[axis] += magnitude;
+        int32_t gain = s->accel_gain ? s->accel_gain : NANO35_ACCEL_ONE;
+        int32_t scaled = value * gain + s->accel_remainder[axis];
+        int32_t output = scaled / NANO35_ACCEL_ONE;
+        s->accel_remainder[axis] = scaled - output * NANO35_ACCEL_ONE;
+        return output;
     }
     // Keyball: move 1600/4 = 400 CPI; snipe 400/4 = 100 CPI.
     // Nano's sensor remains at 400 CPI: use 1/4 for snipe, 1/8 for
@@ -37,6 +80,32 @@ static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axi
 
 static inline bool nano35_ball_end_frame(struct nano35_ball_state *s) {
     bool trigger = s->mode == NANO35_MOVE && s->frame_magnitude > 5;
+    if (s->mode == NANO35_MOVE && !s->accel_skip_frame) {
+        // Approximate Euclidean distance without floating point. Both axes of
+        // the NEXT report share this gain: never stretch X and Y differently.
+        uint32_t x = s->frame_abs[0], y = s->frame_abs[1];
+        uint32_t distance = x > y ? x + y / 2 : y + x / 2;
+        // Saturate well above the curve's maximum to bound 32-bit arithmetic.
+        s->window_distance += distance;
+        if (s->window_distance > 65535) { s->window_distance = 65535; }
+        uint32_t elapsed = s->frame_time - s->accel_window_at;
+        if (elapsed >= NANO35_ACCEL_WINDOW_MS) {
+            uint32_t speed = s->window_distance * 1000 / elapsed;
+            uint16_t gain = NANO35_ACCEL_ONE;
+            if (speed >= NANO35_ACCEL_FULL_CPS) { gain = NANO35_ACCEL_MAX; }
+            else if (speed > NANO35_ACCEL_START_CPS) {
+                gain += (speed - NANO35_ACCEL_START_CPS) *
+                        (NANO35_ACCEL_MAX - NANO35_ACCEL_ONE) /
+                        (NANO35_ACCEL_FULL_CPS - NANO35_ACCEL_START_CPS);
+            }
+            s->accel_gain = gain;
+            s->window_distance = 0;
+            s->accel_window_at = s->frame_time;
+        }
+    }
+    s->last_frame_at = s->frame_time;
+    s->frame_open = s->accel_skip_frame = false;
+    s->frame_abs[0] = s->frame_abs[1] = 0;
     s->frame_magnitude = 0;
     return trigger;
 }

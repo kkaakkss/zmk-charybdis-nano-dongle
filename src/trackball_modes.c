@@ -45,6 +45,7 @@ static int modes_handle_event(const struct device *dev, struct input_event *even
     k_mutex_lock(&ball_lock, K_FOREVER);
     nano35_ball_set_mode(&ball, current_mode());
     enum nano35_ball_mode mode = ball.mode;
+    nano35_ball_begin_frame(&ball, k_uptime_get_32());
     event->value = nano35_ball_axis(&ball, axis, event->value);
     if (mode == NANO35_SCROLL) {
         event->code = axis ? INPUT_REL_WHEEL : INPUT_REL_HWHEEL;

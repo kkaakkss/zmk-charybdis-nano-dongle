@@ -12,7 +12,7 @@ TOTEM 키맵에서 양쪽 바깥 Shift와 오른쪽 세 번째 엄지를 제외�
 QWERTY/NAV/NUM/OSL 뒤에 Keyball39의 MOUSE/SCROLL/SNIPE를 이식했습니다.
 
 - [7개 레이어 전체 그림](keymap-drawer/nano35.svg)
-- [49개 콤보 그림](keymap-drawer/nano35-combos.svg)
+- [콤보 그림](keymap-drawer/nano35-combos.svg)
 - [35키 위치와 토템 매핑](docs/totem35-keymap.md)
 - [트랙볼 조작과 감도](docs/trackball-modes.md)
 
@@ -42,6 +42,11 @@ Mouse에서 E 위치 홀드는 Scroll, R 위치 홀드는 Snipe(1/4 속도), D/F
 K+L은 가운데 클릭입니다. 오른손 엄지로 기본 레이어에 복귀합니다.
 Snipe의 T 위치는 부트로더 진입입니다. 자세한 타이머·감도 동작은 위 모드 안내를 참고하세요.
 
+일반 포인터에는 느린 움직임 1배·빠른 움직임 최대 1.75배 가속을 적용합니다.
+센서는 400 CPI를 유지하고 Scroll/Snipe에는 가속을 적용하지 않습니다.
+OLED는 5분 무입력 후 꺼지며 밝기 설정은 그대로입니다.
+[OLED 타이머 추가 검토](docs/oled-timer-review.md)는 검토만 했으며 아직 구현하지 않았습니다.
+
 ## 펌웨어
 
 GitHub의 **Actions → Build Nano35 firmware → 성공한 실행 → Artifacts**에서 받습니다.
@@ -63,7 +68,7 @@ git push
 [설치·복구](docs/flashing.md), [OLED 수정 기록](docs/oled-repair.md),
 [호환성](docs/compatibility.md), [검증 상태](docs/validation.md)를 먼저 확인하세요.
 기본 동글 USB 및 OLED 복구는 사용자 실기기 확인을 받았습니다.
-새 트랙볼 모드는 6개 로컬 빌드와 소프트웨어 검사를 통과했으며 실기기 검증은 대기 중입니다.
+기존 구성은 6개 로컬 빌드를 통과했습니다. 후속 가속은 ARM 회귀 검사를 통과했으며 실기기 검증은 대기 중입니다.
 
 ## 개발과 저장소 관리
 

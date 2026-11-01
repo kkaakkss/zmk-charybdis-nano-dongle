@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Actual Nano processor + pinned ZMK listener C, executed in ARM emulation.
+"""Actual Nano processor + pinned ZMK listener C: ARM emulation or host UBSan.
 
 Kernel locks/layer scheduling and HID/USB endpoints are doubles. Sensor/BLE,
 real timing, RF, optical resolution and device ergonomics are not simulated.
@@ -9,7 +9,9 @@ import argparse,subprocess,tempfile
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--workspace',type=Path,required=True)
-p.add_argument('--arm-gcc',type=Path,required=True)
+compiler=p.add_mutually_exclusive_group(required=True)
+compiler.add_argument('--arm-gcc',type=Path)
+compiler.add_argument('--host-cc',help='Native GCC/Clang with UBSan (for Linux CI)')
 a=p.parse_args()
 repo=Path(__file__).resolve().parents[1]; ws=a.workspace.resolve()
 
@@ -26,6 +28,9 @@ header=r'''
 #include <stddef.h>
 #include <stdbool.h>
 #include "trackball_math.h"
+void *memset(void *dest,int value,size_t count) {
+    unsigned char *p=dest;while(count--) *p++=(unsigned char)value;return dest;
+}
 #define CONFIG_ZMK_POINTING_SMOOTH_SCROLLING 0
 #define IS_ENABLED(x) (x)
 #define LOG_ERR(...) ((void)0)
@@ -61,6 +66,8 @@ static struct device sensor;
 static const struct device *temporary_layer=&sensor;
 static struct nano35_ball_state ball;
 static int ball_lock,lock_depth,highest,auto_calls,failure;
+static uint32_t test_now;
+static uint32_t k_uptime_get_32(void) {return test_now;}
 static int k_mutex_lock(int *l,int timeout) {if(lock_depth) failure=90;lock_depth++;return 0;}
 static int k_mutex_unlock(int *l) {lock_depth--;return 0;}
 static int zmk_keymap_highest_layer_active(void) {return highest;}
@@ -91,6 +98,7 @@ static struct input_listener_config cfg;
 static struct input_listener_data data;
 static void layer(int n) {highest=n;modes_layer_event(NULL);}
 static void frame(int x,int y) {
+    test_now+=8;
     struct input_event ex={&sensor,INPUT_EV_REL,INPUT_REL_X,x,false};
     struct input_event ey={&sensor,INPUT_EV_REL,INPUT_REL_Y,y,true};
     input_handler(&cfg,&data,&ex);input_handler(&cfg,&data,&ey);
@@ -140,36 +148,88 @@ int main(void) {
     }
     unsigned before=reports;frame(0,0);
     if(reports-before!=1) return 14; // One final sync, never two axis reports.
-    // Restore unscaled cursor operation, with no drift after repeated zeros.
-    layer(0);bx=total_x;by=total_y;frame(-2048,2048);
+    // After a pause, the first report is unaccelerated, even for a large delta.
+    layer(0);test_now+=100;bx=total_x;by=total_y;frame(-2048,2048);
     if(total_x-bx!=-2048 || total_y-by!=2048) return 15;
     bx=total_x;by=total_y;wx=total_wx;wy=total_wy;
     for(int i=0;i<100;i++) frame(0,0);
     if(total_x!=bx || total_y!=by || total_wx!=wx || total_wy!=wy) return 16;
+    // Slow samples remain exactly 1x; high speed is capped at 1.75x on BOTH axes.
+    test_now+=100;bx=total_x;by=total_y;
+    for(int i=0;i<100;i++) frame(2,-1);
+    if(total_x-bx!=200 || total_y-by!=-100 || ball.accel_gain!=256) return 17;
+    for(int i=0;i<50;i++) frame(16,-8);
+    if(ball.accel_gain!=448) return 18;
+    bx=total_x;by=total_y;
+    for(int i=0;i<4;i++) frame(16,-8);
+    if(total_x-bx!=112 || total_y-by!=-56) return 19;
+    // Raw threshold stays unchanged even when output is accelerated.
+    int calls=auto_calls;frame(2,3);if(auto_calls!=calls) return 20;
+    // No gain leaks into Scroll/Snipe or back across mode changes.
+    layer(5);wx=total_wx;wy=total_wy;frame(8,-8);
+    if(total_wx-wx!=1 || total_wy-wy!=1) return 21;
+    layer(6);bx=total_x;by=total_y;frame(4,-4);
+    if(total_x-bx!=1 || total_y-by!=-1) return 22;
+    layer(0);bx=total_x;by=total_y;frame(16,-8);
+    if(total_x-bx!=16 || total_y-by!=-8 || ball.accel_gain!=256) return 23;
+    // Same physical speed at different reporting rates has the same stable gain.
+    for(int interval=8;interval<=16;interval+=8) {
+        struct nano35_ball_state s={0};uint32_t now=0xfffffff0u;
+        for(int i=0;i<50;i++) {
+            now+=interval;nano35_ball_begin_frame(&s,now);
+            nano35_ball_axis(&s,0,interval);nano35_ball_axis(&s,1,0);
+            nano35_ball_end_frame(&s);
+        }
+        if(s.accel_gain!=352) return 24; // 1000 counts/s -> 1.375x, across uptime wrap.
+        // A BLE burst with equal timestamps never divides by zero or exceeds cap.
+        for(int i=0;i<50;i++) {
+            nano35_ball_begin_frame(&s,now);nano35_ball_axis(&s,0,2048);
+            nano35_ball_end_frame(&s);
+        }
+        if(s.accel_gain>448) return 25;
+        nano35_ball_begin_frame(&s,now+100);
+        if(nano35_ball_axis(&s,0,1)!=1 || s.accel_gain!=256) return 26;
+        nano35_ball_end_frame(&s);
+    }
+    // One-axis sensor reports close their own frame and emit exactly one report.
+    test_now+=100;bx=total_x;by=total_y;before=reports;
+    struct input_event solo={&sensor,INPUT_EV_REL,INPUT_REL_X,2,true};
+    input_handler(&cfg,&data,&solo);
+    test_now+=8;solo.code=INPUT_REL_Y;solo.value=-3;
+    input_handler(&cfg,&data,&solo);
+    if(total_x-bx!=2 || total_y-by!=-3 || reports-before!=2 || ball.frame_open) return 27;
     return failure;
 }
 ''']
 with tempfile.TemporaryDirectory(prefix='nano-ball-test-') as tmp:
     tmp=Path(tmp); c=tmp/'test.c'; elfpath=tmp/'test.elf'
     c.write_text('\n'.join(parts),encoding='utf-8')
-    subprocess.run([str(a.arm_gcc),'-std=c99','-O0','-ffreestanding','-fno-builtin','-nostdlib','-mcpu=cortex-m4','-mthumb','-Wl,-Ttext=0x10000,-e,main','-I',str(repo/'src'),str(c),'-o',str(elfpath)],check=True)
-    from elftools.elf.elffile import ELFFile
-    from unicorn import Uc,UC_ARCH_ARM,UC_MODE_THUMB,UC_MODE_MCLASS
-    from unicorn.arm_const import UC_ARM_REG_SP,UC_ARM_REG_LR,UC_ARM_REG_R0,UC_ARM_REG_PC
-    emu=Uc(UC_ARCH_ARM,UC_MODE_THUMB|UC_MODE_MCLASS)
-    emu.mem_map(0x20000000,0x10000);emu.mem_map(0x30000000,0x1000)
-    with elfpath.open('rb') as f:
-        elf=ELFFile(f); segments=[s for s in elf.iter_segments() if s['p_type']=='PT_LOAD']
-        first=min(s['p_vaddr'] for s in segments)&~0xfff
-        last=max(s['p_vaddr']+s['p_memsz'] for s in segments)
-        emu.mem_map(first,(last-first+0xfff)&~0xfff)
-        for seg in segments:
-            if seg['p_filesz']: emu.mem_write(seg['p_vaddr'],seg.data())
-        entry=elf.header['e_entry']
-    emu.reg_write(UC_ARM_REG_SP,0x2000fff0);emu.reg_write(UC_ARM_REG_LR,0x30000001)
-    emu.emu_start(entry|1,0x30000000,count=20000000)
-    assert emu.reg_read(UC_ARM_REG_PC)==0x30000000,'test did not finish'
-    assert emu.reg_read(UC_ARM_REG_R0)==0,f'C test failed case {emu.reg_read(UC_ARM_REG_R0)}'
+    if a.host_cc:
+        native=tmp/'test-native'
+        subprocess.run([a.host_cc,'-std=c99','-O1','-g','-fno-builtin','-fsanitize=undefined',
+                        '-fno-sanitize-recover=all','-I',str(repo/'src'),str(c),'-o',str(native)],check=True)
+        subprocess.run([str(native)],check=True)
+    else:
+        subprocess.run([str(a.arm_gcc),'-std=c99','-O0','-ffreestanding','-fno-builtin','-nostdlib','-mcpu=cortex-m4','-mthumb','-Wl,-Ttext=0x10000,-e,main','-I',str(repo/'src'),str(c),'-o',str(elfpath)],check=True)
+        from elftools.elf.elffile import ELFFile
+        from unicorn import Uc,UC_ARCH_ARM,UC_MODE_THUMB,UC_MODE_MCLASS
+        from unicorn.arm_const import UC_ARM_REG_SP,UC_ARM_REG_LR,UC_ARM_REG_R0,UC_ARM_REG_PC
+        emu=Uc(UC_ARCH_ARM,UC_MODE_THUMB|UC_MODE_MCLASS)
+        emu.mem_map(0x20000000,0x10000);emu.mem_map(0x30000000,0x1000)
+        with elfpath.open('rb') as f:
+            elf=ELFFile(f); segments=[s for s in elf.iter_segments() if s['p_type']=='PT_LOAD']
+            first=min(s['p_vaddr'] for s in segments)&~0xfff
+            last=max(s['p_vaddr']+s['p_memsz'] for s in segments)
+            emu.mem_map(first,(last-first+0xfff)&~0xfff)
+            for seg in segments:
+                if seg['p_filesz']: emu.mem_write(seg['p_vaddr'],seg.data())
+            entry=elf.header['e_entry']
+        emu.reg_write(UC_ARM_REG_SP,0x2000fff0);emu.reg_write(UC_ARM_REG_LR,0x30000001)
+        emu.emu_start(entry|1,0x30000000,count=20000000)
+        assert emu.reg_read(UC_ARM_REG_PC)==0x30000000,'test did not finish'
+        assert emu.reg_read(UC_ARM_REG_R0)==0,f'C test failed case {emu.reg_read(UC_ARM_REG_R0)}'
 print('PASS: 16388 signed-axis cases; 1/4 snipe, 1/8 scroll, sign, fractions and mode-reset')
 print('PASS: actual processor + actual ZMK listener; XY sync, auto threshold/keyboard-layer guard, 3-button drag/release across modes, no drift')
-print('LIMIT: kernel scheduling/layers/endpoints are doubles; no USB/BLE/I2C hardware simulation or UBSan')
+print('PASS: timed acceleration 1x..1.75x; shared XY gain, slow precision, cap, raw auto threshold, 100ms idle reset, mode isolation, report-rate equivalence, uptime wrap, zero-time bursts, single-axis sync')
+print('LIMIT: kernel scheduling/layers/endpoints are doubles; no USB/BLE/I2C hardware simulation')
+print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emulation without UBSan')

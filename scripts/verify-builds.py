@@ -60,6 +60,8 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert oled.props['width'].val==128 and oled.props['height'].val==64
                 assert oled.props['segment-offset'].val==1
                 assert config['CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM']=='y'
+                assert config['CONFIG_ZMK_IDLE_TIMEOUT']=='300000'
+                assert config['CONFIG_ZMK_DISPLAY_BLANK_ON_IDLE']=='y'
                 assert config['CONFIG_ZMK_DISPLAY_WORK_QUEUE_DEDICATED']=='y'
                 assert config['CONFIG_ZMK_DISPLAY_DEDICATED_THREAD_STACK_SIZE']=='4096'
                 assert config['CONFIG_LV_COLOR_DEPTH_1']=='y'
