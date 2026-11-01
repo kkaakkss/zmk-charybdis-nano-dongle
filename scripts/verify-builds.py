@@ -65,7 +65,7 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert oled.matching_compat=='sinowealth,sh1106'
                 assert oled.regs[0].addr==0x3c
                 assert oled.props['width'].val==128 and oled.props['height'].val==64
-                assert oled.props['segment-offset'].val==1
+                assert oled.props['segment-offset'].val==2
                 assert config['CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM']=='y'
                 assert config['CONFIG_ZMK_IDLE_TIMEOUT']=='300000'
                 assert config['CONFIG_ZMK_DISPLAY_BLANK_ON_IDLE']=='y'

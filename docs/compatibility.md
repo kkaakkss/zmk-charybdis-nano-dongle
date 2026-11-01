@@ -10,7 +10,7 @@
 |---|---|---|
 | 동글 MCU | nice_nano_v2, nRF52840 | Sofle build.yaml 기준; 실물 보드/부트로더 확인 필요 |
 | 동글 OLED | SH1106, I2C 0x3c, SDA P0.17, SCL P0.20 | 기존 overlay와 동일 |
-| OLED geometry | width 128, height 64, segment-offset 1, multiplex 63 | 2026-10-31 논리 폭/버퍼 수정; 실제 표시 영역/방향 재확인 필요 |
+| OLED geometry | width 128, height 64, segment-offset 2, multiplex 63 | 2026-11-01 끝열 잔점 대응; 표준 중앙128열 배치에 맞춤. 실물 확인 필요 |
 | 전원 제어 | nice_nano_v2 EXT_POWER P0.13, active high | 보드 DTS; 실제 클론의 스위칭 회로 확인 필요 |
 | Nano MCU | SuperMini nRF52840/nice_nano_v2 호환 | Nano README 및 판매자 UF2 family ID 일치 |
 | 키 | 좌 18 + 우 17 = 35 | 3x5 + 좌 엄지 3/우 엄지 2 |

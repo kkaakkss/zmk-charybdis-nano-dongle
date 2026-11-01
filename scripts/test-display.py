@@ -36,6 +36,7 @@ mono = ws / 'zephyr/modules/lvgl/lvgl_display_mono.c'
 parts = [r'''
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 typedef int16_t lv_coord_t;
 typedef struct { lv_coord_t x1, y1, x2, y2; } lv_area_t;
 struct display_capabilities { uint32_t screen_info; uint16_t x_resolution; };
@@ -65,7 +66,32 @@ static int zmk_wpm_get_state(void) { return 17; }
 static uint8_t zmk_hid_indicators_get_current_profile(void) { return 5; }
 struct bongo_cat_wpm_status_state { uint8_t wpm; };
 struct hid_indicators_state { uint8_t hid_indicators; };
+
+// SH1106 driver command/data transport double, backed by its 132-column RAM.
+struct device { const void *config; };
+struct ssd1306_config { uint8_t segment_offset; };
+struct display_buffer_descriptor { uint16_t width, height; };
+#define SSD1306_SET_LOWER_COL_ADDRESS 0x00
+#define SSD1306_SET_HIGHER_COL_ADDRESS 0x10
+#define SSD1306_SET_LOWER_COL_ADDRESS_MASK 0x0f
+#define SSD1306_SET_PAGE_START_ADDRESS 0xb0
+#define LOG_HEXDUMP_DBG(...) ((void)0)
+#define LOG_ERR(...) ((void)0)
+static uint8_t panel_ram[8][132];
+static unsigned panel_col, panel_page, panel_bytes;
+static int ssd1306_write_bus(const struct device *dev, const uint8_t *buf, size_t len, bool command) {
+    if (command) {
+        if (len != 3 || (buf[1] & 0xf0) != 0x10 || (buf[2] & 0xf8) != 0xb0) return -1;
+        panel_col = (buf[0] & 15) | ((buf[1] & 15) << 4); panel_page = buf[2] & 7;
+    } else {
+        if (panel_col + len > 132 || panel_page > 7) return -1;
+        for (size_t i=0; i<len; i++) panel_ram[panel_page][panel_col++] = buf[i];
+        panel_bytes += len;
+    }
+    return 0;
+}
 ''']
+parts.append(function((ws/'zephyr/drivers/display/ssd1306.c').read_text(), 'static int ssd1306_write_sh1106('))
 parts.append(function(mono.read_text(), 'void lvgl_rounder_cb_mono('))
 parts.append(function(lvgl.read_text(), 'static uint32_t get_max_row(lv_disp_t * disp, lv_coord_t area_w, lv_coord_t area_h)\n{'))
 parts.append(function((widgets / 'bongo_cat.c').read_text(), 'struct bongo_cat_wpm_status_state bongo_cat_wpm_status_get_state('))
@@ -98,6 +124,25 @@ int main(void) {
     zmk_event_t unrelated = { .type = 3 };
     if (bongo_cat_wpm_status_get_state(&unrelated).wpm != 17) return 8;
     if (hid_indicators_get_state(&unrelated).hid_indicators != 5) return 9;
+    // A standard centered 128-column panel exposes RAM columns 2..129.
+    // In reverse-display mode 0xff is blank; old column 129 retains four lit dots.
+    static uint8_t blank[1024];
+    for (unsigned i=0; i<sizeof(blank); i++) blank[i]=0xff;
+    for (unsigned page=0; page<8; page++) for (unsigned col=0; col<132; col++) panel_ram[page][col]=0xff;
+    panel_ram[0][129]=0xfe; panel_ram[2][129]=0xfb; panel_ram[5][129]=0xef; panel_ram[7][129]=0x7f;
+    struct ssd1306_config cfg={.segment_offset=1}; struct device dev={.config=&cfg};
+    struct display_buffer_descriptor desc={.width=128, .height=64};
+    if (ssd1306_write_sh1106(&dev,0,0,&desc,blank,sizeof(blank))) return 10;
+    if (panel_ram[0][129]!=0xfe || panel_ram[2][129]!=0xfb || panel_ram[5][129]!=0xef || panel_ram[7][129]!=0x7f) return 11;
+    cfg.segment_offset=2; panel_bytes=0;
+    if (ssd1306_write_sh1106(&dev,0,0,&desc,blank,sizeof(blank))) return 12;
+    if (panel_bytes!=1024) return 13;
+    for (unsigned page=0; page<8; page++) for (unsigned col=2; col<=129; col++) {
+        if (panel_ram[page][col]!=0xff) return 14;
+    }
+    // A partial refresh at logical x=127 must also reach the last visible column.
+    desc.width=1; desc.height=8; blank[0]=0x00;
+    if (ssd1306_write_sh1106(&dev,127,56,&desc,blank,1) || panel_ram[7][129]!=0x00 || panel_ram[7][128]!=0xff) return 15;
     return 0;
 }
 ''')
@@ -127,7 +172,7 @@ with tempfile.TemporaryDirectory(prefix='display-test-') as tmp:
             entry = elf.header['e_entry']
         emu.reg_write(UC_ARM_REG_SP, 0x2000fff0)
         emu.reg_write(UC_ARM_REG_LR, 0x30000001)
-        emu.emu_start(entry | 1, 0x30000000, count=200000)
+        emu.emu_start(entry | 1, 0x30000000, count=1000000)
         from unicorn.arm_const import UC_ARM_REG_PC
         assert emu.reg_read(UC_ARM_REG_PC) == 0x30000000, 'test did not return'
         assert emu.reg_read(UC_ARM_REG_R0) == 0, f'C test failed: {emu.reg_read(UC_ARM_REG_R0)}'
@@ -137,4 +182,5 @@ with tempfile.TemporaryDirectory(prefix='display-test-') as tmp:
         subprocess.run([str(binary)], check=True)
 print('PASS: actual LVGL/Zephyr C reproduces old zero-row refresh; 1024 corrected row cases advance')
 print('PASS: actual bongo/HID getters handle NULL startup, real events and unrelated events')
-print('LIMIT: metadata/event APIs are doubles; USB/I2C/BLE/hardware are not emulated')
+print('PASS: actual SH1106 writer reproduces stale edge at offset=1 and refreshes all 128 visible columns at offset=2; full frame and x=127 partial update')
+print('LIMIT: metadata/event/bus APIs and panel RAM mapping are doubles; USB/I2C/BLE/hardware are not emulated')

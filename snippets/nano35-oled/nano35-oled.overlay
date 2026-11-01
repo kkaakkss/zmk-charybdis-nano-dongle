@@ -27,7 +27,9 @@
         reg = <0x3c>;
         width = <128>;
         height = <64>;
-        segment-offset = <1>;
+        // SH1106 has 132 RAM columns; this 128-column panel uses 2..129.
+        // Offset 1 leaves one visible edge column unwritten after width=128.
+        segment-offset = <2>;
         page-offset = <0>;
         display-offset = <0>;
         multiplex-ratio = <63>;
