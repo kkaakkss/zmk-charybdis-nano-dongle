@@ -50,6 +50,10 @@ jobs:
         if: matrix.snippet == 'nano35-oled'
         shell: bash
         run: python3 scripts/test-trackball-modes.py --workspace /tmp/nano35 --host-cc gcc
+      - name: Check Pomodoro model and display adapter with UBSan
+        if: matrix.snippet == 'nano35-oled'
+        shell: bash
+        run: python3 scripts/test-pomodoro.py --host-cc gcc
       - name: Build selected UF2
         shell: bash
         env:

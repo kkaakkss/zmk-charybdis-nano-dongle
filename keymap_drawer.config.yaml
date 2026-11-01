@@ -5,6 +5,8 @@ draw_config:
   footer_text: "Nano35 | schematic positions, not case geometry"
 parse_config:
   raw_binding_map:
+    "&pomo 0": {t: POMO, h: "Start/Pause"}
+    "&pomo 1": {t: POMO, h: Reset}
     "&mkp LCLK": "LMB"
     "&mkp RCLK": "RMB"
     "&mkp MCLK": "MMB"

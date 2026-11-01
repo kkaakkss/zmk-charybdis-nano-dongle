@@ -4,3 +4,8 @@ if(CONFIG_ZMK_SPLIT_ROLE_CENTRAL AND CONFIG_DT_HAS_NANO35_TRACKBALL_MODES_ENABLE
   zephyr_library_sources("${CMAKE_CURRENT_LIST_DIR}/../src/trackball_modes.c")
   zephyr_library_include_directories(${APPLICATION_SOURCE_DIR}/include)
 endif()
+if(CONFIG_DT_HAS_NANO35_POMODORO_ENABLED)
+  zephyr_library_named(nano35_pomodoro)
+  zephyr_library_sources("${CMAKE_CURRENT_LIST_DIR}/../src/pomodoro.c")
+  zephyr_library_include_directories(${APPLICATION_SOURCE_DIR}/include)
+endif()

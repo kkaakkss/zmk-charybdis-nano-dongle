@@ -1,0 +1,13 @@
+description: Shared Nano35 Pomodoro timer (0 start/pause/resume, 1 reset)
+compatible: "nano35,pomodoro"
+include: one_param.yaml
+properties:
+  focus-minutes:
+    type: int
+    default: 25
+  break-minutes:
+    type: int
+    default: 5
+  rounds:
+    type: int
+    default: 4

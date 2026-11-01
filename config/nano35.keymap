@@ -13,6 +13,18 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
 
+/ {
+    behaviors {
+        pomo: pomodoro {
+            compatible = "nano35,pomodoro";
+            #binding-cells = <1>;
+            focus-minutes = <25>;
+            break-minutes = <5>;
+            rounds = <4>;
+        };
+    };
+};
+
 /*
  * Nano35: retain TOTEM QWERTY/NAV/NUM/OSL (0..3).
  * Add Keyball Mouse/Scroll/Snipe at 4/5/6 on the USB central.
@@ -308,6 +320,20 @@
             bindings = <&studio_unlock>;
             key-positions = <0 9>;
             layers = <3>;
+        };
+
+        nano35_pomodoro_toggle {
+            bindings = <&pomo 0>;
+            key-positions = <1 8>;
+            layers = <3>;
+            timeout-ms = <50>;
+        };
+
+        nano35_pomodoro_reset {
+            bindings = <&pomo 1>;
+            key-positions = <2 7>;
+            layers = <3>;
+            timeout-ms = <50>;
         };
 
         enter_r {

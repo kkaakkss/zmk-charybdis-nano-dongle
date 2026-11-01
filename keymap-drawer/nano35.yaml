@@ -398,6 +398,28 @@ combos:
   w: 100
   h: 46
 - p:
+  - 1
+  - 8
+  k:
+    t: POMO
+    h: Start/Pause
+    s: L3
+  l:
+  - OSL
+  w: 100
+  h: 46
+- p:
+  - 2
+  - 7
+  k:
+    t: POMO
+    h: Reset
+    s: L3
+  l:
+  - OSL
+  w: 100
+  h: 46
+- p:
   - 16
   - 17
   k:

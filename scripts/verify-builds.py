@@ -33,6 +33,15 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert len(layout.props['keys'].val)==35
         for layer in ('default_layer', 'f_grave_navi_bt_layer', 'navi_num', 'osl_layer', 'mouse_layer', 'scroll_layer', 'snipe_layer'):
             assert len(edt.get_node('/keymap/'+layer).props['bindings'].val)==35
+        pomo=edt.get_node('/behaviors/pomodoro')
+        assert pomo.matching_compat=='nano35,pomodoro'
+        assert pomo.props['focus-minutes'].val==25 and pomo.props['break-minutes'].val==5
+        assert pomo.props['rounds'].val==4
+        for name,positions,action in [('nano35_pomodoro_toggle',[1,8],0),('nano35_pomodoro_reset',[2,7],1)]:
+            combo=edt.get_node('/combos/'+name)
+            assert combo.props['key-positions'].val==positions and combo.props['layers'].val==[3]
+            assert combo.props['bindings'].val[0].controller==pomo
+            assert combo.props['bindings'].val[0].data['param1']==action
         assert config['CONFIG_ZMK_POINTING']=='y'
         assert config['CONFIG_ZMK_SPLIT_BLE']=='y'
         split=edt.get_node('/split_inputs/trackball_split@0')
@@ -67,6 +76,7 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert config['CONFIG_LV_COLOR_DEPTH_1']=='y'
                 assert config['CONFIG_LV_Z_BITS_PER_PIXEL']=='1'
                 assert config['CONFIG_LV_Z_VDB_SIZE']=='100'
+                assert config['CONFIG_LV_Z_MEM_POOL_SIZE']=='12288'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_BONGO_CAT']=='y'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_LAYER']=='y'
                 # Layer display names are editable user data, not firmware invariants.
