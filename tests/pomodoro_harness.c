@@ -104,6 +104,13 @@ int main(void) {
     CHECK(!strcmp(time_label->text,"25:00"),48);
     alert_at(2000000);CHECK(hidden_timer() && !alert_active,49);
     poll_at(2000000);CHECK(!pomodoro_timer.active,50);
-    CHECK(!failure && !lock_depth,51);
+    // First expiry and native idle may race before BOTH the model poll and UI.
+    now=0;activity=ZMK_ACTIVITY_ACTIVE;press(5);
+    now=300000;activity=ZMK_ACTIVITY_IDLE;display_on=false;event.state=ZMK_ACTIVITY_IDLE;
+    pomodoro_activity_cb(&event);
+    CHECK(!alert_active && pomodoro.phase==NANO35_POMO_RUNNING && pomodoro_alert_work.due==300001,51);
+    alert_at(300001);CHECK(display_on && alert_active && !strcmp(phase_label->text,"DONE"),52);
+    poll_at(300001);CHECK(pomodoro.phase==NANO35_POMO_DONE,53);
+    CHECK(!failure && !lock_depth,54);
     return 0;
 }

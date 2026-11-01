@@ -86,8 +86,15 @@ void nano35_pomodoro_ui_changed(bool notify) {
 // the screen is in an off half-cycle. Key input itself remains untouched.
 static int pomodoro_activity_cb(const zmk_event_t *eh) {
     const struct zmk_activity_state_changed *event = as_zmk_activity_state_changed(eh);
-    if (event && atomic_get(&alert_active)) {
-        k_work_reschedule_for_queue(zmk_display_work_q(), &pomodoro_alert_work, K_MSEC(1));
+    if (event) {
+        // The first 5-minute expiry can coincide with native 5-minute blanking,
+        // BEFORE the UI sets alert_active or the model's periodic work runs.
+        struct nano35_pomo_state state;
+        nano35_pomodoro_snapshot(&state);
+        nano35_pomo_advance(&state, k_uptime_get());
+        if (state.phase == NANO35_POMO_DONE || atomic_get(&alert_active)) {
+            k_work_reschedule_for_queue(zmk_display_work_q(), &pomodoro_alert_work, K_MSEC(1));
+        }
     }
     return ZMK_EV_EVENT_BUBBLE;
 }
