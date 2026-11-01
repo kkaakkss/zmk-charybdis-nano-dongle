@@ -96,7 +96,7 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  Cp | Num:
+  R_No.:
   - t: ▽
     type: trans
   - t: ▽
@@ -210,7 +210,7 @@ layers:
   MOUSE:
   - ''
   - ''
-  - SCROLL
+  - SCROL
   - SNIPE
   - ''
   - ''
@@ -247,7 +247,7 @@ layers:
     type: trans
   - BASE
   - BASE
-  SCROLL:
+  SCROL:
   - t: ▽
     type: trans
   - t: ▽
@@ -425,7 +425,7 @@ combos:
     s: L0,2,1
   l:
   - QWER
-  - Cp | Num
+  - R_No.
   - f & navi
   w: 100
   h: 46
@@ -438,7 +438,7 @@ combos:
   l:
   - QWER
   - f & navi
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -449,7 +449,7 @@ combos:
     s: L0,2,1
   l:
   - QWER
-  - Cp | Num
+  - R_No.
   - f & navi
   w: 100
   h: 46
@@ -461,7 +461,7 @@ combos:
     s: L0,2,1
   l:
   - QWER
-  - Cp | Num
+  - R_No.
   - f & navi
   w: 100
   h: 46
@@ -555,7 +555,7 @@ combos:
     s: L0,2
   l:
   - QWER
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -598,7 +598,7 @@ combos:
   l:
   - QWER
   - f & navi
-  - Cp | Num
+  - R_No.
   - OSL
   w: 100
   h: 46
@@ -611,7 +611,7 @@ combos:
   l:
   - QWER
   - f & navi
-  - Cp | Num
+  - R_No.
   - OSL
   w: 100
   h: 46
@@ -624,7 +624,7 @@ combos:
   l:
   - QWER
   - f & navi
-  - Cp | Num
+  - R_No.
   - OSL
   w: 100
   h: 46
@@ -637,7 +637,7 @@ combos:
   l:
   - QWER
   - f & navi
-  - Cp | Num
+  - R_No.
   - OSL
   w: 100
   h: 46
@@ -659,7 +659,7 @@ combos:
     t: Sft+HOME
     s: L2
   l:
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -669,7 +669,7 @@ combos:
     t: Sft+END
     s: L2
   l:
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -679,7 +679,7 @@ combos:
     t: Ctl+LEFT
     s: L2
   l:
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -689,7 +689,7 @@ combos:
     t: Ctl+RIGHT
     s: L2
   l:
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -739,7 +739,7 @@ combos:
     t: BASE
     s: L2
   l:
-  - Cp | Num
+  - R_No.
   w: 100
   h: 46
 - p:
@@ -901,7 +901,7 @@ combos:
     s: L4,5,6
   l:
   - MOUSE
-  - SCROLL
+  - SCROL
   - SNIPE
   w: 100
   h: 46
@@ -913,7 +913,7 @@ combos:
     s: L4,5,6
   l:
   - MOUSE
-  - SCROLL
+  - SCROL
   - SNIPE
   w: 100
   h: 46

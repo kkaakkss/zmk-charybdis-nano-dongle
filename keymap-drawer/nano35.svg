@@ -444,8 +444,8 @@ path.combo {
 </g>
 </g>
 </g>
-<g transform="translate(30, 582)" class="layer-Cp | Num">
-<text x="0" y="28" class="label" id="Cp--Num">Cp | Num:</text>
+<g transform="translate(30, 582)" class="layer-R_No.">
+<text x="0" y="28" class="label" id="R_No.">R_No.:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(28, 28)" class="key trans keypos-0">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key trans"/>
@@ -757,8 +757,8 @@ path.combo {
 </g>
 <g transform="translate(140, 28)" class="key keypos-2">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
-<a href="#SCROLL">
-<text x="0" y="0" class="key tap layer-activator">SCROLL</text>
+<a href="#SCROL">
+<text x="0" y="0" class="key tap layer-activator">SCROL</text>
 </a></g>
 <g transform="translate(196, 28)" class="key keypos-3">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
@@ -891,8 +891,8 @@ path.combo {
 </g>
 </g>
 </g>
-<g transform="translate(30, 1456)" class="layer-SCROLL">
-<text x="0" y="28" class="label" id="SCROLL">SCROLL:</text>
+<g transform="translate(30, 1456)" class="layer-SCROL">
+<text x="0" y="28" class="label" id="SCROL">SCROL:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(28, 28)" class="key trans keypos-0">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key trans"/>
