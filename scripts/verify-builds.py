@@ -31,11 +31,16 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert len(coords)==len(set(coords))==35
         assert all(v>>8<4 and v&255<10 for v in coords)
         assert len(layout.props['keys'].val)==35
-        for layer in ('default_layer', 'f_grave_navi_bt_layer', 'navi_num', 'osl_layer', 'mouse_layer', 'scroll_layer', 'snipe_layer'):
-            assert len(edt.get_node('/keymap/'+layer).props['bindings'].val)==35
+        # Keymap Editor can rename both the node and its display-name. Firmware
+        # layer IDs follow enabled child order, not the original node spelling.
+        layers=[node for node in edt.get_node('/keymap').children.values()
+                if node.status=='okay' and 'bindings' in node.props]
+        assert len(layers)>=7
+        for layer in layers:
+            assert len(layer.props['bindings'].val)==35
         pomo=edt.get_node('/behaviors/pomodoro')
         assert pomo.matching_compat=='nano35,pomodoro'
-        osl=edt.get_node('/keymap/osl_layer').props['bindings'].val
+        osl=layers[3].props['bindings'].val
         for position,minutes in [(16,5),(17,10),(18,25),(19,0)]:
             assert osl[position].controller==pomo and osl[position].data['param1']==minutes
         assert 'nano35_pomodoro_toggle' not in edt.get_node('/combos').children
