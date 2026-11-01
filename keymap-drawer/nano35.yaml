@@ -47,11 +47,11 @@ layers:
   - LCTRL
   - LALT
   - t: SPACE
-    h: f & navi
+    h: F|Nav
   - RIGHT ALT
   - t: SPACE
     h: LSHIFT
-  f & navi:
+  F|Nav:
   - '`'
   - F2
   - F3
@@ -96,7 +96,7 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  R_No.:
+  R_Num:
   - t: ▽
     type: trans
   - t: ▽
@@ -425,8 +425,8 @@ combos:
     s: L0,2,1
   l:
   - QWER
-  - R_No.
-  - f & navi
+  - R_Num
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -437,8 +437,8 @@ combos:
     s: L0,1,2
   l:
   - QWER
-  - f & navi
-  - R_No.
+  - F|Nav
+  - R_Num
   w: 100
   h: 46
 - p:
@@ -449,8 +449,8 @@ combos:
     s: L0,2,1
   l:
   - QWER
-  - R_No.
-  - f & navi
+  - R_Num
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -461,8 +461,8 @@ combos:
     s: L0,2,1
   l:
   - QWER
-  - R_No.
-  - f & navi
+  - R_Num
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -504,7 +504,7 @@ combos:
     t: Sft+HOME
     s: L1
   l:
-  - f & navi
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -514,7 +514,7 @@ combos:
     t: Sft+END
     s: L1
   l:
-  - f & navi
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -524,7 +524,7 @@ combos:
     t: Ctl+LEFT ARROW
     s: L1
   l:
-  - f & navi
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -534,7 +534,7 @@ combos:
     t: Ctl+RIGHT
     s: L1
   l:
-  - f & navi
+  - F|Nav
   w: 100
   h: 46
 - p:
@@ -555,7 +555,7 @@ combos:
     s: L0,2
   l:
   - QWER
-  - R_No.
+  - R_Num
   w: 100
   h: 46
 - p:
@@ -597,8 +597,8 @@ combos:
     s: L0,1,2,3
   l:
   - QWER
-  - f & navi
-  - R_No.
+  - F|Nav
+  - R_Num
   - OSL
   w: 100
   h: 46
@@ -610,8 +610,8 @@ combos:
     s: L0,1,2,3
   l:
   - QWER
-  - f & navi
-  - R_No.
+  - F|Nav
+  - R_Num
   - OSL
   w: 100
   h: 46
@@ -623,8 +623,8 @@ combos:
     s: L0,1,2,3
   l:
   - QWER
-  - f & navi
-  - R_No.
+  - F|Nav
+  - R_Num
   - OSL
   w: 100
   h: 46
@@ -636,8 +636,8 @@ combos:
     s: L0,1,2,3
   l:
   - QWER
-  - f & navi
-  - R_No.
+  - F|Nav
+  - R_Num
   - OSL
   w: 100
   h: 46
@@ -659,7 +659,7 @@ combos:
     t: Sft+HOME
     s: L2
   l:
-  - R_No.
+  - R_Num
   w: 100
   h: 46
 - p:
@@ -669,7 +669,7 @@ combos:
     t: Sft+END
     s: L2
   l:
-  - R_No.
+  - R_Num
   w: 100
   h: 46
 - p:
@@ -679,7 +679,7 @@ combos:
     t: Ctl+LEFT
     s: L2
   l:
-  - R_No.
+  - R_Num
   w: 100
   h: 46
 - p:
@@ -689,7 +689,7 @@ combos:
     t: Ctl+RIGHT
     s: L2
   l:
-  - R_No.
+  - R_Num
   w: 100
   h: 46
 - p:
@@ -739,7 +739,7 @@ combos:
     t: BASE
     s: L2
   l:
-  - R_No.
+  - R_Num
   w: 100
   h: 46
 - p:

@@ -269,8 +269,8 @@ path.combo {
 <g transform="translate(252, 207)" class="key keypos-32">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
 <text x="0" y="0" class="key tap">SPACE</text>
-<a href="#f--navi">
-<text x="0" y="24" class="key hold layer-activator"><tspan style="font-size: 88%">f &amp; navi</tspan></text>
+<a href="#FNav">
+<text x="0" y="24" class="key hold layer-activator">F|Nav</text>
 </a></g>
 <g transform="translate(476, 207)" class="key keypos-33">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
@@ -285,8 +285,8 @@ path.combo {
 </g>
 </g>
 </g>
-<g transform="translate(30, 291)" class="layer-f &amp; navi">
-<text x="0" y="28" class="label" id="f--navi">f &amp; navi:</text>
+<g transform="translate(30, 291)" class="layer-F|Nav">
+<text x="0" y="28" class="label" id="FNav">F|Nav:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(28, 28)" class="key keypos-0">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
@@ -444,8 +444,8 @@ path.combo {
 </g>
 </g>
 </g>
-<g transform="translate(30, 582)" class="layer-R_No.">
-<text x="0" y="28" class="label" id="R_No.">R_No.:</text>
+<g transform="translate(30, 582)" class="layer-R_Num">
+<text x="0" y="28" class="label" id="R_Num">R_Num:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(28, 28)" class="key trans keypos-0">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key trans"/>
