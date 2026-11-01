@@ -18,9 +18,6 @@
         pomo: pomodoro {
             compatible = "nano35,pomodoro";
             #binding-cells = <1>;
-            focus-minutes = <25>;
-            break-minutes = <5>;
-            rounds = <4>;
         };
     };
 };
@@ -320,20 +317,6 @@
             bindings = <&studio_unlock>;
             key-positions = <0 9>;
             layers = <3>;
-        };
-
-        nano35_pomodoro_toggle {
-            bindings = <&pomo 0>;
-            key-positions = <1 8>;
-            layers = <3>;
-            timeout-ms = <50>;
-        };
-
-        nano35_pomodoro_reset {
-            bindings = <&pomo 1>;
-            key-positions = <2 7>;
-            layers = <3>;
-            timeout-ms = <50>;
         };
 
         enter_r {
@@ -672,7 +655,7 @@
             display-name = "OSL";
             bindings = <
 &kp LA(F4)     &kp F23           &kp F22           &kp LG(R)         &kp LS(F2)          &bt BT_SEL 0  &trans  &trans  &trans  &trans
-&kp LC(GRAVE)  &kp LG(NUMBER_1)  &kp LG(NUMBER_2)  &kp LG(NUMBER_3)  &kp LS(F3)          &bt BT_SEL 1  &trans  &trans  &trans  &trans
+&kp LC(GRAVE)  &kp LG(NUMBER_1)  &kp LG(NUMBER_2)  &kp LG(NUMBER_3)  &kp LS(F3)          &bt BT_SEL 1  &pomo 5  &pomo 10  &pomo 25  &pomo 0
 &kp F21        &kp F19           &kp F20           &kp F18           &kp LG(HOME)        &bt BT_SEL 2  &trans  &trans  &trans  &trans
                                  &trans            &trans            &trans              &trans        &trans
             >;

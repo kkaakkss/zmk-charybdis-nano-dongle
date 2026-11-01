@@ -35,13 +35,11 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
             assert len(edt.get_node('/keymap/'+layer).props['bindings'].val)==35
         pomo=edt.get_node('/behaviors/pomodoro')
         assert pomo.matching_compat=='nano35,pomodoro'
-        assert pomo.props['focus-minutes'].val==25 and pomo.props['break-minutes'].val==5
-        assert pomo.props['rounds'].val==4
-        for name,positions,action in [('nano35_pomodoro_toggle',[1,8],0),('nano35_pomodoro_reset',[2,7],1)]:
-            combo=edt.get_node('/combos/'+name)
-            assert combo.props['key-positions'].val==positions and combo.props['layers'].val==[3]
-            assert combo.props['bindings'].val[0].controller==pomo
-            assert combo.props['bindings'].val[0].data['param1']==action
+        osl=edt.get_node('/keymap/osl_layer').props['bindings'].val
+        for position,minutes in [(16,5),(17,10),(18,25),(19,0)]:
+            assert osl[position].controller==pomo and osl[position].data['param1']==minutes
+        assert 'nano35_pomodoro_toggle' not in edt.get_node('/combos').children
+        assert 'nano35_pomodoro_reset' not in edt.get_node('/combos').children
         assert config['CONFIG_ZMK_POINTING']=='y'
         assert config['CONFIG_ZMK_SPLIT_BLE']=='y'
         split=edt.get_node('/split_inputs/trackball_split@0')

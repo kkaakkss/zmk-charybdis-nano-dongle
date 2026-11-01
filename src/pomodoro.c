@@ -7,15 +7,6 @@
 #include "pomodoro.h"
 
 BUILD_ASSERT(DT_NUM_INST_STATUS_OKAY(DT_DRV_COMPAT) == 1, "One shared Pomodoro clock is supported");
-BUILD_ASSERT(DT_INST_PROP(0, focus_minutes) >= 1 && DT_INST_PROP(0, focus_minutes) <= 99);
-BUILD_ASSERT(DT_INST_PROP(0, break_minutes) >= 1 && DT_INST_PROP(0, break_minutes) <= 99);
-BUILD_ASSERT(DT_INST_PROP(0, rounds) >= 1 && DT_INST_PROP(0, rounds) <= 4);
-
-static const struct nano35_pomo_config config = {
-    .focus_ms = DT_INST_PROP(0, focus_minutes) * 60000,
-    .break_ms = DT_INST_PROP(0, break_minutes) * 60000,
-    .rounds = DT_INST_PROP(0, rounds),
-};
 static struct nano35_pomo_state pomodoro;
 K_MUTEX_DEFINE(pomodoro_lock);
 
@@ -26,8 +17,8 @@ K_TIMER_DEFINE(pomodoro_timer, pomodoro_tick, NULL);
 
 static void pomodoro_work_cb(struct k_work *work) {
     k_mutex_lock(&pomodoro_lock, K_FOREVER);
-    bool changed = nano35_pomo_advance(&pomodoro, &config, k_uptime_get());
-    if (!pomodoro.running) { k_timer_stop(&pomodoro_timer); }
+    bool changed = nano35_pomo_advance(&pomodoro, k_uptime_get());
+    if (pomodoro.phase == NANO35_POMO_OFF) { k_timer_stop(&pomodoro_timer); }
     k_mutex_unlock(&pomodoro_lock);
     nano35_pomodoro_ui_changed(changed);
 }
@@ -42,11 +33,11 @@ void nano35_pomodoro_snapshot(struct nano35_pomo_state *out) {
 
 static int on_pomodoro_pressed(struct zmk_behavior_binding *binding,
                                struct zmk_behavior_binding_event event) {
-    if (binding->param1 > 1) { return -EINVAL; }
     k_mutex_lock(&pomodoro_lock, K_FOREVER);
-    if (binding->param1 == 1) { nano35_pomo_reset(&pomodoro); }
-    else { nano35_pomo_toggle(&pomodoro, &config, k_uptime_get()); }
-    if (pomodoro.running) { k_timer_start(&pomodoro_timer, K_SECONDS(1), K_SECONDS(1)); }
+    if (!nano35_pomo_command(&pomodoro, binding->param1, k_uptime_get())) {
+        k_mutex_unlock(&pomodoro_lock); return -EINVAL;
+    }
+    if (pomodoro.phase != NANO35_POMO_OFF) { k_timer_start(&pomodoro_timer, K_SECONDS(1), K_SECONDS(1)); }
     else { k_timer_stop(&pomodoro_timer); }
     k_mutex_unlock(&pomodoro_lock);
     nano35_pomodoro_ui_changed(false);
@@ -59,8 +50,10 @@ static int on_pomodoro_released(struct zmk_behavior_binding *binding,
 
 #if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
 static const struct behavior_parameter_value_metadata actions[] = {
-    {.display_name = "Start / Pause / Resume", .type = BEHAVIOR_PARAMETER_VALUE_TYPE_VALUE, .value = 0},
-    {.display_name = "Reset", .type = BEHAVIOR_PARAMETER_VALUE_TYPE_VALUE, .value = 1},
+    {.display_name = "Start 5 minutes", .type = BEHAVIOR_PARAMETER_VALUE_TYPE_VALUE, .value = 5},
+    {.display_name = "Start 10 minutes", .type = BEHAVIOR_PARAMETER_VALUE_TYPE_VALUE, .value = 10},
+    {.display_name = "Start 25 minutes", .type = BEHAVIOR_PARAMETER_VALUE_TYPE_VALUE, .value = 25},
+    {.display_name = "Stop and hide", .type = BEHAVIOR_PARAMETER_VALUE_TYPE_VALUE, .value = 0},
 };
 static const struct behavior_parameter_metadata_set action_set[] = {
     {.param1_values = actions, .param1_values_len = ARRAY_SIZE(actions)},

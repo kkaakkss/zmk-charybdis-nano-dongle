@@ -3,57 +3,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum nano35_pomo_phase { NANO35_POMO_OFF, NANO35_POMO_FOCUS, NANO35_POMO_BREAK, NANO35_POMO_DONE };
-struct nano35_pomo_config { uint32_t focus_ms, break_ms; uint8_t rounds; };
+#define NANO35_POMO_BLINK_MS 10000
+#define NANO35_POMO_HOLD_MS 60000
+#define NANO35_POMO_DONE_MS (NANO35_POMO_BLINK_MS + NANO35_POMO_HOLD_MS)
+enum nano35_pomo_phase { NANO35_POMO_OFF, NANO35_POMO_RUNNING, NANO35_POMO_DONE };
 struct nano35_pomo_state {
     enum nano35_pomo_phase phase;
-    uint8_t round, total_rounds;
-    bool running;
-    int64_t deadline;
-    uint32_t paused_ms;
+    int64_t deadline, done_at;
 };
-
 static inline void nano35_pomo_reset(struct nano35_pomo_state *s) {
-    s->phase = NANO35_POMO_OFF;
-    s->round = s->total_rounds = 0; s->running = false; s->deadline = 0; s->paused_ms = 0;
+    s->phase = NANO35_POMO_OFF; s->deadline = s->done_at = 0;
 }
-
-// Absolute deadlines avoid drift when the display is blank or work is delayed.
-// At most 2*rounds-1 transitions, including a long catch-up after USB suspend.
-static inline bool nano35_pomo_advance(struct nano35_pomo_state *s,
-                                     const struct nano35_pomo_config *cfg, int64_t now) {
-    bool changed = false;
-    while (s->running && now >= s->deadline) {
-        changed = true;
-        if (s->phase == NANO35_POMO_FOCUS) {
-            if (s->round >= cfg->rounds) {
-                s->phase = NANO35_POMO_DONE; s->running = false; s->paused_ms = 0;
-            } else {
-                s->phase = NANO35_POMO_BREAK; s->deadline += cfg->break_ms;
-            }
-        } else if (s->phase == NANO35_POMO_BREAK) {
-            s->phase = NANO35_POMO_FOCUS; s->round++; s->deadline += cfg->focus_ms;
-        } else { s->running = false; }
+// A valid start always REPLACES the previous timer, including completion alerts.
+static inline bool nano35_pomo_command(struct nano35_pomo_state *s, uint32_t minutes, int64_t now) {
+    if (!minutes) { nano35_pomo_reset(s); return true; }
+    if (minutes != 5 && minutes != 10 && minutes != 25) { return false; }
+    s->phase = NANO35_POMO_RUNNING;
+    s->deadline = now + minutes * 60000;
+    s->done_at = 0;
+    return true;
+}
+// Notification windows use the real deadline, never a delayed callback's time.
+static inline bool nano35_pomo_advance(struct nano35_pomo_state *s, int64_t now) {
+    enum nano35_pomo_phase before = s->phase;
+    if (s->phase == NANO35_POMO_RUNNING && now >= s->deadline) {
+        s->phase = NANO35_POMO_DONE; s->done_at = s->deadline;
     }
-    return changed;
-}
-
-static inline void nano35_pomo_toggle(struct nano35_pomo_state *s,
-                                    const struct nano35_pomo_config *cfg, int64_t now) {
-    nano35_pomo_advance(s, cfg, now);
-    if (s->phase == NANO35_POMO_OFF || s->phase == NANO35_POMO_DONE) {
-        s->phase = NANO35_POMO_FOCUS; s->round = 1; s->running = true;
-        s->total_rounds = cfg->rounds;
-        s->deadline = now + cfg->focus_ms; s->paused_ms = 0;
-    } else if (s->running) {
-        s->paused_ms = (uint32_t)(s->deadline - now); s->running = false;
-    } else {
-        s->deadline = now + s->paused_ms; s->running = true;
+    if (s->phase == NANO35_POMO_DONE && now >= s->done_at + NANO35_POMO_DONE_MS) {
+        nano35_pomo_reset(s);
     }
+    return before != s->phase;
 }
-
 static inline uint32_t nano35_pomo_seconds(const struct nano35_pomo_state *s, int64_t now) {
-    if (s->phase == NANO35_POMO_OFF || s->phase == NANO35_POMO_DONE) { return 0; }
-    int64_t ms = s->running ? s->deadline - now : s->paused_ms;
+    if (s->phase != NANO35_POMO_RUNNING) { return 0; }
+    int64_t ms = s->deadline - now;
     return ms > 0 ? (uint32_t)((ms + 999) / 1000) : 0;
 }

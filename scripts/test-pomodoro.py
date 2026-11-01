@@ -50,7 +50,7 @@ with tempfile.TemporaryDirectory(prefix='nano-pomodoro-') as tmp:
         emu.emu_start(entry|1,0x30000000,count=20000000)
         assert emu.reg_read(UC_ARM_REG_PC)==0x30000000,'test did not finish'
         assert emu.reg_read(UC_ARM_REG_R0)==0,f'Pomodoro failed case {emu.reg_read(UC_ARM_REG_R0)}'
-print('PASS: 4 x 25min focus + 3 x 5min break, exact deadlines, 6900 ticks, delayed catch-up, pause/resume/reset/restart, 64-bit uptime')
-print('PASS: actual behavior + widget C; queued LVGL only, selected layout bounds, phase labels, idle wake/reblank, idle race, reset cancels alert, no key/activity fabrication')
+print('PASS: 5/10/25min one-shot timers, 2400 ticks, immediate replacement/restart/stop, exact deadlines, delayed catch-up, 64-bit uptime')
+print('PASS: actual behavior + widget C; 20 half-cycle full-panel blink states, 10s blink + 60s hold, completion icons, auto-hide, idle races, restart/stop during blink, stale callbacks, queued LVGL only')
 print('LIMIT: clock/kernel/queues/LVGL/display are doubles; real allocation, timing/concurrency and hardware remain unverified')
 print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emulation without UBSan')

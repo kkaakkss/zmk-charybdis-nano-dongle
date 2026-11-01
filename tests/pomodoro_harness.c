@@ -2,104 +2,108 @@
 // Included after the actual model, behavior and widget C by test-pomodoro.py.
 #define CHECK(condition, code) do { if (!(condition)) return code; } while (0)
 static void drain(void) {
-    for (unsigned guard = 0; queue_count && guard < 32; guard++) {
-        struct k_work *work = queued[0];
-        for (unsigned i = 1; i < queue_count; i++) queued[i-1] = queued[i];
-        queue_count--; work->pending = false;
-        current_queue = work->queue == &display_queue ? 1 : 0;
-        work->handler(work); current_queue = 0;
+    for (unsigned guard=0; queue_count && guard<32; guard++) {
+        struct k_work *work=queued[0];
+        for(unsigned i=1;i<queue_count;i++)queued[i-1]=queued[i];
+        queue_count--;work->pending=false;
+        current_queue=work->queue==&display_queue?1:0;work->handler(work);current_queue=0;
     }
-    if (queue_count) failure = 90;
+    if(queue_count)failure=90;
 }
-static void press(unsigned action) {
-    struct zmk_behavior_binding binding = {.param1 = action};
-    on_pomodoro_pressed(&binding, (struct zmk_behavior_binding_event){0}); drain();
+static void press(unsigned minutes) {
+    struct zmk_behavior_binding binding={.param1=minutes};
+    on_pomodoro_pressed(&binding,(struct zmk_behavior_binding_event){0});drain();
 }
-static void poll_at(int64_t time) {
-    now = time; pomodoro_tick(&pomodoro_timer); drain();
-}
-static void alert_at(int64_t time) {
-    now = time; current_queue = 1; pomodoro_alert_cb(&pomodoro_alert_work.work); current_queue = 0;
-}
+static void poll_at(int64_t time) {now=time;pomodoro_tick(&pomodoro_timer);drain();}
+static void alert_at(int64_t time) {now=time;current_queue=1;pomodoro_alert_cb(&pomodoro_alert_work.work);current_queue=0;}
 static bool inside_layout(void) {
-    for (unsigned i = 1; i < object_count; i++) {
-        lv_obj_t *o = &objects[i];
-        if (!o->hidden && (o->x < 0 || o->y < 18 || o->x + o->w > 74 || o->y + o->h > 36)) return false;
+    for(unsigned i=1;i<object_count;i++) {
+        lv_obj_t *o=&objects[i];
+        if(!o->hidden && (o->x<0 || o->y<18 || o->x+o->w>74 || o->y+o->h>36))return false;
     }
     return true;
 }
+static bool hidden_timer(void) {
+    return phase_label->hidden && time_label->hidden && party_icon->hidden && confetti_icon->hidden;
+}
 int main(void) {
-    // Same model at 1-second and heavily delayed polling must finish identically.
-    const struct nano35_pomo_config c = {1500000, 300000, 4};
-    struct nano35_pomo_state s = {0};
-    nano35_pomo_toggle(&s, &c, 0);
-    CHECK(nano35_pomo_seconds(&s, 0) == 1500, 1);
-    CHECK(nano35_pomo_seconds(&s, 1) == 1500 && nano35_pomo_seconds(&s, 1000) == 1499, 2);
-    CHECK(!nano35_pomo_advance(&s, &c, 1499999), 3);
-    CHECK(nano35_pomo_advance(&s, &c, 1500000) && s.phase == NANO35_POMO_BREAK, 4);
-    CHECK(s.round == 1 && nano35_pomo_seconds(&s, 1500000) == 300, 5);
-    CHECK(nano35_pomo_advance(&s, &c, 1800000) && s.round == 2 && s.phase == NANO35_POMO_FOCUS, 6);
-    nano35_pomo_reset(&s); nano35_pomo_toggle(&s, &c, 0);
-    unsigned changes = 0;
-    for (int64_t t = 1000; t <= 6900000; t += 1000) changes += nano35_pomo_advance(&s, &c, t);
-    CHECK(changes == 7 && s.phase == NANO35_POMO_DONE && s.round == 4 && !s.running, 7);
-    nano35_pomo_reset(&s); nano35_pomo_toggle(&s, &c, 0);
-    nano35_pomo_advance(&s, &c, 9000000);
-    CHECK(s.phase == NANO35_POMO_DONE && !s.running && nano35_pomo_seconds(&s, 9000000) == 0, 8);
-    nano35_pomo_toggle(&s, &c, 9000000);
-    CHECK(s.round == 1 && s.phase == NANO35_POMO_FOCUS, 9);
-    // Pause at millisecond precision; no drift or elapsed time during a pause.
-    nano35_pomo_toggle(&s, &c, 9000001);
-    CHECK(!s.running && s.paused_ms == 1499999, 10);
-    CHECK(!nano35_pomo_advance(&s, &c, 12000000), 11);
-    nano35_pomo_toggle(&s, &c, 12000000);
-    CHECK(s.deadline == 13499999 && s.running, 12);
-    nano35_pomo_toggle(&s, &c, 13499999); // Boundary belongs to the new break.
-    CHECK(s.phase == NANO35_POMO_BREAK && !s.running && s.paused_ms == 300000, 13);
-    nano35_pomo_reset(&s); nano35_pomo_toggle(&s, &c, INT64_C(5000000000));
-    nano35_pomo_advance(&s, &c, INT64_C(5001500000));
-    CHECK(s.phase == NANO35_POMO_BREAK && nano35_pomo_seconds(&s, INT64_C(5001500000)) == 300, 14);
-    // Actual behavior and UI callbacks: queue-only LVGL, hidden initial/reset screen.
-    current_queue = 1; nano35_widget_pomodoro_init(&objects[object_count++]); current_queue = 0;
-    CHECK(phase_label->hidden && time_label->hidden, 20);
-    press(0);
-    CHECK(!strcmp(phase_label->text, "FOCUS") && !strcmp(time_label->text, "25:00"), 21);
-    CHECK(pomodoro_timer.active && inside_layout(), 22);
-    poll_at(1001); CHECK(!strcmp(time_label->text, "24:59"), 23);
-    press(0); CHECK(!strcmp(phase_label->text, "PAUSE") && !pomodoro_timer.active, 24);
-    unsigned release_before = callbacks;
-    on_pomodoro_released(NULL, (struct zmk_behavior_binding_event){0});
-    CHECK(callbacks == release_before, 25);
-    poll_at(100000); CHECK(!strcmp(time_label->text, "24:59"), 26);
-    press(0); CHECK(pomodoro.running && pomodoro.deadline == 1598999, 27);
-    // A blank OLED does not stop the model. At phase end it wakes for 15 seconds.
-    activity = ZMK_ACTIVITY_IDLE; display_on = false;
-    poll_at(1598999);
-    CHECK(!strcmp(phase_label->text, "BREAK") && !strcmp(time_label->text, "05:00"), 28);
-    CHECK(display_on && wakes > 0 && alert_active, 29);
-    alert_at(1613999); CHECK(!display_on && !alert_active && blanks > 0, 30);
-    // A normal key restores native activity; expiry must not blank an active keyboard.
-    activity = ZMK_ACTIVITY_ACTIVE; poll_at(1898999);
-    CHECK(!strcmp(phase_label->text, "FOCUS") && pomodoro.round == 2, 31);
-    alert_at(1913999); CHECK(display_on, 32);
-    // Activity-idle racing an alert queues a later unblank, without faking activity.
-    poll_at(3398999); activity = ZMK_ACTIVITY_IDLE; display_on = false;
-    struct zmk_activity_state_changed idle = {.state = ZMK_ACTIVITY_IDLE};
-    pomodoro_activity_cb(&idle);
-    CHECK(pomodoro_alert_work.active && pomodoro_alert_work.due == now + 1, 33);
-    alert_at(now + 1); CHECK(display_on && activity == ZMK_ACTIVITY_IDLE, 34);
-    press(1); CHECK(pomodoro.phase == NANO35_POMO_OFF && phase_label->hidden && !alert_active, 35);
-    CHECK(!pomodoro_alert_work.active && !pomodoro_timer.active, 36);
-    // The display can initialize after a combo: snapshot restores the running clock.
-    display_initialized = false; now = 0; press(0);
-    display_initialized = true; nano35_pomodoro_ui_changed(false); drain();
-    CHECK(!strcmp(time_label->text, "25:00"), 37);
-    poll_at(6900000);
-    CHECK(!strcmp(phase_label->text, "DONE") && !strcmp(time_label->text, "00:00"), 38);
-    CHECK(!pomodoro_timer.active && inside_layout(), 39);
-    press(0); CHECK(pomodoro.round == 1 && pomodoro.phase == NANO35_POMO_FOCUS, 40);
-    struct zmk_behavior_binding invalid = {.param1 = 2};
-    CHECK(on_pomodoro_pressed(&invalid, (struct zmk_behavior_binding_event){0}) == -EINVAL, 41);
-    CHECK(!failure && !lock_depth, 42);
+    const uint32_t presets[]={5,10,25};
+    // All three presets: every second to expiry, 64-bit uptime, exact 10+60s window.
+    for(unsigned p=0;p<3;p++) {
+        struct nano35_pomo_state s={0};int64_t start=INT64_C(5000000000);
+        CHECK(nano35_pomo_command(&s,presets[p],start),1);
+        CHECK(nano35_pomo_seconds(&s,start)==presets[p]*60,2);
+        CHECK(nano35_pomo_seconds(&s,start+1)==presets[p]*60,3);
+        for(int64_t t=start+1000;t<s.deadline;t+=1000) {
+            CHECK(!nano35_pomo_advance(&s,t) && s.phase==NANO35_POMO_RUNNING,4);
+        }
+        int64_t deadline=s.deadline;
+        CHECK(nano35_pomo_advance(&s,deadline) && s.phase==NANO35_POMO_DONE && s.done_at==deadline,5);
+        CHECK(nano35_pomo_seconds(&s,deadline)==0,6);
+        CHECK(!nano35_pomo_advance(&s,deadline+69999) && s.phase==NANO35_POMO_DONE,7);
+        CHECK(nano35_pomo_advance(&s,deadline+70000) && s.phase==NANO35_POMO_OFF,8);
+        // A delayed callback never starts a fresh notification window.
+        nano35_pomo_command(&s,presets[p],start);
+        nano35_pomo_advance(&s,deadline+70001);CHECK(s.phase==NANO35_POMO_OFF,9);
+    }
+    struct nano35_pomo_state s={0};
+    nano35_pomo_command(&s,25,0);nano35_pomo_command(&s,10,1234);
+    CHECK(s.deadline==601234 && s.phase==NANO35_POMO_RUNNING,10);
+    nano35_pomo_command(&s,10,2000);CHECK(s.deadline==602000,11);
+    CHECK(!nano35_pomo_command(&s,1,2001) && s.deadline==602000,12);
+    nano35_pomo_command(&s,0,2500);nano35_pomo_advance(&s,9000000);CHECK(s.phase==NANO35_POMO_OFF,13);
+    // Actual behavior + widget, with LVGL/driver calls checked for display-queue context.
+    current_queue=1;nano35_widget_pomodoro_init(&objects[object_count++]);current_queue=0;
+    CHECK(hidden_timer(),20);
+    press(5);CHECK(!strcmp(phase_label->text,"TIMER") && !strcmp(time_label->text,"05:00"),21);
+    CHECK(pomodoro_timer.active && party_icon->hidden && confetti_icon->hidden && inside_layout(),22);
+    poll_at(1000);CHECK(!strcmp(time_label->text,"04:59"),23);
+    now=1234;press(10);CHECK(!strcmp(time_label->text,"10:00") && pomodoro.deadline==601234,24);
+    now=2000;press(10);CHECK(pomodoro.deadline==602000 && !strcmp(time_label->text,"10:00"),25);
+    now=2500;press(25);CHECK(pomodoro.deadline==1502500 && !strcmp(time_label->text,"25:00"),26);
+    unsigned before=callbacks;on_pomodoro_released(NULL,(struct zmk_behavior_binding_event){0});
+    CHECK(callbacks==before,27);
+    struct zmk_behavior_binding invalid={.param1=1};
+    CHECK(on_pomodoro_pressed(&invalid,(struct zmk_behavior_binding_event){0})==-EINVAL && pomodoro.deadline==1502500,28);
+    press(0);CHECK(hidden_timer() && !pomodoro_timer.active,29);
+    // Native 5-minute blanking can coincide with expiry. Whole UI wakes and blinks.
+    now=0;press(5);activity=ZMK_ACTIVITY_IDLE;display_on=false;poll_at(300000);
+    CHECK(!strcmp(phase_label->text,"DONE") && !strcmp(time_label->text,"00:00"),30);
+    CHECK(!party_icon->hidden && !confetti_icon->hidden && inside_layout(),31);
+    for(int i=0;i<20;i++) {
+        alert_at(300000+i*500);
+        CHECK(display_on==(i%2==0) && alert_active && pomodoro_alert_work.due==now+500,32);
+    }
+    alert_at(309999);CHECK(!display_on && pomodoro_alert_work.due==310000,33);
+    alert_at(310000);CHECK(display_on && alert_active,34);
+    alert_at(369999);CHECK(display_on && !hidden_timer() && pomodoro_alert_work.due==370000,35);
+    alert_at(370000);CHECK(hidden_timer() && !display_on && !alert_active,36);
+    poll_at(370000);CHECK(pomodoro.phase==NANO35_POMO_OFF && !pomodoro_timer.active,37);
+    // Restart during an off half-cycle restores the panel and cancels old deadlines.
+    now=0;activity=ZMK_ACTIVITY_ACTIVE;press(5);poll_at(300000);alert_at(300500);
+    CHECK(!display_on,38);
+    now=300750;press(10);CHECK(display_on && !alert_active && !pomodoro_alert_work.active,39);
+    CHECK(pomodoro.deadline==900750 && !strcmp(time_label->text,"10:00") && party_icon->hidden,40);
+    alert_at(301000);poll_at(370000);CHECK(pomodoro.phase==NANO35_POMO_RUNNING && !hidden_timer(),41);
+    // Cancel mid-blink, then deliver stale callbacks: no flash or state resurrection.
+    now=0;press(5);poll_at(300000);alert_at(300500);press(0);
+    CHECK(display_on && hidden_timer() && !alert_active && !pomodoro_alert_work.active,42);
+    alert_at(301000);poll_at(370000);CHECK(hidden_timer() && !pomodoro_timer.active,43);
+    // A keyboard event in an off half-cycle must not accidentally stop blinking.
+    now=0;press(5);poll_at(300000);alert_at(300500);now=300750;display_on=true;
+    struct zmk_activity_state_changed event={.state=ZMK_ACTIVITY_ACTIVE};
+    pomodoro_activity_cb(&event);CHECK(pomodoro_alert_work.due==now+1,44);
+    alert_at(now+1);CHECK(!display_on && activity==ZMK_ACTIVITY_ACTIVE,45);
+    // Keep DONE visible during the extra minute, despite native idle blanking.
+    alert_at(315000);activity=ZMK_ACTIVITY_IDLE;display_on=false;event.state=ZMK_ACTIVITY_IDLE;
+    pomodoro_activity_cb(&event);alert_at(now+1);CHECK(display_on && activity==ZMK_ACTIVITY_IDLE,46);
+    // Active input at automatic hide leaves the normal UI lit.
+    activity=ZMK_ACTIVITY_ACTIVE;alert_at(370000);CHECK(hidden_timer() && display_on,47);
+    // Late initialization and a UI callback long after expiry do not resurrect DONE.
+    display_initialized=false;now=0;press(25);display_initialized=true;nano35_pomodoro_ui_changed(false);drain();
+    CHECK(!strcmp(time_label->text,"25:00"),48);
+    alert_at(2000000);CHECK(hidden_timer() && !alert_active,49);
+    poll_at(2000000);CHECK(!pomodoro_timer.active,50);
+    CHECK(!failure && !lock_depth,51);
     return 0;
 }

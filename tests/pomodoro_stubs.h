@@ -25,9 +25,6 @@ int snprintf(char *out,size_t size,const char *format,...) {
 #define IS_ENABLED(x) (x)
 #define DT_NUM_INST_STATUS_OKAY(x) 1
 #define DT_INST_PROP(i,p) PROP_##p
-#define PROP_focus_minutes 25
-#define PROP_break_minutes 5
-#define PROP_rounds 4
 #define K_FOREVER 0
 #define K_SECONDS(n) ((n)*1000)
 #define K_MSEC(n) (n)
@@ -77,6 +74,8 @@ static const struct zmk_activity_state_changed *as_zmk_activity_state_changed(co
 void unblank_display_cb(struct k_work *work) {if(current_queue!=1)failure=83;display_on=true;wakes++;}
 void blank_display_cb(struct k_work *work) {if(current_queue!=1)failure=84;display_on=false;blanks++;}
 typedef struct {int x,y,w,h;bool hidden;char text[16];} lv_obj_t;
+typedef struct {struct {int cf,w,h;} header;unsigned data_size;const uint8_t *data;} lv_img_dsc_t;
+#define LV_IMG_CF_INDEXED_1BIT 1
 static lv_obj_t objects[16];static unsigned object_count;
 #define LV_OBJ_FLAG_HIDDEN 1
 #define LV_PART_MAIN 0
@@ -84,6 +83,12 @@ static lv_obj_t objects[16];static unsigned object_count;
 static void ui_check(void) {callbacks++;if(current_queue!=1 || lock_depth)failure=85;}
 static lv_obj_t *lv_label_create(lv_obj_t *p) {ui_check();return &objects[object_count++];}
 static lv_obj_t *lv_obj_create(lv_obj_t *p) {return lv_label_create(p);}
+static lv_obj_t *lv_img_create(lv_obj_t *p) {return lv_label_create(p);}
+static void lv_img_set_src(lv_obj_t *o,const lv_img_dsc_t *img) {
+    ui_check();o->w=img->header.w;o->h=img->header.h;
+    if(img->header.cf!=LV_IMG_CF_INDEXED_1BIT || img->data_size!=16 || img->data[3]!=0 || img->data[7]!=255)failure=87;
+}
+static uint32_t lv_color_to32(int color) {return 0xff000000u;}
 static void lv_obj_set_pos(lv_obj_t *o,int x,int y) {ui_check();o->x=x;o->y=y;}
 static void lv_obj_set_size(lv_obj_t *o,int w,int h) {ui_check();o->w=w;o->h=h;}
 static void lv_obj_add_flag(lv_obj_t *o,int flag) {ui_check();o->hidden=true;}

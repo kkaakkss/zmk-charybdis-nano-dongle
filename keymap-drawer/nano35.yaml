@@ -174,14 +174,14 @@ layers:
   - Sft+F3
   - t: BT
     h: '1'
-  - t: ▽
-    type: trans
-  - t: ▽
-    type: trans
-  - t: ▽
-    type: trans
-  - t: ▽
-    type: trans
+  - t: TIMER
+    h: 5 min
+  - t: TIMER
+    h: 10 min
+  - t: TIMER
+    h: 25 min
+  - t: TIMER
+    h: Stop
   - F21
   - F19
   - F20
@@ -392,28 +392,6 @@ combos:
   - 9
   k:
     t: Studio Unlock
-    s: L3
-  l:
-  - OSL
-  w: 100
-  h: 46
-- p:
-  - 1
-  - 8
-  k:
-    t: POMO
-    h: Start/Pause
-    s: L3
-  l:
-  - OSL
-  w: 100
-  h: 46
-- p:
-  - 2
-  - 7
-  k:
-    t: POMO
-    h: Reset
     s: L3
   l:
   - OSL
