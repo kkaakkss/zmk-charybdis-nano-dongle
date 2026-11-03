@@ -62,9 +62,13 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert 'nano35_pomodoro_reset' not in edt.get_node('/combos').children
         mouse=layers[4].props['bindings'].val
         speed=edt.get_node('/behaviors/ball_speed')
-        for position,action in [(1,1),(11,0)]:
+        for position,action in [(1,1),(21,0)]:
             assert mouse[position].controller==speed and mouse[position].data['param1']==action
-        assert mouse[21].controller.name=='key_press' and mouse[21].data['param1']==0x700e1
+        assert mouse[11].controller.name=='key_press' and mouse[11].data['param1']==0x700e1
+        for layer_id,actions in [(5,[(1,3),(11,2)]),(6,[(1,5),(11,4)])]:
+            bindings=layers[layer_id].props['bindings'].val
+            for position,action in actions:
+                assert bindings[position].controller==speed and bindings[position].data['param1']==action
         assert mouse[32].controller==mouse[34].controller and mouse[32].data==mouse[34].data
         combo=edt.get_node('/combos/nano35_mouse_osl')
         assert combo.props['key-positions'].val==[11,12,13] and combo.props['layers'].val==[4]

@@ -21,7 +21,7 @@ struct nano35_ball_state {
     int32_t accel_remainder[2];
     uint32_t accel_window_at, last_frame_at, frame_time, window_distance;
     uint16_t accel_gain;
-    uint16_t speed_percent; // 0 means boot default 100%; runtime range 20..200.
+    uint16_t speed_percent, scroll_percent, snipe_percent; // Independent 0=100%, range 20..200.
     bool frame_open, accel_valid, accel_skip_frame;
 };
 
@@ -33,11 +33,15 @@ static inline void nano35_ball_reset_accel(struct nano35_ball_state *s) {
     s->frame_open = s->accel_valid = s->accel_skip_frame = false;
 }
 
-static inline void nano35_ball_adjust_speed(struct nano35_ball_state *s, int step) {
-    int percent = (s->speed_percent ? s->speed_percent : 100) + step;
+static inline void nano35_ball_adjust_speed(struct nano35_ball_state *s, unsigned mode, int step) {
+    if (mode > NANO35_SNIPE) { return; }
+    uint16_t *target = mode == NANO35_SCROLL ? &s->scroll_percent :
+                       mode == NANO35_SNIPE ? &s->snipe_percent : &s->speed_percent;
+    int percent = (*target ? *target : 100) + step;
     if (percent < 20) { percent = 20; }
     if (percent > 200) { percent = 200; }
-    s->speed_percent = percent;
+    *target = percent;
+    s->remainder[0] = s->remainder[1] = 0;
     nano35_ball_reset_accel(s);
 }
 
@@ -80,9 +84,11 @@ static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axi
     // Nano's sensor remains at 400 CPI: use 1/4 for snipe, 1/8 for
     // scrolling to match Keyball's 1600-CPI / 32-count wheel distance.
     int32_t divisor = s->mode == NANO35_SNIPE ? 4 : 8;
-    int32_t sum = value + s->remainder[axis];
-    int32_t output = sum / divisor;
-    s->remainder[axis] = sum - output * divisor;
+    int percent = s->mode == NANO35_SNIPE ? s->snipe_percent : s->scroll_percent;
+    if (!percent) { percent = 100; }
+    int64_t sum = (int64_t)value * percent + s->remainder[axis];
+    int32_t output = sum / (divisor * 100);
+    s->remainder[axis] = sum - (int64_t)output * divisor * 100;
     // Keyball INVERT_SCROLL_X=y, INVERT_SCROLL_Y=n maps +X to +HWHEEL
     // and +Y (cursor down) to -WHEEL.
     return s->mode == NANO35_SCROLL && axis == 1 ? -output : output;

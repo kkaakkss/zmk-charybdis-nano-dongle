@@ -223,18 +223,18 @@ layers:
   - Wheel Right
   - ''
   - ''
+  - LSHIFT
+  - LMB
+  - RMB
+  - ''
+  - ''
+  - ''
+  - LMB
+  - RMB
+  - ''
+  - ''
   - t: SPEED
     h: -10%
-  - LMB
-  - RMB
-  - ''
-  - ''
-  - ''
-  - LMB
-  - RMB
-  - ''
-  - ''
-  - LSHIFT
   - Alt+LMB
   - Alt+RMB
   - ''
@@ -254,8 +254,8 @@ layers:
   SCROL:
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - t: SCROLL
+    h: +10%
   - type: held
   - t: ▽
     type: trans
@@ -273,8 +273,8 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - t: SCROLL
+    h: -10%
   - t: ▽
     type: trans
   - t: ▽
@@ -324,8 +324,8 @@ layers:
   SNIPE:
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - t: SNIPE
+    h: +10%
   - t: ▽
     type: trans
   - type: held
@@ -342,8 +342,8 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - t: SNIPE
+    h: -10%
   - t: ▽
     type: trans
   - t: ▽

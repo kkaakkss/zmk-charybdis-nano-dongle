@@ -126,7 +126,7 @@ int main(void) {
             int div=mode==NANO35_SNIPE?4:8;
             int result=nano35_ball_axis(&s,axis,v);
             if(mode==NANO35_SCROLL && axis==1) result=-result;
-            if(result!=v/div || result*div+s.remainder[axis]!=v) return 1;
+            if(result!=v/div || result*div*100+s.remainder[axis]!=v*100) return 1;
         }
     }
     layer(0);frame(2,3);if(auto_calls) return 2;
@@ -209,7 +209,7 @@ int main(void) {
     input_handler(&cfg,&data,&solo);
     if(total_x-bx!=2 || total_y-by!=-3 || reports-before!=2 || ball.frame_open) return 27;
     // Real button behavior: press once, release never repeats; preserve mode settings.
-    struct zmk_behavior_binding up={.param1=1},down={.param1=0},bad={.param1=2};
+    struct zmk_behavior_binding up={.param1=1},down={.param1=0},bad={.param1=6};
     struct zmk_behavior_binding_event event={0};
     layer(4);test_now+=100;
     speed_pressed(&up,event); if(ball.speed_percent!=110) return 28;
@@ -233,6 +233,34 @@ int main(void) {
     // Button changes reset acceleration fractions; threshold still sees raw counts.
     speed_pressed(&down,event);if(ball.accel_remainder[0] || ball.accel_remainder[1]) return 38;
     calls=auto_calls;frame(2,3);if(auto_calls!=calls) return 39;
+    // Explicit per-mode actions must not touch the other two multipliers.
+    struct zmk_behavior_binding scroll_up={.param1=3},scroll_down={.param1=2};
+    struct zmk_behavior_binding snipe_up={.param1=5},snipe_down={.param1=4};
+    unsigned move_percent=ball.speed_percent;
+    layer(5);speed_pressed(&scroll_up,event);
+    if(ball.scroll_percent!=110 || ball.speed_percent!=move_percent || ball.snipe_percent) return 40;
+    for(int i=0;i<40;i++) speed_pressed(&scroll_down,event);
+    if(ball.scroll_percent!=20) return 41;
+    wx=total_wx;wy=total_wy;
+    for(int i=0;i<40;i++) frame(1,-1);
+    if(total_wx-wx!=1 || total_wy-wy!=1) return 42;
+    for(int i=0;i<40;i++) speed_pressed(&scroll_up,event);
+    if(ball.scroll_percent!=200) return 43;
+    wx=total_wx;wy=total_wy;frame(-8,8);
+    if(total_wx-wx!=-2 || total_wy-wy!=-2) return 44;
+    layer(6);speed_pressed(&snipe_up,event);
+    if(ball.snipe_percent!=110 || ball.scroll_percent!=200 || ball.speed_percent!=move_percent) return 45;
+    for(int i=0;i<40;i++) speed_pressed(&snipe_down,event);
+    if(ball.snipe_percent!=20) return 46;
+    bx=total_x;by=total_y;
+    for(int i=0;i<20;i++) frame(1,-1);
+    if(total_x-bx!=1 || total_y-by!=-1) return 47;
+    for(int i=0;i<40;i++) speed_pressed(&snipe_up,event);
+    if(ball.snipe_percent!=200) return 48;
+    bx=total_x;by=total_y;frame(-4,4);
+    if(total_x-bx!=-2 || total_y-by!=2) return 49;
+    layer(4);layer(5);layer(6);
+    if(ball.speed_percent!=move_percent || ball.scroll_percent!=200 || ball.snipe_percent!=200) return 50;
     return failure;
 }
 ''']
@@ -270,3 +298,5 @@ print('LIMIT: kernel scheduling/layers/endpoints are doubles; no USB/BLE/I2C har
 print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emulation without UBSan')
 
 print('PASS: runtime speed buttons 20..200%, 10-point steps, release no-op, fractional motion, invalid action, raw auto threshold and Scroll/Snipe isolation')
+
+print('PASS: independent Move/Scroll/Snipe speed actions, each 20..200%, signed low-speed fractions, cap, mode retention and no cross-mode changes')

@@ -677,8 +677,8 @@
             display-name = "MOUSE";
             bindings = <
 &none  &ball_speed 1  &mo 5        &mo 6        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
-&none  &ball_speed 0  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
-&none  &kp LSHIFT     &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
+&none  &kp LSHIFT  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
+&none  &ball_speed 0  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
               &trans       &trans       &to 0         &to 0        &to 0
             >;
         };
@@ -686,8 +686,8 @@
         scroll_layer {
             display-name = "SCROL";
             bindings = <
-&trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
+&trans  &ball_speed 3  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
+&trans  &ball_speed 2  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
                 &trans  &trans  &trans        &trans  &trans
             >;
@@ -698,8 +698,8 @@
         snipe_layer {
             display-name = "SNIPE";
             bindings = <
-&trans  &trans  &trans  &trans  &bootloader        &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
+&trans  &ball_speed 5  &trans  &trans  &bootloader        &trans  &trans  &trans  &trans  &trans
+&trans  &ball_speed 4  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
                 &trans  &trans  &trans             &trans  &trans
             >;
