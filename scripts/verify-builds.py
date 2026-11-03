@@ -54,6 +54,8 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         pomo=edt.get_node('/behaviors/pomodoro')
         assert pomo.matching_compat=='nano35,pomodoro'
         osl=layers[3].props['bindings'].val
+        for position,keycode in [(1,0x70068),(2,0x70069),(20,0x7006a),(21,0x7006b),(22,0x7006c),(23,0x0807002b)]:
+            assert osl[position].controller.name=='key_press' and osl[position].data['param1']==keycode
         for position,minutes in [(16,5),(17,10),(18,25),(19,0)]:
             assert osl[position].controller==pomo and osl[position].data['param1']==minutes
         assert 'nano35_pomodoro_toggle' not in edt.get_node('/combos').children

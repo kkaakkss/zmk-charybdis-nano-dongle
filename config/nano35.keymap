@@ -666,9 +666,9 @@
             label = "OSL";
             display-name = "OSL";
             bindings = <
-&kp LA(F4)     &kp F23           &kp F22           &kp LG(R)         &kp LS(F2)          &bt BT_SEL 0  &trans   &trans    &trans    &trans
+&kp LA(F4)     &kp F13           &kp F14           &kp LG(R)         &kp LS(F2)          &bt BT_SEL 0  &trans   &trans    &trans    &trans
 &kp LC(GRAVE)  &kp LG(NUMBER_1)  &kp LG(NUMBER_2)  &kp LG(NUMBER_3)  &kp LS(F3)          &bt BT_SEL 1  &pomo 5  &pomo 10  &pomo 25  &pomo 0
-&kp F21        &kp F19           &kp F20           &kp F18           &kp LG(HOME)        &bt BT_SEL 2  &trans   &trans    &trans    &trans
+&kp F15        &kp F16           &kp F17           &kp LG(TAB)           &kp LG(HOME)        &bt BT_SEL 2  &trans   &trans    &trans    &trans
                                  &trans            &trans            &trans              &trans        &trans
             >;
         };

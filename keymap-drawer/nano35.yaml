@@ -153,8 +153,8 @@ layers:
   - '0'
   OSL:
   - Alt+F4
-  - F23
-  - F22
+  - F13
+  - F14
   - Gui+R
   - Sft+F2
   - t: BT
@@ -185,10 +185,10 @@ layers:
     h: 25 min
   - t: TIMER
     h: Stop
-  - F21
-  - F19
-  - F20
-  - F18
+  - F15
+  - F16
+  - F17
+  - Gui+TAB
   - Gui+HOME
   - t: BT
     h: '2'
