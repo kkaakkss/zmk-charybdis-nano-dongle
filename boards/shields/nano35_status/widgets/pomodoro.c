@@ -81,7 +81,7 @@ static void pomodoro_ui_cb(struct k_work *work) {
 
     atomic_set(&alert_active, 1);
     int64_t elapsed = now - state.done_at;
-    // Whole-panel on/off, one full blink per second, for exactly ten seconds.
+    // Whole-panel on/off, one full blink per second, for exactly twenty seconds.
     bool blink_off = elapsed < NANO35_POMO_BLINK_MS && (elapsed/500)%2;
     if (blink_off) { blank_display_cb(work); }
     else { unblank_display_cb(work); }
