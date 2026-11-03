@@ -112,9 +112,28 @@ static int equal(const char *a,const char *b) {
     while (*a && *a==*b) { a++; b++; } return *a==*b;
 }
 ''')
-for signature in ['static char side_for_position(', 'static void battery_text(', 'static void learn_battery_side(']:
+for signature in ['static char side_for_position(', 'static int battery_row_for_side(', 'static void battery_text(', 'static void learn_battery_side(']:
     parts.append(function((widgets/'battery_status.c').read_text(), signature))
 parts.append(function((widgets/'hid_indicators.c').read_text(), 'static void lock_text('))
+parts.append(r'''
+#define SOURCE_OFFSET 0
+#define LOG_DBG(...) ((void)0)
+#define LV_ALIGN_TOP_RIGHT 0
+#define LV_OBJ_FLAG_HIDDEN 1
+struct battery_state { uint8_t source, level; bool usb_present, refresh_all; };
+typedef struct { int x,y; bool hidden; char text[8]; } lv_obj_t;
+static lv_obj_t symbols[2],labels[2];
+static struct {lv_obj_t *symbol,*label;} battery_objects[2]={{&symbols[0],&labels[0]},{&symbols[1],&labels[1]}};
+static int atomic_get(const int *p) { return *p; }
+static void draw_battery(lv_obj_t *o,uint8_t level,bool usb) {}
+static void lv_obj_align(lv_obj_t *o,int align,int x,int y) {o->x=x;o->y=y;}
+static void lv_label_set_text(lv_obj_t *o,const char *text) {unsigned i=0;do{o->text[i]=text[i];}while(text[i++]);}
+static void lv_obj_clear_flag(lv_obj_t *o,int flag) {o->hidden=false;}
+static void lv_obj_add_flag(lv_obj_t *o,int flag) {o->hidden=true;}
+static void lv_obj_move_foreground(lv_obj_t *o) {}
+''')
+parts.append(function((widgets/'battery_status.c').read_text(), 'static void set_battery_symbol('))
+
 parts.append(r'''
 int main(void) {
     struct lvgl_disp_data data = { .cap = { .screen_info = SCREEN_INFO_MONO_VTILED, .x_resolution = 129 } };
@@ -180,6 +199,19 @@ int main(void) {
     learn_battery_side(255,11);learn_battery_side(0,35);
     if(side_by_source[0]!='R' || side_by_source[1]!='L') return 26;
     learn_battery_side(0,30);if(side_by_source[0]!='L' || side_by_source[1]!='R') return 27;
+    // Exercise the actual widget updater with reversed bond sources, including its icons.
+    learn_battery_side(0,16);
+    set_battery_symbol(NULL,(struct battery_state){.source=0,.level=64});
+    set_battery_symbol(NULL,(struct battery_state){.source=1,.level=59});
+    if(labels[0].y!=10 || symbols[0].y!=10 || !equal(labels[0].text,"R 64%")) return 29;
+    if(labels[1].y!=0 || symbols[1].y!=0 || !equal(labels[1].text,"L 59%")) return 30;
+    // A later identity correction moves both objects without swapping their battery values.
+    learn_battery_side(0,30);
+    set_battery_symbol(NULL,(struct battery_state){.source=0,.level=64});
+    set_battery_symbol(NULL,(struct battery_state){.source=1,.level=59});
+    if(labels[0].y!=0 || symbols[0].y!=0 || !equal(labels[0].text,"L 64%")) return 31;
+    if(labels[1].y!=10 || symbols[1].y!=10 || !equal(labels[1].text,"R 59%")) return 32;
+    if(battery_row_for_side(0,1)!=1) return 33;
     const char *expected_locks[]={"","N","C","NC","S","NS","CS","NCS"};
     for(int i=0;i<8;i++) {
         lock_text(text,i|0x18);if(!equal(text,expected_locks[i])) return 28;
@@ -228,3 +260,5 @@ print('PASS: actual speed getter handles NULL/unrelated events and unnamed layer
 print('LIMIT: metadata/event/bus APIs and panel RAM mapping are doubles; USB/I2C/BLE/hardware are not emulated')
 
 print('PASS: battery label formatting, all 35 handed positions, reversed BLE sources, invalid sources and all eight active-only lock combinations')
+
+print('PASS: actual battery updater fixes L at y=0 and R at y=10 with labels/icons and values preserved across reversed sources and identity correction')

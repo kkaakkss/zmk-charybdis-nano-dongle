@@ -45,6 +45,11 @@ static char side_for_position(uint32_t position) {
     if (position < 35) { return 'R'; }
     return '?';
 }
+static int battery_row_for_side(char side, int fallback) {
+    if (side == 'L') { return 0; }
+    if (side == 'R') { return 1; }
+    return fallback;
+}
 static void battery_text(char *out, size_t size, char side, unsigned level) {
     if (size < 6) { return; }
     if (level > 100) { level = 100; }
@@ -119,6 +124,10 @@ static void set_battery_symbol(lv_obj_t *widget, struct battery_state state) {
     draw_battery(symbol, state.level, state.usb_present);
     int peripheral = state.source - SOURCE_OFFSET;
     char side = peripheral < 0 ? 'D' : atomic_get(&side_by_source[peripheral]);
+    int row = peripheral < 0 ? 0 : SOURCE_OFFSET + battery_row_for_side(side, peripheral);
+    // Labels and icons move together: left above right, regardless of BLE source order.
+    lv_obj_align(symbol, LV_ALIGN_TOP_RIGHT, 0, row * 10);
+    lv_obj_align(label, LV_ALIGN_TOP_RIGHT, -7, row * 10);
     char text[8];
     battery_text(text, sizeof(text), side, state.level);
     lv_label_set_text(label, text);
