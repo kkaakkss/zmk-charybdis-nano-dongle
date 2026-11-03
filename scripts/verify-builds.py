@@ -38,6 +38,19 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert len(layers)>=7
         for layer in layers:
             assert len(layer.props['bindings'].val)==35
+        nav=layers[1].props['bindings'].val
+        assert all(nav[position].controller.name=='transparent' for position in [0,1])
+        for position,keycode in [(12,0x700e1),(13,0x0107004b),(14,0x0107004e)]:
+            assert nav[position].controller.name=='key_press' and nav[position].data['param1']==keycode
+        base=layers[0].props['bindings'].val
+        assert base[19].controller==edt.get_node('/behaviors/hold_tap')
+        assert base[19].data=={'param1':0x02070033,'param2':0x70033}
+        combos=edt.get_node('/combos').children
+        assert 'R_q2' not in combos
+        bang=combos['exclamation_mark']
+        assert bang.props['key-positions'].val==[17,26] and bang.props['layers'].val==[0]
+        assert bang.props['bindings'].val[0].data['param1']==0x0207001e
+        assert all(set(c.props['key-positions'].val)!={18,26} for c in combos.values())
         pomo=edt.get_node('/behaviors/pomodoro')
         assert pomo.matching_compat=='nano35,pomodoro'
         osl=layers[3].props['bindings'].val

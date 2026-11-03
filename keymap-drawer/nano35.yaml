@@ -32,7 +32,8 @@ layers:
   - t: K
     h: LSHIFT
   - L
-  - ;
+  - t: ;
+    h: ':'
   - Z
   - X
   - A
@@ -52,8 +53,10 @@ layers:
   - t: SPACE
     h: LSHIFT
   F|Nav:
-  - '`'
-  - F2
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
   - F3
   - F4
   - F5
@@ -66,9 +69,9 @@ layers:
     h: Ctl+HOME
   - Ctl+A
   - Ctl+S
+  - LSHIFT
   - Ctl+PG UP
   - Ctl+PAGE DOWN
-  - ''
   - t: BT
     h: '1'
   - LEFT ARROW
@@ -758,7 +761,7 @@ combos:
   - 17
   - 26
   k:
-    t: '?'
+    t: '!'
     s: L0
   l:
   - QWER
@@ -869,16 +872,6 @@ combos:
   - 16
   k:
     t: RIGHT ALT
-    s: L0
-  l:
-  - QWER
-  w: 100
-  h: 46
-- p:
-  - 26
-  - 18
-  k:
-    t: '?'
     s: L0
   l:
   - QWER

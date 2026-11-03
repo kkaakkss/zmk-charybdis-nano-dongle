@@ -528,8 +528,8 @@
             layers = <0>;
         };
 
-        question_mark {
-            bindings = <&kp QUESTION>;
+        exclamation_mark {
+            bindings = <&kp EXCLAMATION>;
             key-positions = <17 26>;
             layers = <0>;
         };
@@ -600,11 +600,6 @@
             layers = <0>;
         };
 
-        R_q2 {
-            bindings = <&kp QUESTION>;
-            key-positions = <26 18>;
-            layers = <0>;
-        };
 
         nano35_mouse_osl {
             bindings = <&mouse_osl>;
@@ -639,7 +634,7 @@
             display-name = "QWER";
             bindings = <
 &ctrl_guard_alt_v  &ctrl_guard_alt_w  &ctrl_guard_alt_e  &alt_r_4        &alt_t_5           &kp Y          &kp U                      &kp I            &kp O    &kp P
-&kp C              &kp S              &hrm_L LSHFT D     &hrm_L LSHFT F  &ctrl_g_h          &kp H          &hrm_r LSHIFT J            &hrm_r LSHIFT K  &kp L    &kp SEMICOLON
+&kp C              &kp S              &hrm_L LSHFT D     &hrm_L LSHFT F  &ctrl_g_h          &kp H          &hrm_r LSHIFT J            &hrm_r LSHIFT K  &kp L    &ht COLON SEMICOLON
 &kp Z              &kp X              &kp A              &kp Q           &kp B              &kp N          &kp M                      &kp COMMA        &kp DOT  &ht QUESTION SLASH
                                       &kp LCTRL          &kp LALT        &lt 1 SPACE        &kp RIGHT_ALT  &space_shift LSHIFT SPACE
             >;
@@ -649,8 +644,8 @@
             label = "F|Nav";
             display-name = "F|Nav";
             bindings = <
-&kp GRAVE  &kp F2     &kp F3         &kp F4             &kp F5           &bt BT_SEL 0  &kp HOME        &kp UP_ARROW   &kp END    &ht LC(HOME) PG_UP
-&kp LC(A)  &kp LC(S)  &kp LC(PG_UP)  &kp LC(PAGE_DOWN)  &none            &bt BT_SEL 1  &kp LEFT_ARROW  &kp DOWN       &kp RIGHT  &ht LC(END) PAGE_DOWN
+&trans     &trans     &kp F3         &kp F4             &kp F5           &bt BT_SEL 0  &kp HOME        &kp UP_ARROW   &kp END    &ht LC(HOME) PG_UP
+&kp LC(A)  &kp LC(S)  &kp LSHIFT     &kp LC(PG_UP)      &kp LC(PAGE_DOWN)            &bt BT_SEL 1  &kp LEFT_ARROW  &kp DOWN       &kp RIGHT  &ht LC(END) PAGE_DOWN
 &kp LC(Z)  &kp LC(X)  &kp LC(C)      &kp LC(V)          &kp LC(B)        &bt BT_SEL 2  &none           &kp LS(ENTER)  &none      &none
                       &trans         &trans             &trans           &trans        &trans
             >;
