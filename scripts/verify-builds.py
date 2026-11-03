@@ -45,6 +45,19 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
             assert osl[position].controller==pomo and osl[position].data['param1']==minutes
         assert 'nano35_pomodoro_toggle' not in edt.get_node('/combos').children
         assert 'nano35_pomodoro_reset' not in edt.get_node('/combos').children
+        mouse=layers[4].props['bindings'].val
+        speed=edt.get_node('/behaviors/ball_speed')
+        for position,action in [(1,1),(11,0)]:
+            assert mouse[position].controller==speed and mouse[position].data['param1']==action
+        assert mouse[21].controller.name=='key_press' and mouse[21].data['param1']==0x700e1
+        assert mouse[32].controller==mouse[34].controller and mouse[32].data==mouse[34].data
+        combo=edt.get_node('/combos/nano35_mouse_osl')
+        assert combo.props['key-positions'].val==[11,12,13] and combo.props['layers'].val==[4]
+        macro=combo.props['bindings'].val[0].controller
+        assert macro==edt.get_node('/behaviors/mouse_osl')
+        commands=macro.props['bindings'].val
+        assert commands[0].data['param1']==0 and commands[1].data['param1']==3
+        assert commands[0].controller.name=='to_layer' and commands[1].controller.name=='sticky_layer'
         assert config['CONFIG_ZMK_POINTING']=='y'
         assert config['CONFIG_ZMK_SPLIT_BLE']=='y'
         split=edt.get_node('/split_inputs/trackball_split@0')
@@ -82,7 +95,7 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert config['CONFIG_LV_Z_MEM_POOL_SIZE']=='12288'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_BONGO_CAT']=='y'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_LAYER']=='y'
-                assert config['CONFIG_ZMK_WPM']=='y' and config['CONFIG_ZMK_DONGLE_DISPLAY_WPM']=='y'
+                assert config['CONFIG_ZMK_WPM']=='y' and config.get('CONFIG_ZMK_DONGLE_DISPLAY_WPM')!='y'
                 # Layer display names are editable user data, not firmware invariants.
             if t.get('snippet')=='studio-rpc-usb-uart':
                 assert config['CONFIG_ZMK_STUDIO']=='y'

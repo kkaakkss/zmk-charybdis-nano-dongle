@@ -78,6 +78,16 @@ static int zmk_input_processor_handle_event(const struct device *dev,struct inpu
 '''
 parts=[header]
 parts += [function(processor,s) for s in ['static enum nano35_ball_mode current_mode(', 'static int modes_layer_event(', 'static int modes_handle_event(']]
+parts += [function(processor, 'void nano35_trackball_speed_step(')]
+parts += [r'''
+#define CONFIG_ZMK_SPLIT_ROLE_CENTRAL 1
+#define ZMK_BEHAVIOR_OPAQUE 0
+#define EINVAL 22
+struct zmk_behavior_binding { uint32_t param1; };
+struct zmk_behavior_binding_event { int unused; };
+''']
+speed=(repo/'src/ball_speed.c').read_text()
+parts += [function(speed, signature) for signature in ['static int speed_pressed(', 'static int speed_released(']]
 parts += [listener[listener.index('enum input_listener_xy_data_mode'):listener.index('static void handle_rel_code')]]
 parts += [r'''
 static int16_t hid_x,hid_y,wheel_x,wheel_y;
@@ -198,6 +208,31 @@ int main(void) {
     test_now+=8;solo.code=INPUT_REL_Y;solo.value=-3;
     input_handler(&cfg,&data,&solo);
     if(total_x-bx!=2 || total_y-by!=-3 || reports-before!=2 || ball.frame_open) return 27;
+    // Real button behavior: press once, release never repeats; preserve mode settings.
+    struct zmk_behavior_binding up={.param1=1},down={.param1=0},bad={.param1=2};
+    struct zmk_behavior_binding_event event={0};
+    layer(4);test_now+=100;
+    speed_pressed(&up,event); if(ball.speed_percent!=110) return 28;
+    speed_released(&up,event); if(ball.speed_percent!=110) return 29;
+    bx=total_x;by=total_y;frame(100,-100);
+    if(total_x-bx!=110 || total_y-by!=-110) return 30;
+    speed_pressed(&down,event);if(ball.speed_percent!=100) return 31;
+    for(int i=0;i<40;i++) speed_pressed(&down,event);
+    if(ball.speed_percent!=20) return 32;
+    // Fractional low-speed motion is retained, including negative values.
+    test_now+=100;bx=total_x;by=total_y;
+    for(int i=0;i<5;i++) frame(1,-1);
+    if(total_x-bx!=1 || total_y-by!=-1) return 33;
+    for(int i=0;i<40;i++) speed_pressed(&up,event);
+    if(ball.speed_percent!=200 || speed_pressed(&bad,event)!=-EINVAL) return 34;
+    layer(5);wx=total_wx;wy=total_wy;frame(8,-8);
+    if(total_wx-wx!=1 || total_wy-wy!=1 || ball.speed_percent!=200) return 35;
+    layer(6);bx=total_x;by=total_y;frame(4,-4);
+    if(total_x-bx!=1 || total_y-by!=-1) return 36;
+    layer(4);if(ball.speed_percent!=200) return 37;
+    // Button changes reset acceleration fractions; threshold still sees raw counts.
+    speed_pressed(&down,event);if(ball.accel_remainder[0] || ball.accel_remainder[1]) return 38;
+    calls=auto_calls;frame(2,3);if(auto_calls!=calls) return 39;
     return failure;
 }
 ''']
@@ -210,7 +245,7 @@ with tempfile.TemporaryDirectory(prefix='nano-ball-test-') as tmp:
                         '-fno-sanitize-recover=all','-I',str(repo/'src'),str(c),'-o',str(native)],check=True)
         subprocess.run([str(native)],check=True)
     else:
-        subprocess.run([str(a.arm_gcc),'-std=c99','-O0','-ffreestanding','-fno-builtin','-nostdlib','-mcpu=cortex-m4','-mthumb','-Wl,-Ttext=0x10000,-e,main','-I',str(repo/'src'),str(c),'-o',str(elfpath)],check=True)
+        subprocess.run([str(a.arm_gcc),'-std=c99','-O0','-ffreestanding','-fno-builtin','-nostdlib','-mcpu=cortex-m4','-mthumb','-Wl,-Ttext=0x10000,-e,main','-I',str(repo/'src'),str(c),'-o',str(elfpath),'-lgcc'],check=True)
         from elftools.elf.elffile import ELFFile
         from unicorn import Uc,UC_ARCH_ARM,UC_MODE_THUMB,UC_MODE_MCLASS
         from unicorn.arm_const import UC_ARM_REG_SP,UC_ARM_REG_LR,UC_ARM_REG_R0,UC_ARM_REG_PC
@@ -233,3 +268,5 @@ print('PASS: actual processor + actual ZMK listener; XY sync, auto threshold/key
 print('PASS: timed acceleration 1x..1.75x; shared XY gain, slow precision, cap, raw auto threshold, 100ms idle reset, mode isolation, report-rate equivalence, uptime wrap, zero-time bursts, single-axis sync')
 print('LIMIT: kernel scheduling/layers/endpoints are doubles; no USB/BLE/I2C hardware simulation')
 print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emulation without UBSan')
+
+print('PASS: runtime speed buttons 20..200%, 10-point steps, release no-op, fractional motion, invalid action, raw auto threshold and Scroll/Snipe isolation')

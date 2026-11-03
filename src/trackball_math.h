@@ -21,6 +21,7 @@ struct nano35_ball_state {
     int32_t accel_remainder[2];
     uint32_t accel_window_at, last_frame_at, frame_time, window_distance;
     uint16_t accel_gain;
+    uint16_t speed_percent; // 0 means boot default 100%; runtime range 20..200.
     bool frame_open, accel_valid, accel_skip_frame;
 };
 
@@ -30,6 +31,14 @@ static inline void nano35_ball_reset_accel(struct nano35_ball_state *s) {
     s->frame_abs[0] = s->frame_abs[1] = 0;
     s->window_distance = 0;
     s->frame_open = s->accel_valid = s->accel_skip_frame = false;
+}
+
+static inline void nano35_ball_adjust_speed(struct nano35_ball_state *s, int step) {
+    int percent = (s->speed_percent ? s->speed_percent : 100) + step;
+    if (percent < 20) { percent = 20; }
+    if (percent > 200) { percent = 200; }
+    s->speed_percent = percent;
+    nano35_ball_reset_accel(s);
 }
 
 static inline void nano35_ball_set_mode(struct nano35_ball_state *s, enum nano35_ball_mode mode) {
@@ -61,9 +70,10 @@ static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axi
         s->frame_magnitude += magnitude; // Auto Mouse threshold stays in raw counts.
         s->frame_abs[axis] += magnitude;
         int32_t gain = s->accel_gain ? s->accel_gain : NANO35_ACCEL_ONE;
-        int32_t scaled = value * gain + s->accel_remainder[axis];
-        int32_t output = scaled / NANO35_ACCEL_ONE;
-        s->accel_remainder[axis] = scaled - output * NANO35_ACCEL_ONE;
+        int percent = s->speed_percent ? s->speed_percent : 100;
+        int64_t scaled = (int64_t)value * gain * percent + s->accel_remainder[axis];
+        int32_t output = scaled / (NANO35_ACCEL_ONE * 100);
+        s->accel_remainder[axis] = scaled - (int64_t)output * NANO35_ACCEL_ONE * 100;
         return output;
     }
     // Keyball: move 1600/4 = 400 CPI; snipe 400/4 = 100 CPI.

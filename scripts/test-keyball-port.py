@@ -22,10 +22,17 @@ keep=list(range(30))+[33,34,35,36,37]
 for name in ['mouse_layer','scroll_layer','snipe_layer']:
     old=entries(ref,name); actual=entries(new,name)
     assert len(old)==39 and len(actual)==35
-    assert actual==[old[i] for i in keep],name
+    expected=[old[i] for i in keep]
+    if name=='mouse_layer':
+        for index,binding in {1:'&ball_speed 1',11:'&ball_speed 0',21:'&kp LSHIFT',32:'&to 0'}.items():
+            expected[index]=binding
+    assert actual==expected,name
 for oldname,newname in [('lclick_to0','lclick_to0'),('alt_click','alt_click'),('alt_right_click','alt_right_click')]:
-    assert ' '.join(body(ref,oldname).split())==' '.join(body(new,newname).split())
-print('PASS: all 105 Mouse/Scroll/Snipe bindings and 3 mouse macros match mapped Keyball39 source')
+    # DTS phandle-array group boundaries do not change the binding sequence.
+    expected_macro=re.sub(r'>\s*,\s*<',' ',body(ref,oldname))
+    actual_macro=re.sub(r'>\s*,\s*<',' ',body(new,newname))
+    assert ' '.join(expected_macro.split())==' '.join(actual_macro.split())
+print('PASS: all 105 Mouse/Scroll/Snipe bindings with four explicit user overrides and 3 mouse macros match mapped Keyball39 source')
 if a.workspace:
     ws=a.workspace.resolve();sys.path.insert(0,str(ws/'zephyr/scripts/dts/python-devicetree/src'))
     for i in [0,4,5]:

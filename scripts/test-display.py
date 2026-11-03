@@ -102,6 +102,20 @@ parts.append(function((widgets / 'hid_indicators.c').read_text(), 'static struct
 parts.append(function((widgets / 'wpm_status.c').read_text(), 'static struct wpm_status_state get_state('))
 parts.append(function((widgets / 'wpm_status.c').read_text(), 'static uint16_t cpm_from_wpm('))
 parts.append(r'''
+#define ZMK_SPLIT_BLE_PERIPHERAL_COUNT 2
+#define LED_NLCK 1
+#define LED_CLCK 2
+#define LED_SLCK 4
+static int side_by_source[2];
+static void atomic_set(int *p, int value) { *p=value; }
+static int equal(const char *a,const char *b) {
+    while (*a && *a==*b) { a++; b++; } return *a==*b;
+}
+''')
+for signature in ['static char side_for_position(', 'static void battery_text(', 'static void learn_battery_side(']:
+    parts.append(function((widgets/'battery_status.c').read_text(), signature))
+parts.append(function((widgets/'hid_indicators.c').read_text(), 'static void lock_text('))
+parts.append(r'''
 int main(void) {
     struct lvgl_disp_data data = { .cap = { .screen_info = SCREEN_INFO_MONO_VTILED, .x_resolution = 129 } };
     /* Original defaults: 129x64, 10%, 32 static bits per pixel => 825 pixels. */
@@ -153,6 +167,23 @@ int main(void) {
     if (get_state(&wpm).wpm!=82 || get_state(&unrelated).wpm!=17) return 17;
     if (cpm_from_wpm(0)!=0 || cpm_from_wpm(82)!=410 || cpm_from_wpm(255)!=1275) return 18;
     if (cpm_from_wpm(-1)!=0 || cpm_from_wpm(999)!=1275) return 19;
+    char text[8];
+    battery_text(text,sizeof(text),0,59);if(!equal(text,"? 59%")) return 20;
+    battery_text(text,sizeof(text),'L',100);if(!equal(text,"L100%")) return 21;
+    battery_text(text,sizeof(text),'R',7);if(!equal(text,"R  7%")) return 22;
+    battery_text(text,sizeof(text),'R',255);if(!equal(text,"R100%")) return 23;
+    for(unsigned pos=0;pos<35;pos++) {
+        char expected=pos<30?(pos%10<5?'L':'R'):(pos<33?'L':'R');
+        if(side_for_position(pos)!=expected) return 24;
+    }
+    learn_battery_side(0,16);if(side_by_source[0]!='R' || side_by_source[1]!='L') return 25;
+    learn_battery_side(255,11);learn_battery_side(0,35);
+    if(side_by_source[0]!='R' || side_by_source[1]!='L') return 26;
+    learn_battery_side(0,30);if(side_by_source[0]!='L' || side_by_source[1]!='R') return 27;
+    const char *expected_locks[]={"","N","C","NC","S","NS","CS","NCS"};
+    for(int i=0;i<8;i++) {
+        lock_text(text,i|0x18);if(!equal(text,expected_locks[i])) return 28;
+    }
     return 0;
 }
 ''')
@@ -195,3 +226,5 @@ print('PASS: actual bongo/HID getters handle NULL startup, real events and unrel
 print('PASS: actual SH1106 writer reproduces stale edge at offset=1 and refreshes all 128 visible columns at offset=2; full frame and x=127 partial update')
 print('PASS: actual speed getter handles NULL/unrelated events and unnamed layers; CPM conversion is bounded to 0..1275')
 print('LIMIT: metadata/event/bus APIs and panel RAM mapping are doubles; USB/I2C/BLE/hardware are not emulated')
+
+print('PASS: battery label formatting, all 35 handed positions, reversed BLE sources, invalid sources and all eight active-only lock combinations')

@@ -209,7 +209,8 @@ layers:
     type: trans
   MOUSE:
   - ''
-  - ''
+  - t: SPEED
+    h: +10%
   - SCROL
   - SNIPE
   - ''
@@ -219,7 +220,8 @@ layers:
   - Wheel Right
   - ''
   - ''
-  - ''
+  - t: SPEED
+    h: -10%
   - LMB
   - RMB
   - ''
@@ -229,7 +231,7 @@ layers:
   - RMB
   - ''
   - ''
-  - ''
+  - LSHIFT
   - Alt+LMB
   - Alt+RMB
   - ''
@@ -243,8 +245,7 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - BASE
   - BASE
   - BASE
   SCROL:
@@ -881,6 +882,17 @@ combos:
     s: L0
   l:
   - QWER
+  w: 100
+  h: 46
+- p:
+  - 11
+  - 12
+  - 13
+  k:
+    t: OSL
+    s: L4
+  l:
+  - MOUSE
   w: 100
   h: 46
 - p:

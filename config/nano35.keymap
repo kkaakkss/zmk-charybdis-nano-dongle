@@ -15,6 +15,17 @@
 
 / {
     behaviors {
+        mouse_osl: mouse_osl {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <0>;
+            bindings = <&to 0>, <&sl 3>;
+        };
+        ball_speed: ball_speed {
+            compatible = "nano35,ball-speed";
+            #binding-cells = <1>;
+        };
         pomo: pomodoro {
             compatible = "nano35,pomodoro";
             #binding-cells = <1>;
@@ -595,6 +606,12 @@
             layers = <0>;
         };
 
+        nano35_mouse_osl {
+            bindings = <&mouse_osl>;
+            key-positions = <11 12 13>;
+            layers = <4>;
+        };
+
         nano35_mouse_manual {
             bindings = <&to 4>;
             key-positions = <0 9>;
@@ -664,10 +681,10 @@
         mouse_layer {
             display-name = "MOUSE";
             bindings = <
-&none  &none  &mo 5        &mo 6        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
-&none  &none  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
-&none  &none  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
-              &trans       &trans       &trans        &to 0        &to 0
+&none  &ball_speed 1  &mo 5        &mo 6        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
+&none  &ball_speed 0  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
+&none  &kp LSHIFT     &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
+              &trans       &trans       &to 0         &to 0        &to 0
             >;
         };
 

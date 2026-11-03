@@ -29,26 +29,16 @@ struct hid_indicators_state {
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
+static void lock_text(char text[4], uint8_t indicators) {
+    unsigned n = 0;
+    if (indicators & LED_NLCK) { text[n++] = 'N'; }
+    if (indicators & LED_CLCK) { text[n++] = 'C'; }
+    if (indicators & LED_SLCK) { text[n++] = 'S'; }
+    text[n] = '\0';
+}
 static void set_hid_indicators(lv_obj_t *label, struct hid_indicators_state state) {
-    char text[7] = {};
-    bool lock = false;
-
-    if (state.hid_indicators & LED_CLCK) {
-        strncat(text, "C", 1);
-        lock = true;
-    }
-    if (state.hid_indicators & LED_NLCK) {
-        strncat(text, "N", 1);
-        lock = true;
-    }
-    if (state.hid_indicators & LED_SLCK) {
-        strncat(text, "S", 1);
-        lock = true;
-    }
-    if (lock) {
-        strncat(text, "LCK", 3);
-    }
-
+    char text[4];
+    lock_text(text, state.hid_indicators);
     lv_label_set_text(label, text);
 }
 

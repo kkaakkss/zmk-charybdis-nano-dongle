@@ -17,6 +17,12 @@ static struct nano35_ball_state ball;
 K_MUTEX_DEFINE(ball_lock);
 static const struct device *temporary_layer = DEVICE_DT_GET(DT_INST_PHANDLE(0, temporary_layer));
 
+void nano35_trackball_speed_step(int step) {
+    k_mutex_lock(&ball_lock, K_FOREVER);
+    nano35_ball_adjust_speed(&ball, step);
+    k_mutex_unlock(&ball_lock);
+}
+
 static enum nano35_ball_mode current_mode(void) {
     uint8_t highest = zmk_keymap_highest_layer_active();
     if (highest == SNIPE_LAYER) { return NANO35_SNIPE; }

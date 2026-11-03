@@ -1,0 +1,3 @@
+description: Adjust central pointer multiplier in ten percentage point steps
+compatible: "nano35,ball-speed"
+include: one_param.yaml

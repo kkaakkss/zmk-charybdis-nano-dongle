@@ -5,6 +5,9 @@ draw_config:
   footer_text: "Nano35 | schematic positions, not case geometry"
 parse_config:
   raw_binding_map:
+    "&mouse_osl": "OSL"
+    "&ball_speed 1": {t: SPEED, h: "+10%"}
+    "&ball_speed 0": {t: SPEED, h: "-10%"}
     "&pomo 5": {t: TIMER, h: 5 min}
     "&pomo 10": {t: TIMER, h: 10 min}
     "&pomo 25": {t: TIMER, h: 25 min}
