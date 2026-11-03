@@ -30,7 +30,9 @@ static inline bool nano35_pomo_advance(struct nano35_pomo_state *s, int64_t now)
         s->phase = NANO35_POMO_DONE; s->done_at = s->deadline;
     }
     if (s->phase == NANO35_POMO_DONE && now >= s->done_at + NANO35_POMO_DONE_MS) {
-        nano35_pomo_reset(s);
+        // Hide the timer UI, but retain its deadline for the OLED's post-timer hold.
+        // Explicit stop still clears everything through nano35_pomo_reset().
+        s->phase = NANO35_POMO_OFF;
     }
     return before != s->phase;
 }

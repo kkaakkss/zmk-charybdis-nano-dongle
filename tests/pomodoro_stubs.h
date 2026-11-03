@@ -22,6 +22,7 @@ int snprintf(char *out,size_t size,const char *format,...) {
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
 #define CONFIG_ZMK_BEHAVIOR_METADATA 0
 #define CONFIG_ZMK_DISPLAY_BLANK_ON_IDLE 1
+#define CONFIG_ZMK_IDLE_TIMEOUT 300000
 #define IS_ENABLED(x) (x)
 #define DT_NUM_INST_STATUS_OKAY(x) 1
 #define DT_INST_PROP(i,p) PROP_##p

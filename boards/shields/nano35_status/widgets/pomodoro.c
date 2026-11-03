@@ -56,12 +56,28 @@ static void pomodoro_ui_cb(struct k_work *work) {
         if (hidden || (i>=2 && !done)) { lv_obj_add_flag(items[i], LV_OBJ_FLAG_HIDDEN); }
         else { lv_obj_clear_flag(items[i], LV_OBJ_FLAG_HIDDEN); }
     }
-    if (hidden) { restore_idle_policy(work); return; }
+    // Natural completion keeps the screen awake until five minutes after the
+    // absolute deadline, even after DONE disappears. Explicit stop clears it.
+    int64_t wake_until = state.deadline ? state.deadline + CONFIG_ZMK_IDLE_TIMEOUT : 0;
+    if (hidden) {
+        if (now < wake_until) {
+            atomic_set(&alert_active, 1);
+            unblank_display_cb(work);
+            k_work_reschedule_for_queue(zmk_display_work_q(), &pomodoro_alert_work,
+                                        K_MSEC((int32_t)(wake_until - now)));
+        } else { restore_idle_policy(work); }
+        return;
+    }
     uint32_t remaining = nano35_pomo_seconds(&state, now);
     char time[6];
     snprintf(time, sizeof(time), "%02u:%02u", (unsigned)(remaining/60), (unsigned)(remaining%60));
     set_text(phase_label, done ? "DONE" : "TIMER"); set_text(time_label, time);
-    if (!done) { restore_idle_policy(work); return; }
+    if (!done) {
+        atomic_set(&alert_active, 1);
+        k_work_cancel_delayable(&pomodoro_alert_work);
+        unblank_display_cb(work);
+        return;
+    }
 
     atomic_set(&alert_active, 1);
     int64_t elapsed = now - state.done_at;
@@ -82,7 +98,7 @@ void nano35_pomodoro_ui_changed(bool notify) {
         k_work_submit_to_queue(zmk_display_work_q(), &pomodoro_ui_work);
     }
 }
-// Apply the alert AFTER native blank/unblank work, including a key press while
+// Apply the timer screen policy AFTER native blank/unblank work, including a key press while
 // the screen is in an off half-cycle. Key input itself remains untouched.
 static int pomodoro_activity_cb(const zmk_event_t *eh) {
     const struct zmk_activity_state_changed *event = as_zmk_activity_state_changed(eh);
@@ -92,7 +108,9 @@ static int pomodoro_activity_cb(const zmk_event_t *eh) {
         struct nano35_pomo_state state;
         nano35_pomodoro_snapshot(&state);
         nano35_pomo_advance(&state, k_uptime_get());
-        if (state.phase == NANO35_POMO_DONE || atomic_get(&alert_active)) {
+        int64_t wake_until = state.deadline ? state.deadline + CONFIG_ZMK_IDLE_TIMEOUT : 0;
+        if (state.phase == NANO35_POMO_RUNNING || k_uptime_get() < wake_until ||
+            atomic_get(&alert_active)) {
             k_work_reschedule_for_queue(zmk_display_work_q(), &pomodoro_alert_work, K_MSEC(1));
         }
     }

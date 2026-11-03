@@ -54,3 +54,5 @@ print('PASS: 5/10/25min one-shot timers, 2400 ticks, immediate replacement/resta
 print('PASS: actual behavior + widget C; 20 half-cycle full-panel blink states, 10s blink + 60s hold, completion icons, auto-hide, idle races, restart/stop during blink, stale callbacks, queued LVGL only')
 print('LIMIT: clock/kernel/queues/LVGL/display are doubles; real allocation, timing/concurrency and hardware remain unverified')
 print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emulation without UBSan')
+
+print('PASS: running timer stays lit through native idle; exact end+5min hold; later activity, cancellation, replacement and delayed callbacks obey screen policy')

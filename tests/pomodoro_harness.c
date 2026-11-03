@@ -77,12 +77,12 @@ int main(void) {
     alert_at(309999);CHECK(!display_on && pomodoro_alert_work.due==310000,33);
     alert_at(310000);CHECK(display_on && alert_active,34);
     alert_at(369999);CHECK(display_on && !hidden_timer() && pomodoro_alert_work.due==370000,35);
-    alert_at(370000);CHECK(hidden_timer() && !display_on && !alert_active,36);
+    alert_at(370000);CHECK(hidden_timer() && display_on && alert_active && pomodoro_alert_work.due==600000,36);
     poll_at(370000);CHECK(pomodoro.phase==NANO35_POMO_OFF && !pomodoro_timer.active,37);
     // Restart during an off half-cycle restores the panel and cancels old deadlines.
     now=0;activity=ZMK_ACTIVITY_ACTIVE;press(5);poll_at(300000);alert_at(300500);
     CHECK(!display_on,38);
-    now=300750;press(10);CHECK(display_on && !alert_active && !pomodoro_alert_work.active,39);
+    now=300750;press(10);CHECK(display_on && alert_active && !pomodoro_alert_work.active,39);
     CHECK(pomodoro.deadline==900750 && !strcmp(time_label->text,"10:00") && party_icon->hidden,40);
     alert_at(301000);poll_at(370000);CHECK(pomodoro.phase==NANO35_POMO_RUNNING && !hidden_timer(),41);
     // Cancel mid-blink, then deliver stale callbacks: no flash or state resurrection.
@@ -108,9 +108,38 @@ int main(void) {
     now=0;activity=ZMK_ACTIVITY_ACTIVE;press(5);
     now=300000;activity=ZMK_ACTIVITY_IDLE;display_on=false;event.state=ZMK_ACTIVITY_IDLE;
     pomodoro_activity_cb(&event);
-    CHECK(!alert_active && pomodoro.phase==NANO35_POMO_RUNNING && pomodoro_alert_work.due==300001,51);
+    CHECK(alert_active && pomodoro.phase==NANO35_POMO_RUNNING && pomodoro_alert_work.due==300001,51);
     alert_at(300001);CHECK(display_on && alert_active && !strcmp(phase_label->text,"DONE"),52);
     poll_at(300001);CHECK(pomodoro.phase==NANO35_POMO_DONE,53);
+    // Native idle blanking must not extinguish a running 25-minute timer.
+    now=0;activity=ZMK_ACTIVITY_ACTIVE;press(25);
+    now=300001;activity=ZMK_ACTIVITY_IDLE;display_on=false;event.state=ZMK_ACTIVITY_IDLE;
+    pomodoro_activity_cb(&event);alert_at(300002);
+    CHECK(display_on && !strcmp(phase_label->text,"TIMER"),55);
+    for(int64_t t=301000;t<1500000;t+=1000) {
+        poll_at(t);CHECK(display_on && !hidden_timer(),56);
+    }
+    poll_at(1500000);CHECK(!strcmp(phase_label->text,"DONE"),57);
+    alert_at(1570000);poll_at(1570000);
+    CHECK(hidden_timer() && display_on && pomodoro_alert_work.due==1800000,58);
+    alert_at(1799999);CHECK(display_on && hidden_timer(),59);
+    alert_at(1800000);CHECK(!display_on && !alert_active,60);
+    // Input after completion keeps normal native idle handling in force beyond the hold.
+    now=0;activity=ZMK_ACTIVITY_ACTIVE;press(5);poll_at(300000);
+    now=550000;activity=ZMK_ACTIVITY_ACTIVE;event.state=ZMK_ACTIVITY_ACTIVE;
+    pomodoro_activity_cb(&event);alert_at(550001);alert_at(600000);
+    CHECK(display_on && !alert_active,61);
+    now=850001;activity=ZMK_ACTIVITY_IDLE;display_on=false;event.state=ZMK_ACTIVITY_IDLE;
+    pomodoro_activity_cb(&event);CHECK(!pomodoro_alert_work.active,62);
+    // Explicit cancel and replacement discard the previous completion hold.
+    now=0;activity=ZMK_ACTIVITY_ACTIVE;press(5);poll_at(300000);alert_at(370000);
+    now=400000;press(0);CHECK(hidden_timer() && !alert_active && !pomodoro_alert_work.active,63);
+    now=0;press(5);poll_at(300000);alert_at(370000);
+    now=400000;press(10);activity=ZMK_ACTIVITY_IDLE;alert_at(600000);
+    CHECK(display_on && !hidden_timer() && !strcmp(phase_label->text,"TIMER"),64);
+    // A very late callback skips both celebration and screen hold.
+    now=0;press(25);activity=ZMK_ACTIVITY_IDLE;alert_at(1800000);
+    CHECK(hidden_timer() && !display_on && !alert_active,65);
     CHECK(!failure && !lock_depth,54);
     return 0;
 }
