@@ -223,7 +223,7 @@ int main(void) {
     input_handler(&cfg,&data,&solo);
     if(total_x-bx!=2 || total_y-by!=-3 || reports-before!=2 || ball.frame_open) return 27;
     // Real button behavior: press once, release never repeats; preserve mode settings.
-    struct zmk_behavior_binding up={.param1=1},down={.param1=0},bad={.param1=6};
+    struct zmk_behavior_binding up={.param1=1},down={.param1=0},bad={.param1=8};
     struct zmk_behavior_binding_event event={0};
     layer(4);test_now+=100;
     speed_pressed(&up,event); if(ball.speed_percent!=110) return 28;
@@ -291,21 +291,37 @@ int main(void) {
     if(total_x-bx!=168 || total_y-by!=-84) return 55;
     calls=auto_calls;frame(2,3);if(auto_calls!=calls) return 56;
     frame(10,0);if(auto_calls!=calls+1) return 57;
-    // Inherit current normal multiplier; no separate persistent FASTER setting.
+    // Default FASTER trim inherits the current normal multiplier x1.5.
     layer(4);ball.speed_percent=200;layer(7);test_now+=100;bx=total_x;by=total_y;frame(10,-10);
     if(total_x-bx!=30 || total_y-by!=-30) return 58;
     // Returning to MOUSE clears FASTER gain/fractions; clicks release across modes.
     layer(4);test_now+=100;bx=total_x;by=total_y;frame(10,-10);
     if(total_x-bx!=20 || total_y-by!=-20 || ball.mode!=NANO35_MOVE) return 59;
     for(int b=0;b<3;b++) {layer(7);button(b,true);layer(4);button(b,false);if(buttons) return 60;}
-    // Actual ZMK fast-release combo logic: either key releases FASTER exactly once.
+    // FASTER buttons adjust only the FASTER trim, never the normal/Scroll/Snipe settings.
+    struct zmk_behavior_binding faster_up={.param1=7},faster_down={.param1=6};
+    ball.speed_percent=100;layer(7);speed_pressed(&faster_up,event);
+    if(ball.faster_percent!=110 || ball.speed_percent!=100 || ball.scroll_percent!=200 || ball.snipe_percent!=200) return 64;
+    speed_released(&faster_up,event);if(ball.faster_percent!=110) return 65;
+    for(int i=0;i<40;i++) speed_pressed(&faster_down,event);
+    if(ball.faster_percent!=20) return 66;
+    test_now+=100;bx=total_x;by=total_y;
+    for(int i=0;i<10;i++) frame(1,-1);
+    if(total_x-bx!=3 || total_y-by!=-3) return 67;
+    for(int i=0;i<40;i++) speed_pressed(&faster_up,event);
+    if(ball.faster_percent!=200) return 68;
+    test_now+=100;bx=total_x;by=total_y;frame(10,-10);
+    if(total_x-bx!=30 || total_y-by!=-30) return 69;
+    layer(4);test_now+=100;bx=total_x;by=total_y;frame(10,-10);
+    if(total_x-bx!=10 || total_y-by!=-10 || ball.faster_percent!=200) return 70;
+    // Actual ZMK fast-release combo logic: either key releases SNIPE exactly once.
     for(int order=0;order<2;order++) {
         active_combo_count=1;combo_release_calls=0;
         active_combos[0].combo_idx=0;active_combos[0].key_positions_pressed_count=2;
         active_combos[0].key_positions_pressed[0].data.position=2;
         active_combos[0].key_positions_pressed[1].data.position=3;
-        layer(7);
-        if(release_combo_key(19,0) || highest!=7) return 61;
+        layer(6);
+        if(release_combo_key(19,0) || highest!=6) return 61;
         if(!release_combo_key(order?3:2,0) || highest!=4 || combo_release_calls!=1) return 62;
         if(!release_combo_key(order?2:3,0) || combo_release_calls!=1 || active_combo_count) return 63;
     }
@@ -351,4 +367,6 @@ print('PASS: independent Move/Scroll/Snipe speed actions, each 20..200%, signed 
 
 print('PASS: FASTER x1.5 with inherited normal speed/acceleration, signed fractions, XY and wheel isolation, raw auto refresh, return to MOUSE and button releases')
 
-print('PASS: pinned ZMK combo release logic returns from FASTER on either first release, consumes the remaining release and ignores unrelated keys')
+print('PASS: pinned ZMK combo release logic returns from SNIPE on either first release, consumes the remaining release and ignores unrelated keys')
+
+print('PASS: FASTER-only trim controls, 20..200% bounds, release no-op, signed fractions and normal speed unchanged')

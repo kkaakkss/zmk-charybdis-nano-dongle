@@ -73,14 +73,19 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert layers[5].props['bindings'].val[3].controller.name=='key_press'
         assert layers[5].props['bindings'].val[3].data['param1']==0x010700e1
         assert mouse[32].controller==mouse[34].controller and mouse[32].data==mouse[34].data
-        fast=edt.get_node('/combos/nano35_mouse_faster')
+        fast=edt.get_node('/combos/nano35_mouse_snipe')
         assert fast.props['key-positions'].val==[2,3] and fast.props['layers'].val==[4]
         assert fast.props['timeout-ms'].val==80 and not fast.props['slow-release'].val
         assert not any(c!=fast and 4 in c.props['layers'].val and set(c.props['key-positions'].val)=={2,3}
                        for c in edt.get_node('/combos').children.values())
         hold=fast.props['bindings'].val[0]
-        assert hold.controller.name=='momentary_layer' and hold.data['param1']==7
-        assert all(binding.controller.name=='transparent' for binding in layers[7].props['bindings'].val)
+        assert hold.controller.name=='momentary_layer' and hold.data['param1']==6
+        faster_keys=layers[7].props['bindings'].val
+        for position,action in [(1,7),(21,6)]:
+            assert faster_keys[position].controller==speed and faster_keys[position].data['param1']==action
+        assert all(binding.controller.name=='transparent' for index,binding in enumerate(faster_keys) if index not in [1,21])
+        assert mouse[3].controller.name=='momentary_layer' and mouse[3].data['param1']==7
+        assert 'nano35_mouse_faster' not in edt.get_node('/combos').children
         assert layers[7].props['display-name'].val=='FASTER'
         assert edt.get_node('/combos/nano35_mouse_middle').props['layers'].val==[4,5,6,7]
         combo=edt.get_node('/combos/nano35_mouse_osl')

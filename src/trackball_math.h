@@ -21,7 +21,7 @@ struct nano35_ball_state {
     int32_t accel_remainder[2];
     uint32_t accel_window_at, last_frame_at, frame_time, window_distance;
     uint16_t accel_gain;
-    uint16_t speed_percent, scroll_percent, snipe_percent; // Independent 0=100%, range 20..200.
+    uint16_t speed_percent, scroll_percent, snipe_percent, faster_percent; // Independent 0=100%, range 20..200.
     bool frame_open, accel_valid, accel_skip_frame;
 };
 
@@ -38,8 +38,9 @@ static inline void nano35_ball_reset_accel(struct nano35_ball_state *s) {
 }
 
 static inline void nano35_ball_adjust_speed(struct nano35_ball_state *s, unsigned mode, int step) {
-    if (mode > NANO35_SNIPE) { return; }
-    uint16_t *target = mode == NANO35_SCROLL ? &s->scroll_percent :
+    if (mode > NANO35_FAST) { return; }
+    uint16_t *target = mode == NANO35_FAST ? &s->faster_percent :
+                       mode == NANO35_SCROLL ? &s->scroll_percent :
                        mode == NANO35_SNIPE ? &s->snipe_percent : &s->speed_percent;
     int percent = (*target ? *target : 100) + step;
     if (percent < 20) { percent = 20; }
@@ -80,8 +81,9 @@ static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axi
         int32_t gain = s->accel_gain ? s->accel_gain : NANO35_ACCEL_ONE;
         int percent = s->speed_percent ? s->speed_percent : 100;
         // FASTER uses the same normal speed and acceleration curve, multiplied by 3/2.
-        int numerator = s->mode == NANO35_FAST ? 3 : 1;
-        int denominator = NANO35_ACCEL_ONE * 100 * (s->mode == NANO35_FAST ? 2 : 1);
+        int trim = s->faster_percent ? s->faster_percent : 100;
+        int numerator = s->mode == NANO35_FAST ? 3 * trim : 1;
+        int denominator = NANO35_ACCEL_ONE * 100 * (s->mode == NANO35_FAST ? 200 : 1);
         int64_t scaled = (int64_t)value * gain * percent * numerator + s->accel_remainder[axis];
         int32_t output = scaled / denominator;
         s->accel_remainder[axis] = scaled - (int64_t)output * denominator;

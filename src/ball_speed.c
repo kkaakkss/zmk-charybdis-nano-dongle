@@ -9,7 +9,7 @@ void nano35_trackball_speed_step(unsigned mode, int step);
 #endif
 static int speed_pressed(struct zmk_behavior_binding *binding,
                          struct zmk_behavior_binding_event event) {
-    if (binding->param1 > 5) { return -EINVAL; }
+    if (binding->param1 > 7) { return -EINVAL; }
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
     nano35_trackball_speed_step(binding->param1 / 2, binding->param1 % 2 ? 10 : -10);
 #endif

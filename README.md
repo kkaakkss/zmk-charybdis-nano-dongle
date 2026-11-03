@@ -10,7 +10,8 @@ Charybdis Nano 35키를 기존 nRF52840 USB 동글에 연결하는 독립 ZMK �
 
 TOTEM 키맵에서 양쪽 바깥 Shift와 오른쪽 세 번째 엄지를 제외했습니다.
 QWERTY/NAV/NUM/OSL 뒤에 Keyball39의 MOUSE/SCROLL/SNIPE와 FASTER를 추가했습니다.
-MOUSE에서 위치 2+3을 함께 누르는 동안 FASTER(일반 이동 ×1.5)가 켜집니다.
+MOUSE에서 위치 3을 누르는 동안 FASTER, 위치 2+3을 함께 누르는 동안 SNIPE가 켜집니다.
+FASTER의 1/21번은 일반 속도를 바꾸지 않는 전용 ±10%p 조절입니다.
 
 - [8개 레이어 전체 그림](keymap-drawer/nano35.svg)
 - [콤보 그림](keymap-drawer/nano35-combos.svg)
@@ -39,7 +40,7 @@ Studio 펌웨어는 필요하지 않습니다. 편집기의 `row`/`col`은 화�
 ## 트랙볼 빠른 조작
 
 기본 레이어에서 공을 움직이면 Mouse가 자동 진입합니다. V+P로 수동 진입할 수도 있습니다.
-Mouse에서 E 위치 홀드는 Scroll, R 위치 홀드는 Snipe(1/4 속도), D/F 또는 K/L은 좌/우 클릭,
+Mouse에서 2(E) 홀드는 Scroll, 3(R) 홀드는 FASTER, 2+3은 SNIPE입니다. D/F 또는 K/L은 좌/우 클릭,
 K+L은 가운데 클릭입니다. 오른손 엄지로 기본 레이어에 복귀합니다.
 Snipe의 T 위치는 부트로더 진입입니다. 자세한 타이머·감도 동작은 위 모드 안내를 참고하세요.
 

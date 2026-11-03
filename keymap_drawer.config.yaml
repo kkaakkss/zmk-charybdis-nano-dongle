@@ -5,6 +5,8 @@ draw_config:
   footer_text: "Nano35 | schematic positions, not case geometry"
 parse_config:
   raw_binding_map:
+    "&ball_speed 7": {t: FASTER, h: "+10%"}
+    "&ball_speed 6": {t: FASTER, h: "-10%"}
     "&kp LC(LSHIFT)": "Ctrl+Shift"
     "&ball_speed 3": {t: SCROLL, h: "+10%"}
     "&ball_speed 2": {t: SCROLL, h: "-10%"}

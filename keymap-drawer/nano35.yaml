@@ -215,7 +215,7 @@ layers:
   - t: SPEED
     h: +10%
   - SCROL
-  - SNIPE
+  - FASTER
   - ''
   - ''
   - Wheel Left
@@ -324,8 +324,7 @@ layers:
     type: trans
   - t: SNIPE
     h: +10%
-  - t: ▽
-    type: trans
+  - type: held
   - type: held
   - BOOT
   - t: ▽
@@ -390,10 +389,11 @@ layers:
   FASTER:
   - t: ▽
     type: trans
+  - t: FASTER
+    h: +10%
   - t: ▽
     type: trans
   - type: held
-  - type: held
   - t: ▽
     type: trans
   - t: ▽
@@ -428,8 +428,8 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - t: ▽
-    type: trans
+  - t: FASTER
+    h: -10%
   - t: ▽
     type: trans
   - t: ▽
@@ -947,7 +947,7 @@ combos:
   - 2
   - 3
   k:
-    t: FASTER
+    t: SNIPE
     s: L4
   l:
   - MOUSE

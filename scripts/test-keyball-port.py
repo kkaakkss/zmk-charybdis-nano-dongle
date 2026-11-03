@@ -24,7 +24,7 @@ for name in ['mouse_layer','scroll_layer','snipe_layer']:
     assert len(old)==39 and len(actual)==35
     expected=[old[i] for i in keep]
     if name=='mouse_layer':
-        for index,binding in {1:'&ball_speed 1',11:'&kp LSHIFT',21:'&ball_speed 0',32:'&to 0'}.items():
+        for index,binding in {1:'&ball_speed 1',3:'&mo 7',11:'&kp LSHIFT',21:'&ball_speed 0',32:'&to 0'}.items():
             expected[index]=binding
     elif name=='scroll_layer':
         expected[1]='&ball_speed 3'; expected[11]='&kp LSHIFT'; expected[21]='&ball_speed 2'; expected[3]='&kp LC(LSHIFT)'
@@ -43,7 +43,7 @@ if a.workspace:
         edt=pickle.load((ws/f'builds/{i}/zephyr/edt.pickle').open('rb'))
         mouse=edt.get_node('/keymap/mouse_layer').props['bindings'].val
         assert mouse[2].controller.name=='momentary_layer' and mouse[2].data['param1']==5
-        assert mouse[3].controller.name=='momentary_layer' and mouse[3].data['param1']==6
+        assert mouse[3].controller.name=='momentary_layer' and mouse[3].data['param1']==7
         for pos in [12,17]: assert mouse[pos].controller.name=='mouse_key_press' and mouse[pos].data['param1']==1
         for pos in [13,18]: assert mouse[pos].controller.name=='mouse_key_press' and mouse[pos].data['param1']==2
         middle=edt.get_node('/combos/nano35_mouse_middle')

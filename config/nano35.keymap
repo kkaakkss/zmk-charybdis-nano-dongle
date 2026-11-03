@@ -602,8 +602,8 @@
         };
 
 
-        nano35_mouse_faster {
-            bindings = <&mo 7>;
+        nano35_mouse_snipe {
+            bindings = <&mo 6>;
             key-positions = <2 3>;
             layers = <4>;
             timeout-ms = <80>;
@@ -684,7 +684,7 @@
         mouse_layer {
             display-name = "MOUSE";
             bindings = <
-&none  &ball_speed 1  &mo 5        &mo 6        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
+&none  &ball_speed 1  &mo 5        &mo 7        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
 &none  &kp LSHIFT  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
 &none  &ball_speed 0  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
               &trans       &trans       &to 0         &to 0        &to 0
@@ -716,9 +716,9 @@
         faster_layer {
             display-name = "FASTER";
             bindings = <
+&trans &ball_speed 7 &trans &trans &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
-&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
-&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &ball_speed 6 &trans &trans &trans &trans &trans &trans &trans &trans
                             &trans &trans &trans &trans &trans
             >;
         };
