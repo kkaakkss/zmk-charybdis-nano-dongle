@@ -27,9 +27,9 @@ for name in ['mouse_layer','scroll_layer','snipe_layer']:
         for index,binding in {1:'&ball_speed 1',11:'&kp LSHIFT',21:'&ball_speed 0',32:'&to 0'}.items():
             expected[index]=binding
     elif name=='scroll_layer':
-        expected[1]='&ball_speed 3'; expected[11]='&ball_speed 2'
+        expected[1]='&ball_speed 3'; expected[11]='&kp LSHIFT'; expected[21]='&ball_speed 2'; expected[3]='&kp LC(LSHIFT)'
     elif name=='snipe_layer':
-        expected[1]='&ball_speed 5'; expected[11]='&ball_speed 4'
+        expected[1]='&ball_speed 5'; expected[11]='&kp LSHIFT'; expected[21]='&ball_speed 4'
     assert actual==expected,name
 for oldname,newname in [('lclick_to0','lclick_to0'),('alt_click','alt_click'),('alt_right_click','alt_right_click')]:
     # DTS phandle-array group boundaries do not change the binding sequence.

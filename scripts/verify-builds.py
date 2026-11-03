@@ -65,10 +65,13 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         for position,action in [(1,1),(21,0)]:
             assert mouse[position].controller==speed and mouse[position].data['param1']==action
         assert mouse[11].controller.name=='key_press' and mouse[11].data['param1']==0x700e1
-        for layer_id,actions in [(5,[(1,3),(11,2)]),(6,[(1,5),(11,4)])]:
+        for layer_id,actions in [(5,[(1,3),(21,2)]),(6,[(1,5),(21,4)])]:
             bindings=layers[layer_id].props['bindings'].val
+            assert bindings[11].controller.name=='key_press' and bindings[11].data['param1']==0x700e1
             for position,action in actions:
                 assert bindings[position].controller==speed and bindings[position].data['param1']==action
+        assert layers[5].props['bindings'].val[3].controller.name=='key_press'
+        assert layers[5].props['bindings'].val[3].data['param1']==0x010700e1
         assert mouse[32].controller==mouse[34].controller and mouse[32].data==mouse[34].data
         combo=edt.get_node('/combos/nano35_mouse_osl')
         assert combo.props['key-positions'].val==[11,12,13] and combo.props['layers'].val==[4]

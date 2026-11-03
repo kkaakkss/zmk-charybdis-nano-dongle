@@ -686,10 +686,10 @@
         scroll_layer {
             display-name = "SCROL";
             bindings = <
-&trans  &ball_speed 3  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
-&trans  &ball_speed 2  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans        &trans  &trans  &trans  &trans  &trans
-                &trans  &trans  &trans        &trans  &trans
+&trans                 &ball_speed 3          &trans                 &kp LC(LSHIFT)         &trans                 &trans                 &trans                 &trans                 &trans                 &trans
+&trans                 &kp LSHIFT             &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans
+&trans                 &ball_speed 2          &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans
+                                              &trans                 &trans                 &trans                 &trans                 &trans
             >;
 
             label = "SCROL";
@@ -698,10 +698,10 @@
         snipe_layer {
             display-name = "SNIPE";
             bindings = <
-&trans  &ball_speed 5  &trans  &trans  &bootloader        &trans  &trans  &trans  &trans  &trans
-&trans  &ball_speed 4  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans             &trans  &trans  &trans  &trans  &trans
-                &trans  &trans  &trans             &trans  &trans
+&trans                 &ball_speed 5          &trans                 &trans                 &bootloader            &trans                 &trans                 &trans                 &trans                 &trans
+&trans                 &kp LSHIFT             &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans
+&trans                 &ball_speed 4          &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans
+                                              &trans                 &trans                 &trans                 &trans                 &trans
             >;
         };
     };
