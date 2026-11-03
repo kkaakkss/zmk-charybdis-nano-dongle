@@ -21,6 +21,7 @@
         mouse-layer = <4>;
         scroll-layer = <5>;
         snipe-layer = <6>;
+        faster-layer = <7>;
         automouse-timeout-ms = <30000>;
         temporary-layer = <&zip_temp_layer>;
     };

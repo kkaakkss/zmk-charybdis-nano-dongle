@@ -48,7 +48,7 @@ if a.workspace:
         for pos in [13,18]: assert mouse[pos].controller.name=='mouse_key_press' and mouse[pos].data['param1']==2
         middle=edt.get_node('/combos/nano35_mouse_middle')
         assert middle.props['key-positions'].val==[17,18]
-        assert middle.props['layers'].val==[4,5,6]
+        assert middle.props['layers'].val==[4,5,6,7]
         assert middle.props['bindings'].val[0].data['param1']==4
         assert edt.get_node('/combos/nano35_mouse_manual').props['bindings'].val[0].data['param1']==4
         for name in ['kp','bra_R','BKT_L','BKT_R']:

@@ -35,7 +35,7 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         # layer IDs follow enabled child order, not the original node spelling.
         layers=[node for node in edt.get_node('/keymap').children.values()
                 if node.status=='okay' and 'bindings' in node.props]
-        assert len(layers)>=7
+        assert len(layers)==8
         for layer in layers:
             assert len(layer.props['bindings'].val)==35
         nav=layers[1].props['bindings'].val
@@ -73,6 +73,16 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert layers[5].props['bindings'].val[3].controller.name=='key_press'
         assert layers[5].props['bindings'].val[3].data['param1']==0x010700e1
         assert mouse[32].controller==mouse[34].controller and mouse[32].data==mouse[34].data
+        fast=edt.get_node('/combos/nano35_mouse_faster')
+        assert fast.props['key-positions'].val==[2,3] and fast.props['layers'].val==[4]
+        assert fast.props['timeout-ms'].val==80 and not fast.props['slow-release'].val
+        assert not any(c!=fast and 4 in c.props['layers'].val and set(c.props['key-positions'].val)=={2,3}
+                       for c in edt.get_node('/combos').children.values())
+        hold=fast.props['bindings'].val[0]
+        assert hold.controller.name=='momentary_layer' and hold.data['param1']==7
+        assert all(binding.controller.name=='transparent' for binding in layers[7].props['bindings'].val)
+        assert layers[7].props['display-name'].val=='FASTER'
+        assert edt.get_node('/combos/nano35_mouse_middle').props['layers'].val==[4,5,6,7]
         combo=edt.get_node('/combos/nano35_mouse_osl')
         assert combo.props['key-positions'].val==[11,12,13] and combo.props['layers'].val==[4]
         macro=combo.props['bindings'].val[0].controller
@@ -98,6 +108,7 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
             assert processor.props['mouse-layer'].val==4
             assert processor.props['scroll-layer'].val==5
             assert processor.props['snipe-layer'].val==6
+            assert processor.props['faster-layer'].val==7
             assert processor.props['automouse-timeout-ms'].val==30000
             assert config['CONFIG_ZMK_INPUT_PROCESSOR_TEMP_LAYER']=='y'
             if t.get('snippet')=='nano35-oled':

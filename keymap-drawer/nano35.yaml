@@ -387,6 +387,75 @@ layers:
     type: trans
   - t: ▽
     type: trans
+  FASTER:
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - type: held
+  - type: held
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
+  - t: ▽
+    type: trans
 combos:
 - p:
   - 0
@@ -875,6 +944,16 @@ combos:
   w: 100
   h: 46
 - p:
+  - 2
+  - 3
+  k:
+    t: FASTER
+    s: L4
+  l:
+  - MOUSE
+  w: 100
+  h: 46
+- p:
   - 11
   - 12
   - 13
@@ -900,11 +979,12 @@ combos:
   - 18
   k:
     t: MMB
-    s: L4,5,6
+    s: L4,5,6,7
   l:
   - MOUSE
   - SCROL
   - SNIPE
+  - FASTER
   w: 100
   h: 46
 - p:
@@ -912,10 +992,11 @@ combos:
   - 13
   k:
     t: MMB
-    s: L4,5,6
+    s: L4,5,6,7
   l:
   - MOUSE
   - SCROL
   - SNIPE
+  - FASTER
   w: 100
   h: 46

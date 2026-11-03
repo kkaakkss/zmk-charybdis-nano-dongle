@@ -35,7 +35,7 @@ def main():
         raise SystemExit("Combo position outside the Nano35 range 0..34")
     # Reuse the actual firmware layout; no independent hand-maintained key order.
     data["layout"] = {"dts_layout": "boards/shields/nano35/nano35.dtsi", "layout_name": "nano35_layout"}
-    # Show applicability on each separate combo diagram (0..6 match firmware layers).
+    # Show applicability on each separate combo diagram (indices match firmware layer order).
     names = list(data["layers"])
     for combo in data.get("combos", []):
         key = combo["k"]

@@ -29,5 +29,5 @@ python -m pip install -r requirements-draw.txt
 python scripts/draw-keymap.py
 ```
 
-펌웨어 도구체인 없이 실행 가능합니다. 7개 레이어 × 35키와 콤보 위치 범위를 검사하고
+펌웨어 도구체인 없이 실행 가능합니다. 8개 레이어 × 35키와 콤보 위치 범위를 검사하고
 전체/기본/콤보 SVG 및 파싱 YAML을 만듭니다.

@@ -48,3 +48,16 @@ https://support.microsoft.com/en-us/excel/move-or-scroll-through-a-worksheet
 Excel 버전과 환경에서 실제 동작을 확인해야 한다. 별도 PC 프로그램은 설치하지 않는다.
 L5 3번은 왼쪽 Ctrl+Shift 동시 홀드다 (`&kp LC(LSHIFT)`).
 3번을 누른 채 트랙볼을 위아래로 굴려 Excel 가로 스크롤을 사용하고, 놓으면 두 수정키를 해제한다.
+
+## FASTER (L7)
+
+MOUSE(L4)에서 위치 2+3을 80ms 안에 함께 누르면 FASTER가 켜진다.
+둘 중 하나를 놓으면 해제되고, 나머지 키를 놓는 동작도 콤보가 소비한다.
+2번 단독 SCROL, 3번 단독 SNIPE는 유지하며 콤보 판정을 위해 단독 입력이 최대 80ms 지연될 수 있다.
+OLED에는 FASTER를 표시한다. 키 바인딩은 MOUSE에서 상속하고 가운데 클릭 콤보도 유지한다.
+
+FASTER는 현재 일반 이동 배율과 기존 시간 기반 가속 곡선에 1.5를 곱한다.
+별도 배율은 저장하지 않으며 일반 이동 속도 버튼은 FASTER에서도 일반 배율을 조절한다.
+센서 400 CPI, Scroll/Snipe의 독립 배율은 유지한다. 움직이는 동안 일반 자동 Mouse
+30초 타이머를 갱신한다. 기존 자동 Mouse가 장시간 무입력으로 만료된 경우에는
+홀드를 해제할 때 BASE의 일반 포인터 이동으로 돌아갈 수 있다.

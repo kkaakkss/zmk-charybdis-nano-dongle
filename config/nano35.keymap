@@ -5,6 +5,7 @@
 #define MOUSE  4
 #define SCROLL 5
 #define SNIPE  6
+#define FASTER 7
 #define ZMK_POINTING_DEFAULT_SCRL_VAL 30
 
 #include <behaviors.dtsi>
@@ -601,6 +602,13 @@
         };
 
 
+        nano35_mouse_faster {
+            bindings = <&mo 7>;
+            key-positions = <2 3>;
+            layers = <4>;
+            timeout-ms = <80>;
+        };
+
         nano35_mouse_osl {
             bindings = <&mouse_osl>;
             key-positions = <11 12 13>;
@@ -616,13 +624,13 @@
         nano35_mouse_middle {
             bindings = <&mkp MCLK>;
             key-positions = <17 18>;
-            layers = <4 5 6>;
+            layers = <4 5 6 7>;
         };
 
         L_MCLK {
             bindings = <&mkp MCLK>;
             key-positions = <12 13>;
-            layers = <4 5 6>;
+            layers = <4 5 6 7>;
         };
     };
 
@@ -702,6 +710,16 @@
 &trans                 &kp LSHIFT             &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans
 &trans                 &ball_speed 4          &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans                 &trans
                                               &trans                 &trans                 &trans                 &trans                 &trans
+            >;
+        };
+
+        faster_layer {
+            display-name = "FASTER";
+            bindings = <
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+                            &trans &trans &trans &trans &trans
             >;
         };
     };

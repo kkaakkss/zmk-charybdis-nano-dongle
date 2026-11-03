@@ -56,6 +56,7 @@ void *memset(void *dest,int value,size_t count) {
 #define MOUSE_LAYER 4
 #define SCROLL_LAYER 5
 #define SNIPE_LAYER 6
+#define FASTER_LAYER 7
 #define AUTO_TIMEOUT 30000
 struct device {int unused;};
 struct input_event {const struct device *dev; uint8_t type; uint16_t code; int32_t value; bool sync;};
@@ -103,6 +104,19 @@ static void zmk_hid_mouse_button_release(int b) {buttons&=~BIT(b);}
 static int zmk_endpoints_send_mouse_report(void) {reports++;total_x+=hid_x;total_y+=hid_y;total_wx+=wheel_x;total_wy+=wheel_y;return 0;}
 ''']
 parts += [function(listener,s) for s in ['static void handle_rel_code(', 'static void handle_abs_code(', 'static void handle_key_code(', 'static void clear_xy_data(', 'static void input_handler(']]
+# Pinned ZMK combo release logic: API/active combo storage are doubles.
+parts += [r'''
+struct combo_cfg { int16_t key_position_len; bool slow_release; };
+struct active_combo { unsigned combo_idx,key_positions_pressed_count; struct {struct {int32_t position;} data;} key_positions_pressed[2]; };
+static struct combo_cfg combos[1]={{.key_position_len=2}};
+static struct active_combo active_combos[1];
+static int active_combo_count,combo_release_calls;
+static int release_combo_behavior(int index,const struct combo_cfg *c,int64_t timestamp) {
+    combo_release_calls++;highest=4;modes_layer_event(NULL);return 0;
+}
+static void deactivate_combo(int index) {active_combo_count--;}
+''']
+parts += [function((ws/'zmk/app/src/combo.c').read_text(), 'static bool release_combo_key(')]
 parts += [r'''
 static struct input_listener_config cfg;
 static struct input_listener_data data;
@@ -261,6 +275,40 @@ int main(void) {
     if(total_x-bx!=-2 || total_y-by!=2) return 49;
     layer(4);layer(5);layer(6);
     if(ball.speed_percent!=move_percent || ball.scroll_percent!=200 || ball.snipe_percent!=200) return 50;
+    // FASTER is normal movement x1.5, preserving signed fractions and both axes.
+    ball.speed_percent=100;layer(7);test_now+=100;bx=total_x;by=total_y;
+    wx=total_wx;wy=total_wy;frame(100,-100);
+    if(ball.mode!=NANO35_FAST || total_x-bx!=150 || total_y-by!=-150) return 51;
+    if(total_wx!=wx || total_wy!=wy) return 52;
+    layer(4);layer(7);test_now+=100;bx=total_x;by=total_y;
+    for(int i=0;i<10;i++) frame(1,-1);
+    if(total_x-bx!=15 || total_y-by!=-15) return 53;
+    // The original time-based acceleration curve is used unchanged in FASTER.
+    for(int i=0;i<50;i++) frame(16,-8);
+    if(ball.accel_gain!=448) return 54;
+    bx=total_x;by=total_y;
+    for(int i=0;i<4;i++) frame(16,-8);
+    if(total_x-bx!=168 || total_y-by!=-84) return 55;
+    calls=auto_calls;frame(2,3);if(auto_calls!=calls) return 56;
+    frame(10,0);if(auto_calls!=calls+1) return 57;
+    // Inherit current normal multiplier; no separate persistent FASTER setting.
+    layer(4);ball.speed_percent=200;layer(7);test_now+=100;bx=total_x;by=total_y;frame(10,-10);
+    if(total_x-bx!=30 || total_y-by!=-30) return 58;
+    // Returning to MOUSE clears FASTER gain/fractions; clicks release across modes.
+    layer(4);test_now+=100;bx=total_x;by=total_y;frame(10,-10);
+    if(total_x-bx!=20 || total_y-by!=-20 || ball.mode!=NANO35_MOVE) return 59;
+    for(int b=0;b<3;b++) {layer(7);button(b,true);layer(4);button(b,false);if(buttons) return 60;}
+    // Actual ZMK fast-release combo logic: either key releases FASTER exactly once.
+    for(int order=0;order<2;order++) {
+        active_combo_count=1;combo_release_calls=0;
+        active_combos[0].combo_idx=0;active_combos[0].key_positions_pressed_count=2;
+        active_combos[0].key_positions_pressed[0].data.position=2;
+        active_combos[0].key_positions_pressed[1].data.position=3;
+        layer(7);
+        if(release_combo_key(19,0) || highest!=7) return 61;
+        if(!release_combo_key(order?3:2,0) || highest!=4 || combo_release_calls!=1) return 62;
+        if(!release_combo_key(order?2:3,0) || combo_release_calls!=1 || active_combo_count) return 63;
+    }
     return failure;
 }
 ''']
@@ -300,3 +348,7 @@ print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emul
 print('PASS: runtime speed buttons 20..200%, 10-point steps, release no-op, fractional motion, invalid action, raw auto threshold and Scroll/Snipe isolation')
 
 print('PASS: independent Move/Scroll/Snipe speed actions, each 20..200%, signed low-speed fractions, cap, mode retention and no cross-mode changes')
+
+print('PASS: FASTER x1.5 with inherited normal speed/acceleration, signed fractions, XY and wheel isolation, raw auto refresh, return to MOUSE and button releases')
+
+print('PASS: pinned ZMK combo release logic returns from FASTER on either first release, consumes the remaining release and ignores unrelated keys')

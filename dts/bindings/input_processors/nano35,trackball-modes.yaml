@@ -11,6 +11,9 @@ properties:
   snipe-layer:
     type: int
     required: true
+  faster-layer:
+    type: int
+    required: true
   automouse-timeout-ms:
     type: int
     required: true

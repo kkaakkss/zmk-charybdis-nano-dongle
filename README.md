@@ -9,15 +9,16 @@ Charybdis Nano 35키를 기존 nRF52840 USB 동글에 연결하는 독립 ZMK �
 ![기본 35키 배열](keymap-drawer/nano35-base.svg)
 
 TOTEM 키맵에서 양쪽 바깥 Shift와 오른쪽 세 번째 엄지를 제외했습니다.
-QWERTY/NAV/NUM/OSL 뒤에 Keyball39의 MOUSE/SCROLL/SNIPE를 이식했습니다.
+QWERTY/NAV/NUM/OSL 뒤에 Keyball39의 MOUSE/SCROLL/SNIPE와 FASTER를 추가했습니다.
+MOUSE에서 위치 2+3을 함께 누르는 동안 FASTER(일반 이동 ×1.5)가 켜집니다.
 
-- [7개 레이어 전체 그림](keymap-drawer/nano35.svg)
+- [8개 레이어 전체 그림](keymap-drawer/nano35.svg)
 - [콤보 그림](keymap-drawer/nano35-combos.svg)
 - [35키 위치와 토템 매핑](docs/totem35-keymap.md)
 - [트랙볼 조작과 감도](docs/trackball-modes.md)
 
 키의 위 표시는 mod-morph의 대체 입력 또는 2x(더블탭), 아래 표시는 홀드 동작입니다.
-콤보 위의 L0–L6는 적용 레이어 번호(QWERTY/NAV/NUM/OSL/MOUSE/SCROLL/SNIPE 순)입니다.
+콤보 위의 L0–L7는 적용 레이어 번호(QWERTY/NAV/NUM/OSL/MOUSE/SCROLL/SNIPE/FASTER 순)입니다.
 투명 키(▽)는 아래 활성 레이어를 따릅니다. 그림은 키 순서를 나타내는 평면 도식이며 케이스 형상은 아닙니다.
 원본은 `config/nano35.keymap`, 위치는 실제 펌웨어의 `nano35.dtsi`에서 읽습니다.
 키맵을 수정해 push하면 **Draw ZMK keymap** Actions가 그림을 생성하고 기본 브랜치에 갱신합니다.

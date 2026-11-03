@@ -11,6 +11,7 @@
 #define MOUSE_LAYER DT_INST_PROP(0, mouse_layer)
 #define SCROLL_LAYER DT_INST_PROP(0, scroll_layer)
 #define SNIPE_LAYER DT_INST_PROP(0, snipe_layer)
+#define FASTER_LAYER DT_INST_PROP(0, faster_layer)
 #define AUTO_TIMEOUT DT_INST_PROP(0, automouse_timeout_ms)
 
 static struct nano35_ball_state ball;
@@ -25,6 +26,7 @@ void nano35_trackball_speed_step(unsigned mode, int step) {
 
 static enum nano35_ball_mode current_mode(void) {
     uint8_t highest = zmk_keymap_highest_layer_active();
+    if (highest == FASTER_LAYER) { return NANO35_FAST; }
     if (highest == SNIPE_LAYER) { return NANO35_SNIPE; }
     if (highest == SCROLL_LAYER) { return NANO35_SCROLL; }
     return NANO35_MOVE;
@@ -60,7 +62,7 @@ static int modes_handle_event(const struct device *dev, struct input_event *even
     k_mutex_unlock(&ball_lock);
     // Do not let incidental movement mask NAV/NUM/OSL while typing.
     // Call outside ball_lock: the upstream processor queues layer events.
-    if (activate && (highest == 0 || highest == MOUSE_LAYER)) {
+    if (activate && (highest == 0 || highest == MOUSE_LAYER || highest == FASTER_LAYER)) {
         return zmk_input_processor_handle_event(temporary_layer, event, MOUSE_LAYER,
                                                 AUTO_TIMEOUT, state);
     }

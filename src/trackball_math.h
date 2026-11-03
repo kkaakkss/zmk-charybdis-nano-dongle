@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum nano35_ball_mode { NANO35_MOVE, NANO35_SCROLL, NANO35_SNIPE };
+enum nano35_ball_mode { NANO35_MOVE, NANO35_SCROLL, NANO35_SNIPE, NANO35_FAST };
 // Q8 gain: slow movement 1x, progressively up to 1.75x. Speeds are raw
 // 400-CPI counts/second, estimated over >=16 ms on the USB central.
 #define NANO35_ACCEL_ONE 256
@@ -24,6 +24,10 @@ struct nano35_ball_state {
     uint16_t speed_percent, scroll_percent, snipe_percent; // Independent 0=100%, range 20..200.
     bool frame_open, accel_valid, accel_skip_frame;
 };
+
+static inline bool nano35_ball_is_move(enum nano35_ball_mode mode) {
+    return mode == NANO35_MOVE || mode == NANO35_FAST;
+}
 
 static inline void nano35_ball_reset_accel(struct nano35_ball_state *s) {
     s->accel_gain = NANO35_ACCEL_ONE;
@@ -69,15 +73,18 @@ static inline void nano35_ball_begin_frame(struct nano35_ball_state *s, uint32_t
 
 // Input is already oriented by the unchanged sensor driver on the peripheral.
 static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axis, int32_t value) {
-    if (s->mode == NANO35_MOVE) {
+    if (nano35_ball_is_move(s->mode)) {
         int32_t magnitude = value < 0 ? -value : value;
         s->frame_magnitude += magnitude; // Auto Mouse threshold stays in raw counts.
         s->frame_abs[axis] += magnitude;
         int32_t gain = s->accel_gain ? s->accel_gain : NANO35_ACCEL_ONE;
         int percent = s->speed_percent ? s->speed_percent : 100;
-        int64_t scaled = (int64_t)value * gain * percent + s->accel_remainder[axis];
-        int32_t output = scaled / (NANO35_ACCEL_ONE * 100);
-        s->accel_remainder[axis] = scaled - (int64_t)output * NANO35_ACCEL_ONE * 100;
+        // FASTER uses the same normal speed and acceleration curve, multiplied by 3/2.
+        int numerator = s->mode == NANO35_FAST ? 3 : 1;
+        int denominator = NANO35_ACCEL_ONE * 100 * (s->mode == NANO35_FAST ? 2 : 1);
+        int64_t scaled = (int64_t)value * gain * percent * numerator + s->accel_remainder[axis];
+        int32_t output = scaled / denominator;
+        s->accel_remainder[axis] = scaled - (int64_t)output * denominator;
         return output;
     }
     // Keyball: move 1600/4 = 400 CPI; snipe 400/4 = 100 CPI.
@@ -95,8 +102,8 @@ static inline int32_t nano35_ball_axis(struct nano35_ball_state *s, unsigned axi
 }
 
 static inline bool nano35_ball_end_frame(struct nano35_ball_state *s) {
-    bool trigger = s->mode == NANO35_MOVE && s->frame_magnitude > 5;
-    if (s->mode == NANO35_MOVE && !s->accel_skip_frame) {
+    bool trigger = nano35_ball_is_move(s->mode) && s->frame_magnitude > 5;
+    if (nano35_ball_is_move(s->mode) && !s->accel_skip_frame) {
         // Approximate Euclidean distance without floating point. Both axes of
         // the NEXT report share this gain: never stretch X and Y differently.
         uint32_t x = s->frame_abs[0], y = s->frame_abs[1];
