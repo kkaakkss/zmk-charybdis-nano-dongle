@@ -529,6 +529,12 @@
             layers = <0>;
         };
 
+        question_mark {
+            bindings = <&kp QUESTION>;
+            key-positions = <18 27>;
+            layers = <0>;
+        };
+
         exclamation_mark {
             bindings = <&kp EXCLAMATION>;
             key-positions = <17 26>;

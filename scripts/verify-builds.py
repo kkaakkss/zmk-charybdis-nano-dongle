@@ -47,6 +47,10 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert base[19].data=={'param1':0x02070033,'param2':0x70033}
         combos=edt.get_node('/combos').children
         assert 'R_q2' not in combos
+        question=combos['question_mark']
+        assert question.props['key-positions'].val==[18,27] and question.props['layers'].val==[0]
+        assert question.props['bindings'].val[0].controller.name=='key_press'
+        assert question.props['bindings'].val[0].data['param1']==0x02070038
         bang=combos['exclamation_mark']
         assert bang.props['key-positions'].val==[17,26] and bang.props['layers'].val==[0]
         assert bang.props['bindings'].val[0].data['param1']==0x0207001e
