@@ -15,6 +15,7 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <zmk/battery.h>
+#include <zmk/split/central.h>
 #include <zmk/events/position_state_changed.h>
 #include <zmk/ble.h>
 #include <zmk/display.h>
@@ -38,6 +39,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // BLE source IDs are bond slots, not handedness. Learn from actual key positions.
 static atomic_t side_by_source[ZMK_SPLIT_BLE_PERIPHERAL_COUNT];
 static atomic_t level_by_source[ZMK_SPLIT_BLE_PERIPHERAL_COUNT];
+static atomic_t level_known[ZMK_SPLIT_BLE_PERIPHERAL_COUNT];
 
 static char side_for_position(uint32_t position) {
     if (position < 30) { return position % 10 < 5 ? 'L' : 'R'; }
@@ -54,10 +56,11 @@ static void battery_text(char *out, size_t size, char side, unsigned level) {
     if (size < 6) { return; }
     if (level > 100) { level = 100; }
     out[0] = side ? side : '?';
-    out[1] = level >= 100 ? '1' : ' ';
-    out[2] = level >= 10 ? '0' + (level / 10) % 10 : ' ';
-    out[3] = '0' + level % 10;
-    out[4] = '%'; out[5] = '\0';
+    unsigned n=1;
+    if(level >= 100) { out[n++]='1'; }
+    out[n++]='0'+(level/10)%10;
+    out[n++]='0'+level%10;
+    out[n++]='%'; out[n]=0;
 }
 static void learn_battery_side(uint8_t source, uint32_t position) {
     if (source >= ZMK_SPLIT_BLE_PERIPHERAL_COUNT) { return; }
@@ -76,6 +79,7 @@ struct battery_state {
     uint8_t level;
     bool usb_present;
     bool refresh_all;
+    bool known;
 };
 
 struct battery_object {
@@ -132,7 +136,7 @@ static void set_battery_symbol(lv_obj_t *widget, struct battery_state state) {
     battery_text(text, sizeof(text), side, state.level);
     lv_label_set_text(label, text);
     
-    if (state.level > 0 || state.usb_present) {
+    if (state.known || state.level > 0 || state.usb_present) {
         lv_obj_clear_flag(symbol, LV_OBJ_FLAG_HIDDEN);
         lv_obj_move_foreground(symbol);
         lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
@@ -150,6 +154,7 @@ void battery_status_update_cb(struct battery_state state) {
         for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
             set_battery_symbol(widget->obj, (struct battery_state){
                 .source = i + SOURCE_OFFSET, .level = atomic_get(&level_by_source[i]),
+                .known = atomic_get(&level_known[i]),
             });
         }
         if (SOURCE_OFFSET && !state.refresh_all && state.source == 0) {
@@ -162,10 +167,11 @@ static struct battery_state peripheral_battery_status_get_state(const zmk_event_
     const struct zmk_peripheral_battery_state_changed *ev = as_zmk_peripheral_battery_state_changed(eh);
     if (ev->source < ZMK_SPLIT_BLE_PERIPHERAL_COUNT) {
         atomic_set(&level_by_source[ev->source], ev->state_of_charge);
+        atomic_set(&level_known[ev->source],1);
     }
     return (struct battery_state){
         .source = ev->source + SOURCE_OFFSET,
-        .level = ev->state_of_charge,
+        .level = ev->state_of_charge, .known = true,
     };
 }
 
@@ -181,6 +187,7 @@ static struct battery_state central_battery_status_get_state(const zmk_event_t *
 }
 
 static struct battery_state battery_status_get_state(const zmk_event_t *eh) {
+    if(!eh) { return (struct battery_state){.refresh_all=true}; }
     const struct zmk_position_state_changed *key = as_zmk_position_state_changed(eh);
     if (key) {
         learn_battery_side(key->source, key->position);
@@ -212,7 +219,18 @@ ZMK_SUBSCRIPTION(widget_dongle_battery_status, zmk_usb_conn_state_changed);
 int zmk_widget_dongle_battery_status_init(struct zmk_widget_dongle_battery_status *widget, lv_obj_t *parent) {
     widget->obj = lv_obj_create(parent);
 
-    lv_obj_set_size(widget->obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    // Auto width omits the -7px right offset and clips the prefix. Reserve it explicitly.
+    lv_obj_remove_style_all(widget->obj);
+    lv_obj_clear_flag(widget->obj,LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_size(widget->obj,51,(ZMK_SPLIT_BLE_PERIPHERAL_COUNT + SOURCE_OFFSET)*10);
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING)
+    for(uint8_t i=0;i<ZMK_SPLIT_BLE_PERIPHERAL_COUNT;i++) {
+        uint8_t level;
+        if(!zmk_split_central_get_peripheral_battery_level(i,&level) && level>0 && level<=100) {
+            atomic_set(&level_by_source[i],level); atomic_set(&level_known[i],1);
+        }
+    }
+#endif
     
     for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT + SOURCE_OFFSET; i++) {
         lv_obj_t *image_canvas = lv_canvas_create(widget->obj);

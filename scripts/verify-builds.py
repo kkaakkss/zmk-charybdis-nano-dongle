@@ -138,6 +138,12 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_BONGO_CAT']=='y'
                 assert config['CONFIG_ZMK_DONGLE_DISPLAY_LAYER']=='y'
                 assert config['CONFIG_ZMK_WPM']=='y' and config.get('CONFIG_ZMK_DONGLE_DISPLAY_WPM')!='y'
+                from elftools.elf.elffile import ELFFile
+                with (d/'zmk.elf').open('rb') as elf_file:
+                    symbols={symbol.name:symbol for symbol in ELFFile(elf_file).get_section_by_name('.symtab').iter_symbols()}
+                    assert symbols['nano35_trackball_speed_ui_changed']['st_info']['bind']=='STB_GLOBAL'
+                    assert symbols['nano35_widget_speed_init']['st_size']>0
+                    assert symbols['nano35_trackball_speed_snapshot']['st_size']>0
                 # Layer display names are editable user data, not firmware invariants.
             if t.get('snippet')=='studio-rpc-usb-uart':
                 assert config['CONFIG_ZMK_STUDIO']=='y'

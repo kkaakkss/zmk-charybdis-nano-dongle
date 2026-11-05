@@ -28,6 +28,7 @@ header=r'''
 #include <stddef.h>
 #include <stdbool.h>
 #include "trackball_math.h"
+#include "trackball_status.h"
 void *memset(void *dest,int value,size_t count) {
     unsigned char *p=dest;while(count--) *p++=(unsigned char)value;return dest;
 }
@@ -67,6 +68,8 @@ static struct device sensor;
 static const struct device *temporary_layer=&sensor;
 static struct nano35_ball_state ball;
 static int ball_lock,lock_depth,highest,auto_calls,failure;
+static unsigned speed_updates;
+void nano35_trackball_speed_ui_changed(void) {if(lock_depth)failure=94;speed_updates++;}
 static uint32_t test_now;
 static uint32_t k_uptime_get_32(void) {return test_now;}
 static int k_mutex_lock(int *l,int timeout) {if(lock_depth) failure=90;lock_depth++;return 0;}
@@ -78,7 +81,7 @@ static int zmk_input_processor_handle_event(const struct device *dev,struct inpu
 }
 '''
 parts=[header]
-parts += [function(processor,s) for s in ['static enum nano35_ball_mode current_mode(', 'static int modes_layer_event(', 'static int modes_handle_event(']]
+parts += [function(processor,s) for s in ['static enum nano35_ball_mode current_mode(', 'void nano35_trackball_speed_snapshot(', 'static int modes_layer_event(', 'static int modes_handle_event(']]
 parts += [function(processor, 'void nano35_trackball_speed_step(')]
 parts += [r'''
 #define CONFIG_ZMK_SPLIT_ROLE_CENTRAL 1
@@ -325,6 +328,20 @@ int main(void) {
         if(!release_combo_key(order?3:2,0) || highest!=4 || combo_release_calls!=1) return 62;
         if(!release_combo_key(order?2:3,0) || combo_release_calls!=1 || active_combo_count) return 63;
     }
+    // OLED snapshot uses stable base eCPI, not instantaneous acceleration.
+    struct nano35_speed_status view;
+    ball.speed_percent=100;ball.scroll_percent=90;ball.snipe_percent=120;ball.faster_percent=110;
+    layer(4);nano35_trackball_speed_snapshot(&view);
+    if(!view.visible || view.scroll || view.value!=400) return 71;
+    layer(5);nano35_trackball_speed_snapshot(&view);
+    if(!view.visible || !view.scroll || view.value!=90) return 72;
+    layer(6);nano35_trackball_speed_snapshot(&view);if(view.scroll || view.value!=120) return 73;
+    layer(7);nano35_trackball_speed_snapshot(&view);if(view.scroll || view.value!=660) return 74;
+    unsigned updates=speed_updates;speed_pressed(&faster_up,event);nano35_trackball_speed_snapshot(&view);
+    if(speed_updates!=updates+1 || view.value!=720 || ball.speed_percent!=100) return 75;
+    ball.speed_percent=200;ball.faster_percent=200;nano35_trackball_speed_snapshot(&view);
+    if(view.value!=2400) return 76;
+    layer(0);nano35_trackball_speed_snapshot(&view);if(view.visible) return 77;
     return failure;
 }
 ''']
@@ -370,3 +387,5 @@ print('PASS: FASTER x1.5 with inherited normal speed/acceleration, signed fracti
 print('PASS: pinned ZMK combo release logic returns from SNIPE on either first release, consumes the remaining release and ignores unrelated keys')
 
 print('PASS: FASTER-only trim controls, 20..200% bounds, release no-op, signed fractions and normal speed unchanged')
+
+print('PASS: OLED speed snapshots for all four modes, stable eCPI, Scroll percent, hidden typing layers and unlocked display refresh on speed/layer changes')

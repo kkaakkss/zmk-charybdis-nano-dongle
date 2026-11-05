@@ -90,3 +90,6 @@ CPM 표시는 제거했습니다. [속도 버튼·OLED 안내](docs/mouse-speed-
 UF2, 설치 보관본, 과거 로그는 Git에서 제외하고 로컬에 보존합니다.
 봉고캣/OLED 코드의 원본·수정 내역과 MIT 라이선스는
 `boards/shields/nano35_status/UPSTREAM.md`, `LICENSE`에 보존되어 있습니다.
+
+OLED의 예전 CPM 자리에는 현재 eCPI 또는 스크롤 배율을 표시합니다.
+배터리는 L/R 접두가 잘리지 않도록 고정 폭을 사용합니다. [현재 속도·배터리 표시](docs/oled-speed-status.md).

@@ -1,6 +1,6 @@
 # 코드 검토 안내
 
-현재 구성은 토템 4개 레이어와 Mouse/Scroll/Snipe 3개 레이어다.
+현재 구성은 토템 4개 레이어와 Mouse/Scroll/Snipe/Faster 4개 레이어다.
 기본 센서 드라이버 대신 USB 동글의 로컬 input processor에서 모드를 변환한다.
 
 - [현재 검증 상태와 한계](validation.md)

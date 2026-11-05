@@ -120,8 +120,8 @@ parts.append(r'''
 #define LOG_DBG(...) ((void)0)
 #define LV_ALIGN_TOP_RIGHT 0
 #define LV_OBJ_FLAG_HIDDEN 1
-struct battery_state { uint8_t source, level; bool usb_present, refresh_all; };
-typedef struct { int x,y; bool hidden; char text[8]; } lv_obj_t;
+struct battery_state { uint8_t source, level; bool usb_present, refresh_all, known; };
+typedef struct { int x,y,width,height; bool hidden; char text[8]; } lv_obj_t;
 static lv_obj_t symbols[2],labels[2];
 static struct {lv_obj_t *symbol,*label;} battery_objects[2]={{&symbols[0],&labels[0]},{&symbols[1],&labels[1]}};
 static int atomic_get(const int *p) { return *p; }
@@ -133,6 +133,72 @@ static void lv_obj_add_flag(lv_obj_t *o,int flag) {o->hidden=true;}
 static void lv_obj_move_foreground(lv_obj_t *o) {}
 ''')
 parts.append(function((widgets/'battery_status.c').read_text(), 'static void set_battery_symbol('))
+parts.append(function((widgets/'speed_status.c').read_text(), 'static void speed_text('))
+parts.append(r'''
+#define LV_OBJ_FLAG_SCROLLABLE 2
+#define LV_LABEL_LONG_CLIP 0
+#define LV_TEXT_ALIGN_RIGHT 1
+struct k_work {void (*handler)(struct k_work *);};
+struct k_work_q {int unused;};
+static struct k_work_q speed_queue;
+static struct k_work *pending_speed;
+static bool speed_initialized=true;
+static lv_obj_t speed_objects[3];static unsigned speed_object_count;
+static lv_obj_t *speed_root,*speed_unit,*speed_value;
+struct nano35_speed_status {bool visible,scroll;uint16_t value;};
+static struct nano35_speed_status speed_model;
+static void nano35_trackball_speed_snapshot(struct nano35_speed_status *out){*out=speed_model;}
+static bool zmk_display_is_initialized(void){return speed_initialized;}
+static struct k_work_q *zmk_display_work_q(void){return &speed_queue;}
+static int k_work_submit_to_queue(struct k_work_q *q,struct k_work *w){pending_speed=w;return 0;}
+static lv_obj_t *lv_obj_create(lv_obj_t *parent){return &speed_objects[speed_object_count++];}
+static lv_obj_t *lv_label_create(lv_obj_t *parent){return lv_obj_create(parent);}
+static void lv_obj_remove_style_all(lv_obj_t *o){}
+static void lv_obj_set_size(lv_obj_t *o,int w,int h){o->width=w;o->height=h;}
+static void lv_obj_set_pos(lv_obj_t *o,int x,int y){o->x=x;o->y=y;}
+static void lv_obj_set_width(lv_obj_t *o,int w){o->width=w;}
+static void lv_label_set_long_mode(lv_obj_t *o,int mode){}
+static void lv_obj_set_style_text_align(lv_obj_t *o,int align,int part){}
+''')
+speed_source=(widgets/'speed_status.c').read_text()
+parts.append(speed_source[speed_source.index('enum { SPEED_X='):speed_source.index('};',speed_source.index('enum { SPEED_X='))+2])
+parts.append(function(speed_source,'static void speed_update('))
+parts.append('static struct k_work speed_work={.handler=speed_update};')
+parts.append(function(speed_source,'void nano35_trackball_speed_ui_changed('))
+parts.append(function(speed_source,'void nano35_widget_speed_init('))
+
+parts.append(r'''
+#define LV_COORD_MIN (-32768)
+#define LV_MAX(a,b) ((a)>(b)?(a):(b))
+#define LV_PART_MAIN 0
+#define LV_ANIM_OFF 0
+#define LAYOUT_RTL 1
+#define LAYOUT_FLAG_HIDDEN 1
+#define LAYOUT_FLAG_FLOATING 2
+enum {LAYOUT_ALIGN_DEFAULT,LAYOUT_ALIGN_TOP_LEFT,LAYOUT_ALIGN_TOP_RIGHT,LAYOUT_ALIGN_BOTTOM_LEFT,LAYOUT_ALIGN_LEFT_MID,LAYOUT_ALIGN_BOTTOM_RIGHT,LAYOUT_ALIGN_RIGHT_MID};
+typedef int lv_align_t;
+typedef struct layout_obj layout_obj_t;
+struct layout_spec {layout_obj_t *children[2];};
+struct layout_obj {lv_area_t coords;struct layout_spec *spec_attr;unsigned count;int align,y;};
+static void layout_obj_scroll_to_x(layout_obj_t *o,int x,int anim) {}
+static int layout_obj_get_style_border_width(layout_obj_t *o,int part){return 0;}
+static int layout_obj_get_style_pad_right(layout_obj_t *o,int part){return 0;}
+static int layout_obj_get_style_pad_left(layout_obj_t *o,int part){return 0;}
+static int layout_obj_get_self_width(layout_obj_t *o){return 0;}
+static unsigned layout_obj_get_child_cnt(layout_obj_t *o){return o->count;}
+static int layout_obj_get_style_base_dir(layout_obj_t *o,int part){return 0;}
+static bool layout_obj_has_flag_any(layout_obj_t *o,int flags){return false;}
+static bool layout_obj_is_layout_positioned(layout_obj_t *o){return false;}
+static int layout_obj_get_style_align(layout_obj_t *o,int part){return o->align;}
+static int layout_obj_get_style_x(layout_obj_t *o,int part){return 0;}
+static int layout_obj_get_style_y(layout_obj_t *o,int part){return o->y;}
+static int layout_area_get_width(const lv_area_t *a){return a->x2-a->x1+1;}
+''')
+# Actual pinned LVGL content sizing, with namespaced style/geometry API doubles.
+layout_function=function((ws/'modules/lib/gui/lvgl/src/core/lv_obj_pos.c').read_text(), 'static lv_coord_t calc_content_width(lv_obj_t * obj)\n{')
+layout_function=layout_function.replace('lv_obj_', 'layout_obj_').replace('calc_content_width','layout_content_width').replace('lv_area_get_width','layout_area_get_width').replace('LV_ALIGN_','LAYOUT_ALIGN_').replace('LV_OBJ_FLAG_','LAYOUT_FLAG_').replace('LV_BASE_DIR_RTL','LAYOUT_RTL')
+parts.append(layout_function)
+
 
 parts.append(r'''
 int main(void) {
@@ -187,9 +253,9 @@ int main(void) {
     if (cpm_from_wpm(0)!=0 || cpm_from_wpm(82)!=410 || cpm_from_wpm(255)!=1275) return 18;
     if (cpm_from_wpm(-1)!=0 || cpm_from_wpm(999)!=1275) return 19;
     char text[8];
-    battery_text(text,sizeof(text),0,59);if(!equal(text,"? 59%")) return 20;
+    battery_text(text,sizeof(text),0,59);if(!equal(text,"?59%")) return 20;
     battery_text(text,sizeof(text),'L',100);if(!equal(text,"L100%")) return 21;
-    battery_text(text,sizeof(text),'R',7);if(!equal(text,"R  7%")) return 22;
+    battery_text(text,sizeof(text),'R',7);if(!equal(text,"R07%")) return 22;
     battery_text(text,sizeof(text),'R',255);if(!equal(text,"R100%")) return 23;
     for(unsigned pos=0;pos<35;pos++) {
         char expected=pos<30?(pos%10<5?'L':'R'):(pos<33?'L':'R');
@@ -203,15 +269,45 @@ int main(void) {
     learn_battery_side(0,16);
     set_battery_symbol(NULL,(struct battery_state){.source=0,.level=64});
     set_battery_symbol(NULL,(struct battery_state){.source=1,.level=59});
-    if(labels[0].y!=10 || symbols[0].y!=10 || !equal(labels[0].text,"R 64%")) return 29;
-    if(labels[1].y!=0 || symbols[1].y!=0 || !equal(labels[1].text,"L 59%")) return 30;
+    if(labels[0].y!=10 || symbols[0].y!=10 || !equal(labels[0].text,"R64%")) return 29;
+    if(labels[1].y!=0 || symbols[1].y!=0 || !equal(labels[1].text,"L59%")) return 30;
     // A later identity correction moves both objects without swapping their battery values.
     learn_battery_side(0,30);
     set_battery_symbol(NULL,(struct battery_state){.source=0,.level=64});
     set_battery_symbol(NULL,(struct battery_state){.source=1,.level=59});
-    if(labels[0].y!=0 || symbols[0].y!=0 || !equal(labels[0].text,"L 64%")) return 31;
-    if(labels[1].y!=10 || symbols[1].y!=10 || !equal(labels[1].text,"R 59%")) return 32;
+    if(labels[0].y!=0 || symbols[0].y!=0 || !equal(labels[0].text,"L64%")) return 31;
+    if(labels[1].y!=10 || symbols[1].y!=10 || !equal(labels[1].text,"R59%")) return 32;
     if(battery_row_for_side(0,1)!=1) return 33;
+    battery_text(text,sizeof(text),'L',0);if(!equal(text,"L00%")) return 34;
+    set_battery_symbol(NULL,(struct battery_state){.source=0,.level=0,.known=true});
+    if(labels[0].hidden || !equal(labels[0].text,"L00%")) return 35;
+    speed_text(text,400,false);if(!equal(text,"400")) return 36;
+    speed_text(text,600,false);if(!equal(text,"600")) return 37;
+    speed_text(text,2400,false);if(!equal(text,"2400")) return 38;
+    speed_text(text,100,true);if(!equal(text,"100%")) return 39;
+    speed_text(text,20,true);if(!equal(text,"20%")) return 40;
+    // Reproduce the prefix clip with actual LVGL width calculation: -7px right gap
+    // is excluded from auto width. Explicit 51px includes 44px label + 7px gap/icon.
+    layout_obj_t label={.align=LAYOUT_ALIGN_TOP_RIGHT,.coords={.x1=0,.x2=43}};
+    layout_obj_t icon={.align=LAYOUT_ALIGN_TOP_RIGHT,.coords={.x1=0,.x2=4}};
+    struct layout_spec children={.children={&label,&icon}};
+    layout_obj_t parent={.spec_attr=&children,.count=2};
+    int old_width=layout_content_width(&parent);
+    if(old_width!=44 || old_width-7-44!=-7 || 51-7-44!=0) return 41;
+    // Actual speed widget init and queued refresh, backed by LVGL/queue doubles.
+    nano35_widget_speed_init(NULL);
+    if(speed_object_count!=3 || speed_root->x!=38 || speed_root->y || speed_root->width!=36 || speed_root->height!=18 || !speed_root->hidden) return 42;
+    if(speed_unit->y || speed_value->y!=9 || speed_unit->width!=36 || speed_value->width!=36) return 43;
+    speed_model=(struct nano35_speed_status){.visible=true,.value=400};
+    nano35_trackball_speed_ui_changed();
+    if(pending_speed!=&speed_work || !speed_root->hidden) return 44;
+    pending_speed->handler(pending_speed);pending_speed=NULL;
+    if(speed_root->hidden || !equal(speed_unit->text,"eCPI") || !equal(speed_value->text,"400")) return 45;
+    speed_model.scroll=true;speed_model.value=80;nano35_trackball_speed_ui_changed();pending_speed->handler(pending_speed);pending_speed=NULL;
+    if(!equal(speed_unit->text,"SCR") || !equal(speed_value->text,"80%")) return 46;
+    speed_model.visible=false;nano35_trackball_speed_ui_changed();pending_speed->handler(pending_speed);pending_speed=NULL;
+    if(!speed_root->hidden) return 47;
+    speed_initialized=false;nano35_trackball_speed_ui_changed();if(pending_speed) return 48;
     const char *expected_locks[]={"","N","C","NC","S","NS","CS","NCS"};
     for(int i=0;i<8;i++) {
         lock_text(text,i|0x18);if(!equal(text,expected_locks[i])) return 28;
@@ -262,3 +358,7 @@ print('LIMIT: metadata/event/bus APIs and panel RAM mapping are doubles; USB/I2C
 print('PASS: battery label formatting, all 35 handed positions, reversed BLE sources, invalid sources and all eight active-only lock combinations')
 
 print('PASS: actual battery updater fixes L at y=0 and R at y=10 with labels/icons and values preserved across reversed sources and identity correction')
+
+print('PASS: compact L00%/R07%/100% labels, valid zero battery, speed text and actual LVGL auto-width reproducing seven clipped prefix pixels')
+
+print('PASS: actual speed widget initialization at old CPM slot, queued eCPI/SCR updates, typing-layer hide and pre-init guard (LVGL/kernel APIs are doubles)')

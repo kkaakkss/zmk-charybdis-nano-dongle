@@ -25,6 +25,16 @@ struct nano35_ball_state {
     bool frame_open, accel_valid, accel_skip_frame;
 };
 
+// Base software-equivalent CPI; instantaneous acceleration is deliberately excluded.
+static inline uint16_t nano35_ball_base_ecpi(const struct nano35_ball_state *s, enum nano35_ball_mode mode) {
+    uint32_t normal = s->speed_percent ? s->speed_percent : 100;
+    uint32_t snipe = s->snipe_percent ? s->snipe_percent : 100;
+    uint32_t faster = s->faster_percent ? s->faster_percent : 100;
+    if (mode == NANO35_SNIPE) { return 100 * snipe / 100; }
+    if (mode == NANO35_FAST) { return 400 * normal * 3 * faster / 20000; }
+    return 400 * normal / 100;
+}
+
 static inline bool nano35_ball_is_move(enum nano35_ball_mode mode) {
     return mode == NANO35_MOVE || mode == NANO35_FAST;
 }

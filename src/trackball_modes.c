@@ -7,6 +7,9 @@
 #include <zmk/event_manager.h>
 #include <zmk/events/layer_state_changed.h>
 #include "trackball_math.h"
+#include "trackball_status.h"
+
+__attribute__((weak)) void nano35_trackball_speed_ui_changed(void) {}
 
 #define MOUSE_LAYER DT_INST_PROP(0, mouse_layer)
 #define SCROLL_LAYER DT_INST_PROP(0, scroll_layer)
@@ -22,6 +25,7 @@ void nano35_trackball_speed_step(unsigned mode, int step) {
     k_mutex_lock(&ball_lock, K_FOREVER);
     nano35_ball_adjust_speed(&ball, mode, step);
     k_mutex_unlock(&ball_lock);
+    nano35_trackball_speed_ui_changed();
 }
 
 static enum nano35_ball_mode current_mode(void) {
@@ -32,10 +36,23 @@ static enum nano35_ball_mode current_mode(void) {
     return NANO35_MOVE;
 }
 
+void nano35_trackball_speed_snapshot(struct nano35_speed_status *out) {
+    k_mutex_lock(&ball_lock, K_FOREVER);
+    uint8_t layer = zmk_keymap_highest_layer_active();
+    enum nano35_ball_mode mode = current_mode();
+    *out = (struct nano35_speed_status){
+        .visible = layer == MOUSE_LAYER || layer == SCROLL_LAYER || layer == SNIPE_LAYER || layer == FASTER_LAYER,
+        .scroll = mode == NANO35_SCROLL,
+        .value = mode == NANO35_SCROLL ? (ball.scroll_percent ? ball.scroll_percent : 100) : nano35_ball_base_ecpi(&ball, mode),
+    };
+    k_mutex_unlock(&ball_lock);
+}
+
 static int modes_layer_event(const zmk_event_t *eh) {
     k_mutex_lock(&ball_lock, K_FOREVER);
     nano35_ball_set_mode(&ball, current_mode());
     k_mutex_unlock(&ball_lock);
+    nano35_trackball_speed_ui_changed();
     return ZMK_EV_EVENT_BUBBLE;
 }
 ZMK_LISTENER(nano35_ball_modes, modes_layer_event);
