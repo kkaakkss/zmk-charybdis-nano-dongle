@@ -30,11 +30,10 @@ struct hid_indicators_state {
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 static void lock_text(char text[4], uint8_t indicators) {
-    unsigned n = 0;
-    if (indicators & LED_NLCK) { text[n++] = 'N'; }
-    if (indicators & LED_CLCK) { text[n++] = 'C'; }
-    if (indicators & LED_SLCK) { text[n++] = 'S'; }
-    text[n] = '\0';
+    text[0] = (indicators & LED_NLCK) ? 'N' : ' ';
+    text[1] = (indicators & LED_CLCK) ? 'C' : ' ';
+    text[2] = (indicators & LED_SLCK) ? 'S' : ' ';
+    text[3] = '\0';
 }
 static void set_hid_indicators(lv_obj_t *label, struct hid_indicators_state state) {
     char text[4];
@@ -48,7 +47,7 @@ void hid_indicators_update_cb(struct hid_indicators_state state) {
 }
 
 static struct hid_indicators_state hid_indicators_get_state(const zmk_event_t *eh) {
-    struct zmk_hid_indicators_changed *ev = as_zmk_hid_indicators_changed(eh);
+    struct zmk_hid_indicators_changed *ev = eh ? as_zmk_hid_indicators_changed(eh) : NULL;
     return (struct hid_indicators_state) {
         .hid_indicators = ev != NULL ? ev->indicators : zmk_hid_indicators_get_current_profile(),
     };
@@ -61,6 +60,10 @@ ZMK_SUBSCRIPTION(widget_hid_indicators, zmk_hid_indicators_changed);
 
 int zmk_widget_hid_indicators_init(struct zmk_widget_hid_indicators *widget, lv_obj_t *parent) {
     widget->obj = lv_label_create(parent);
+    // Three fixed monospace slots, including inactive spaces: N C S.
+    lv_obj_set_width(widget->obj, 26);
+    lv_label_set_long_mode(widget->obj, LV_LABEL_LONG_CLIP);
+    lv_obj_set_style_text_align(widget->obj, LV_TEXT_ALIGN_LEFT, 0);
 
     sys_slist_append(&widgets, &widget->node);
 

@@ -229,7 +229,8 @@ layers:
   - ''
   - ''
   - ''
-  - LMB
+  - t: LMB
+    h: then BASE
   - RMB
   - ''
   - ''
@@ -240,7 +241,8 @@ layers:
   - ''
   - t: LMB
     h: then BASE
-  - Alt+LEFT ARROW
+  - t: LMB
+    h: then BASE
   - Wheel Down
   - Alt+RIGHT
   - ''

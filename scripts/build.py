@@ -12,18 +12,20 @@ p.add_argument('--workspace', type=Path, required=True)
 p.add_argument('--pristine', action='store_true')
 p.add_argument('--target', type=int, help='Zero-based build.yaml include index')
 p.add_argument('--source-dir', type=Path, help='Source alias for Windows paths containing spaces')
+p.add_argument('--manifest', default='build.yaml', help='Optional build matrix relative to repository')
 a = p.parse_args()
 repo = a.source_dir.absolute() if a.source_dir else Path(__file__).resolve().parents[1]
 ws = a.workspace.resolve()
 results = []
-for i, target in enumerate(yaml.safe_load((repo / 'build.yaml').read_text())['include']):
+for i, target in enumerate(yaml.safe_load((repo / a.manifest).read_text())['include']):
     if a.target is not None and i != a.target:
         continue
-    build = ws / 'builds' / str(i)
+    build = ws / 'builds' / (str(i) if a.manifest=='build.yaml' else f'd{i}')
     build.parent.mkdir(exist_ok=True)
     cmd = ['west', 'build', '-p', 'always' if a.pristine else 'auto', '-s', str(ws / 'zmk/app'), '-d', str(build), '-b', target['board']]
     if target.get('snippet'):
-        cmd += ['-S', target['snippet']]
+        for snippet in target['snippet'].split():
+            cmd += ['-S', snippet]
     import shlex
     # CMake parses backslashes in Windows paths as escapes (for example, \U).
     cmd += ['--', f'-DZMK_CONFIG={repo.as_posix()}/config', f'-DZMK_EXTRA_MODULES={repo.as_posix()}', f'-DZEPHYR_BASE={ws.as_posix()}/zephyr', f'-DZephyr_DIR={ws.as_posix()}/zephyr/share/zephyr-package/cmake']
@@ -32,7 +34,7 @@ for i, target in enumerate(yaml.safe_load((repo / 'build.yaml').read_text())['in
     if target.get('shield', '').split()[0].startswith('nano35_'):
         cmd += [f'-DKEYMAP_FILE={repo.as_posix()}/config/nano35.keymap']
     cmd += shlex.split(target.get('cmake-args', ''))
-    log = build.parent / f'{i}.log'
+    log = build.with_suffix('.log')
     output = repo / 'artifacts' / (target['artifact-name'] + '.uf2')
     # A failed rebuild must not leave an older, apparently current release file.
     output.unlink(missing_ok=True)

@@ -1,0 +1,19 @@
+# Optional local recovery/diagnostic builds. Normal Actions stays OLED-only.
+include:
+  - board: nice_nano_v2
+    shield: nano35_dongle nano35_status
+    snippet: nano35-oled zmk-usb-logging
+    artifact-name: nano35-dongle-oled-debug
+  - board: nice_nano_v2
+    shield: nano35_left
+    snippet: zmk-usb-logging
+    artifact-name: nano35-left-debug
+  - board: nice_nano_v2
+    shield: nano35_left
+    artifact-name: nano35-left-recovery
+  - board: nice_nano_v2
+    shield: nano35_right
+    artifact-name: nano35-right-recovery
+  - board: nice_nano_v2
+    shield: settings_reset
+    artifact-name: nano35-settings-reset

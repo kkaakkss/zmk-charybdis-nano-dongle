@@ -65,6 +65,9 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert 'nano35_pomodoro_toggle' not in edt.get_node('/combos').children
         assert 'nano35_pomodoro_reset' not in edt.get_node('/combos').children
         mouse=layers[4].props['bindings'].val
+        for position in [17,26]:
+            assert mouse[position].controller==mouse[25].controller
+            assert mouse[position].data==mouse[25].data
         speed=edt.get_node('/behaviors/ball_speed')
         for position,action in [(1,1),(21,0)]:
             assert mouse[position].controller==speed and mouse[position].data['param1']==action

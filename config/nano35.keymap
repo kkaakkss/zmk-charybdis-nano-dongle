@@ -691,8 +691,8 @@
             display-name = "MOUSE";
             bindings = <
 &none  &ball_speed 1  &mo 5        &mo 7        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
-&none  &kp LSHIFT  &mkp LCLK    &mkp RCLK    &none         &none        &none               &mkp LCLK       &mkp RCLK        &none
-&none  &ball_speed 0  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &kp LA(LEFT_ARROW)  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
+&none  &kp LSHIFT  &mkp LCLK    &mkp RCLK    &none         &none        &none               &lclick_to0     &mkp RCLK        &none
+&none  &ball_speed 0  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &lclick_to0  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
               &trans       &trans       &to 0         &to 0        &to 0
             >;
         };

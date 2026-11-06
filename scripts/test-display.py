@@ -308,7 +308,7 @@ int main(void) {
     speed_model.visible=false;nano35_trackball_speed_ui_changed();pending_speed->handler(pending_speed);pending_speed=NULL;
     if(!speed_root->hidden) return 47;
     speed_initialized=false;nano35_trackball_speed_ui_changed();if(pending_speed) return 48;
-    const char *expected_locks[]={"","N","C","NC","S","NS","CS","NCS"};
+    const char *expected_locks[]={"   ","N  "," C ","NC ","  S","N S"," CS","NCS"};
     for(int i=0;i<8;i++) {
         lock_text(text,i|0x18);if(!equal(text,expected_locks[i])) return 28;
     }

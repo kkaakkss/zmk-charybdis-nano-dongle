@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory=$true)][string]$Python,
     [Parameter(Mandatory=$true)][string]$Sdk,
     [ValidateRange(0,5)][int]$Target,
+    [string]$Manifest = 'build.yaml',
     [switch]$Pristine
 )
 $ErrorActionPreference = 'Stop'
@@ -33,6 +34,7 @@ try {
     $env:CMAKE_BUILD_PARALLEL_LEVEL = '4'
     $buildArgs = @((Join-Path $PSScriptRoot 'build.py'), '--workspace', $workspacePath, '--source-dir', $sourcePath)
     if ($PSBoundParameters.ContainsKey('Target')) { $buildArgs += @('--target', "$Target") }
+    $buildArgs += @('--manifest', $Manifest)
     if ($Pristine) { $buildArgs += '--pristine' }
     & $pythonPath @buildArgs
     if ($LASTEXITCODE -ne 0) { throw "Firmware build failed: $LASTEXITCODE" }

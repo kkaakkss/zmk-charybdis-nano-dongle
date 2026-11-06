@@ -1,5 +1,15 @@
 # 현재 검증 상태
 
+## 2026-11-06: Mouse 키 복제 / 잠금 고정 / 연결 진단
+
+MOUSE 17/26을 25와 같은 lclick_to0로 지정한다. 잠금은 비활성 자리를 공백으로
+유지하고 고정 폭 N/C/S 슬롯을 사용한다. Excel용 Ctrl+Shift는 L5 인덱스3에 유지한다.
+선택적 USB 로그/좌우 복구/reset 빌드를 추가했다. 일상 Actions는 OLED 한 개다.
+왼쪽 재연결 실패는 로그가 없어 원인 미확정이며, 복구와 진단은
+[left-connection-diagnostics.md](left-connection-diagnostics.md)를 따른다.
+빌드 및 코드 검사와 실제 무선 연결 검증은 별개다.
+
+
 ## 2026-11-05: OLED 현재 속도와 배터리 L/R 잘림 수정
 
 속도 위젯의 초기화·eCPI/SCR 값·display 큐 갱신과 타이핑 레이어 숨김을 실제 C로 검사했다.
