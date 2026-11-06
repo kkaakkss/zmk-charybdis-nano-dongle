@@ -7,6 +7,7 @@ MOUSE 17/26을 25와 같은 lclick_to0로 지정한다. 잠금은 비활성 자�
 선택적 USB 로그/좌우 복구/reset 빌드를 추가했다. 일상 Actions는 OLED 한 개다.
 왼쪽 재연결 실패는 로그가 없어 원인 미확정이며, 복구와 진단은
 [left-connection-diagnostics.md](left-connection-diagnostics.md)를 따른다.
+정상 OLED 로컬 빌드·생성 DTS 키 배치 검사·8개 잠금 조합 실제 C 검사를 통과했다.
 빌드 및 코드 검사와 실제 무선 연결 검증은 별개다.
 
 
