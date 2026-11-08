@@ -494,11 +494,12 @@ combos:
   - 28
   k:
     t: DELETE
-    s: L0,2,1
+    s: L0,2,1,4
   l:
   - QWER
   - R_Num
   - F|Nav
+  - MOUSE
   w: 100
   h: 46
 - p:
@@ -506,11 +507,12 @@ combos:
   - 23
   k:
     t: DELETE
-    s: L0,1,2
+    s: L0,1,2,4
   l:
   - QWER
   - F|Nav
   - R_Num
+  - MOUSE
   w: 100
   h: 46
 - p:
@@ -518,11 +520,12 @@ combos:
   - 27
   k:
     t: BACKSPACE
-    s: L0,2,1
+    s: L0,2,1,4
   l:
   - QWER
   - R_Num
   - F|Nav
+  - MOUSE
   w: 100
   h: 46
 - p:
@@ -530,11 +533,12 @@ combos:
   - 22
   k:
     t: BACKSPACE
-    s: L0,2,1
+    s: L0,2,1,4
   l:
   - QWER
   - R_Num
   - F|Nav
+  - MOUSE
   w: 100
   h: 46
 - p:

@@ -46,6 +46,12 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert base[19].controller==edt.get_node('/behaviors/hold_tap')
         assert base[19].data=={'param1':0x02070033,'param2':0x70033}
         combos=edt.get_node('/combos').children
+        for name,positions,keycode in [('bsp_l',[21,22],0x7002a),('del_l',[22,23],0x7004c),('bsp_r',[26,27],0x7002a),('del_r',[27,28],0x7004c)]:
+            combo=combos[name]
+            assert combo.props['key-positions'].val==positions
+            assert set(combo.props['layers'].val)=={0,1,2,4}
+            binding=combo.props['bindings'].val[0]
+            assert binding.controller.name=='key_press' and binding.data['param1']==keycode
         assert 'R_q2' not in combos
         question=combos['question_mark']
         assert question.props['key-positions'].val==[18,27] and question.props['layers'].val==[0]
