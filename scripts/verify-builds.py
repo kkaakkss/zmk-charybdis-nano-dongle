@@ -126,14 +126,14 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
         assert mouse_space.props['tapping-term-ms'].val==240
         assert mouse_space.props['quick-tap-ms'].val==150 and mouse_space.props['flavor'].val=='balanced'
         hold,tap=mouse_space.props['bindings'].val
-        assert hold.controller==edt.get_node('/behaviors/mouse_nav_hold')
-        assert tap.controller==edt.get_node('/behaviors/mouse_space_tap')
+        assert hold==edt.get_node('/behaviors/mouse_nav_hold')
+        assert tap==edt.get_node('/behaviors/mouse_space_tap')
         def macro_steps(node):
             return [(b.controller.name,b.data) for b in node.props['bindings'].val]
-        assert macro_steps(hold.controller)==[
+        assert macro_steps(hold)==[
             ('macro_tap',{}),('to_layer',{'param1':1}),('macro_pause_for_release',{}),
             ('macro_tap',{}),('to_layer',{'param1':0})]
-        assert macro_steps(tap.controller)==[
+        assert macro_steps(tap)==[
             ('macro_tap',{}),('to_layer',{'param1':0}),('macro_press',{}),
             ('key_press',{'param1':0x7002c}),('macro_pause_for_release',{}),
             ('macro_release',{}),('key_press',{'param1':0x7002c})]
