@@ -1,5 +1,15 @@
 # 현재 검증 상태
 
+## 2026-11-08: MOUSE 32 Space / NAV / BASE
+
+MOUSE 32를 탭 Space, 홀드 L1, 홀드 해제 BASE로 바꿨다.
+기존 L0 lt와 동일한 240ms balanced / quick-tap 150ms를 사용한다.
+L4가 낮은 L1을 가리지 않도록 홀드는 to1, 해제는 to0을 실행한다.
+탭도 to0 후 Space press/release를 짝지어 출력한다.
+생성 DTS에서 홀드탭 설정·매크로 순서·Space 해제·33/34의 BASE 유지를 검사한다.
+실기기 타이밍과 NAV 사용 중 트랙볼 동시 입력은 확인 대기다.
+
+
 ## 2026-11-08: MOUSE 10+11 Tab / 작업 전환
 
 10+11은 Tab, 31(Alt) 홀드 시 Alt+Tab, 30(Ctrl)+31(Alt) 홀드 시 Win+Tab이다.

@@ -120,7 +120,26 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
                 assert bindings[position].controller==speed and bindings[position].data['param1']==action
         assert layers[5].props['bindings'].val[3].controller.name=='key_press'
         assert layers[5].props['bindings'].val[3].data['param1']==0x010700e1
-        assert mouse[32].controller==mouse[34].controller and mouse[32].data==mouse[34].data
+        mouse_space=edt.get_node('/behaviors/mouse_space_nav')
+        assert mouse[32].controller==mouse_space and mouse[32].data=={'param1':0,'param2':0}
+        assert mouse_space.matching_compat=='zmk,behavior-hold-tap'
+        assert mouse_space.props['tapping-term-ms'].val==240
+        assert mouse_space.props['quick-tap-ms'].val==150 and mouse_space.props['flavor'].val=='balanced'
+        hold,tap=mouse_space.props['bindings'].val
+        assert hold.controller==edt.get_node('/behaviors/mouse_nav_hold')
+        assert tap.controller==edt.get_node('/behaviors/mouse_space_tap')
+        def macro_steps(node):
+            return [(b.controller.name,b.data) for b in node.props['bindings'].val]
+        assert macro_steps(hold.controller)==[
+            ('macro_tap',{}),('to_layer',{'param1':1}),('macro_pause_for_release',{}),
+            ('macro_tap',{}),('to_layer',{'param1':0})]
+        assert macro_steps(tap.controller)==[
+            ('macro_tap',{}),('to_layer',{'param1':0}),('macro_press',{}),
+            ('key_press',{'param1':0x7002c}),('macro_pause_for_release',{}),
+            ('macro_release',{}),('key_press',{'param1':0x7002c})]
+        for position in [33,34]:
+            assert mouse[position].controller.name=='to_layer' and mouse[position].data['param1']==0
+
         fast=edt.get_node('/combos/nano35_mouse_snipe')
         assert fast.props['key-positions'].val==[2,3] and fast.props['layers'].val==[4]
         assert fast.props['timeout-ms'].val==80 and not fast.props['slow-release'].val

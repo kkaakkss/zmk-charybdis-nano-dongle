@@ -252,7 +252,8 @@ layers:
     type: trans
   - t: ▽
     type: trans
-  - BASE
+  - t: SPACE
+    h: L1; release BASE
   - BASE
   - BASE
   SCROL:

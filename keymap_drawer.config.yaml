@@ -5,6 +5,7 @@ draw_config:
   footer_text: "Nano35 | schematic positions, not case geometry"
 parse_config:
   raw_binding_map:
+    "&mouse_space_nav 0 0": {t: SPACE, h: "L1; release BASE"}
     "&mouse_tab": {t: TAB, s: "Ctrl+Alt: Win+Tab"}
     "&mouse_ctrl_w": {t: "SPEED +10%", s: "Ctrl: Ctrl+W"}
     "&mouse_alt_back": {t: Shift, s: "Alt: Back"}
