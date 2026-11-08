@@ -23,6 +23,29 @@
             tap-ms = <0>;
             bindings = <&to 0>, <&sl 3>;
         };
+        // Thumb modifiers remain ordinary Ctrl/Alt. No combo timing window:
+        // hold the thumb first, then press the target key at any time.
+        mouse_ctrl_w: mouse_ctrl_w {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&ball_speed 1>, <&kp W>;
+            mods = <MOD_LCTL>;
+            keep-mods = <MOD_LCTL>;
+        };
+        mouse_alt_back: mouse_alt_back {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&kp LSHIFT>, <&kp LEFT>;
+            mods = <MOD_LALT>;
+            keep-mods = <MOD_LALT>;
+        };
+        mouse_alt_forward: mouse_alt_forward {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&mkp RCLK>, <&kp RIGHT>;
+            mods = <MOD_LALT>;
+            keep-mods = <MOD_LALT>;
+        };
         ball_speed: ball_speed {
             compatible = "nano35,ball-speed";
             #binding-cells = <1>;
@@ -690,8 +713,8 @@
         mouse_layer {
             display-name = "MOUSE";
             bindings = <
-&none  &ball_speed 1  &mo 5        &mo 7        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
-&none  &kp LSHIFT  &mkp LCLK    &mkp RCLK    &none         &none        &none               &lclick_to0     &mkp RCLK        &none
+&none  &mouse_ctrl_w  &mo 5        &mo 7        &none         &none        &msc SCRL_LEFT      &msc SCRL_UP    &msc SCRL_RIGHT  &none
+&none  &mouse_alt_back  &mkp LCLK    &mouse_alt_forward    &none         &none        &none               &lclick_to0     &mkp RCLK        &none
 &none  &ball_speed 0  &alt_Lclick  &alt_Rclick  &none         &lclick_to0  &lclick_to0  &msc SCRL_DOWN  &kp LA(RIGHT)    &none
               &trans       &trans       &to 0         &to 0        &to 0
             >;

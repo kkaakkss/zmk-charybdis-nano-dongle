@@ -75,9 +75,21 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
             assert mouse[position].controller==mouse[25].controller
             assert mouse[position].data==mouse[25].data
         speed=edt.get_node('/behaviors/ball_speed')
-        for position,action in [(1,1),(21,0)]:
-            assert mouse[position].controller==speed and mouse[position].data['param1']==action
-        assert mouse[11].controller.name=='key_press' and mouse[11].data['param1']==0x700e1
+        assert mouse[21].controller==speed and mouse[21].data['param1']==0
+        for position,name,mods,normal_name,normal_param,morph_key in [
+            (1,'mouse_ctrl_w',1,'ball_speed',1,0x7001a),
+            (11,'mouse_alt_back',4,'key_press',0x700e1,0x70050),
+            (13,'mouse_alt_forward',4,'mouse_key_press',2,0x7004f),
+        ]:
+            node=edt.get_node('/behaviors/'+name)
+            assert mouse[position].controller==node and node.matching_compat=='zmk,behavior-mod-morph'
+            assert node.props['mods'].val==mods and node.props['keep-mods'].val==mods
+            normal,morph=node.props['bindings'].val
+            assert normal.controller.name==normal_name and normal.data['param1']==normal_param
+            assert morph.controller.name=='key_press' and morph.data['param1']==morph_key
+        for position,keycode in [(30,0x700e0),(31,0x700e2)]:
+            assert mouse[position].controller.name=='transparent'
+            assert base[position].controller.name=='key_press' and base[position].data['param1']==keycode
         for layer_id,actions in [(5,[(1,3),(21,2)]),(6,[(1,5),(21,4)])]:
             bindings=layers[layer_id].props['bindings'].val
             assert bindings[11].controller.name=='key_press' and bindings[11].data['param1']==0x700e1

@@ -212,8 +212,8 @@ layers:
     type: trans
   MOUSE:
   - ''
-  - t: SPEED
-    h: +10%
+  - t: SPEED +10%
+    s: 'Ctrl: Ctrl+W'
   - SCROL
   - FASTER
   - ''
@@ -223,9 +223,11 @@ layers:
   - Wheel Right
   - ''
   - ''
-  - LSHIFT
+  - t: Shift
+    s: 'Alt: Back'
   - LMB
-  - RMB
+  - t: RMB
+    s: 'Alt: Forward'
   - ''
   - ''
   - ''
