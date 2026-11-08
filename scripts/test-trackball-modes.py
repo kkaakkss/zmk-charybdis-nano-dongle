@@ -229,10 +229,10 @@ int main(void) {
     struct zmk_behavior_binding up={.param1=1},down={.param1=0},bad={.param1=8};
     struct zmk_behavior_binding_event event={0};
     layer(4);test_now+=100;
-    speed_pressed(&up,event); if(ball.speed_percent!=110) return 28;
-    speed_released(&up,event); if(ball.speed_percent!=110) return 29;
+    speed_pressed(&up,event); if(ball.speed_percent!=105) return 28;
+    speed_released(&up,event); if(ball.speed_percent!=105) return 29;
     bx=total_x;by=total_y;frame(100,-100);
-    if(total_x-bx!=110 || total_y-by!=-110) return 30;
+    if(total_x-bx!=105 || total_y-by!=-105) return 30;
     speed_pressed(&down,event);if(ball.speed_percent!=100) return 31;
     for(int i=0;i<40;i++) speed_pressed(&down,event);
     if(ball.speed_percent!=20) return 32;
@@ -255,7 +255,7 @@ int main(void) {
     struct zmk_behavior_binding snipe_up={.param1=5},snipe_down={.param1=4};
     unsigned move_percent=ball.speed_percent;
     layer(5);speed_pressed(&scroll_up,event);
-    if(ball.scroll_percent!=110 || ball.speed_percent!=move_percent || ball.snipe_percent) return 40;
+    if(ball.scroll_percent!=105 || ball.speed_percent!=move_percent || ball.snipe_percent) return 40;
     for(int i=0;i<40;i++) speed_pressed(&scroll_down,event);
     if(ball.scroll_percent!=20) return 41;
     wx=total_wx;wy=total_wy;
@@ -266,7 +266,7 @@ int main(void) {
     wx=total_wx;wy=total_wy;frame(-8,8);
     if(total_wx-wx!=-2 || total_wy-wy!=-2) return 44;
     layer(6);speed_pressed(&snipe_up,event);
-    if(ball.snipe_percent!=110 || ball.scroll_percent!=200 || ball.speed_percent!=move_percent) return 45;
+    if(ball.snipe_percent!=105 || ball.scroll_percent!=200 || ball.speed_percent!=move_percent) return 45;
     for(int i=0;i<40;i++) speed_pressed(&snipe_down,event);
     if(ball.snipe_percent!=20) return 46;
     bx=total_x;by=total_y;
@@ -304,8 +304,8 @@ int main(void) {
     // FASTER buttons adjust only the FASTER trim, never the normal/Scroll/Snipe settings.
     struct zmk_behavior_binding faster_up={.param1=7},faster_down={.param1=6};
     ball.speed_percent=100;layer(7);speed_pressed(&faster_up,event);
-    if(ball.faster_percent!=110 || ball.speed_percent!=100 || ball.scroll_percent!=200 || ball.snipe_percent!=200) return 64;
-    speed_released(&faster_up,event);if(ball.faster_percent!=110) return 65;
+    if(ball.faster_percent!=105 || ball.speed_percent!=100 || ball.scroll_percent!=200 || ball.snipe_percent!=200) return 64;
+    speed_released(&faster_up,event);if(ball.faster_percent!=105) return 65;
     for(int i=0;i<40;i++) speed_pressed(&faster_down,event);
     if(ball.faster_percent!=20) return 66;
     test_now+=100;bx=total_x;by=total_y;
@@ -338,7 +338,7 @@ int main(void) {
     layer(6);nano35_trackball_speed_snapshot(&view);if(view.scroll || view.value!=120) return 73;
     layer(7);nano35_trackball_speed_snapshot(&view);if(view.scroll || view.value!=660) return 74;
     unsigned updates=speed_updates;speed_pressed(&faster_up,event);nano35_trackball_speed_snapshot(&view);
-    if(speed_updates!=updates+1 || view.value!=720 || ball.speed_percent!=100) return 75;
+    if(speed_updates!=updates+1 || view.value!=690 || ball.speed_percent!=100) return 75;
     ball.speed_percent=200;ball.faster_percent=200;nano35_trackball_speed_snapshot(&view);
     if(view.value!=2400) return 76;
     layer(0);nano35_trackball_speed_snapshot(&view);if(view.visible) return 77;
@@ -378,7 +378,7 @@ print('PASS: timed acceleration 1x..1.75x; shared XY gain, slow precision, cap, 
 print('LIMIT: kernel scheduling/layers/endpoints are doubles; no USB/BLE/I2C hardware simulation')
 print('Instrumentation: host UBSan' if a.host_cc else 'Instrumentation: ARM emulation without UBSan')
 
-print('PASS: runtime speed buttons 20..200%, 10-point steps, release no-op, fractional motion, invalid action, raw auto threshold and Scroll/Snipe isolation')
+print('PASS: runtime speed buttons 20..200%, 5-point steps, release no-op, fractional motion, invalid action, raw auto threshold and Scroll/Snipe isolation')
 
 print('PASS: independent Move/Scroll/Snipe speed actions, each 20..200%, signed low-speed fractions, cap, mode retention and no cross-mode changes')
 

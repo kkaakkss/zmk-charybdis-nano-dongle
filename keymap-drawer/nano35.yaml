@@ -212,7 +212,7 @@ layers:
     type: trans
   MOUSE:
   - ''
-  - t: SPEED +10%
+  - t: SPEED +5%
     s: 'Ctrl: Ctrl+W'
   - SCROL
   - FASTER
@@ -237,7 +237,7 @@ layers:
   - ''
   - ''
   - t: SPEED
-    h: -10%
+    h: -5%
   - Alt+LMB
   - Alt+RMB
   - ''
@@ -260,7 +260,7 @@ layers:
   - t: ▽
     type: trans
   - t: SCROLL
-    h: +10%
+    h: +5%
   - type: held
   - Ctrl+Shift
   - t: ▽
@@ -297,7 +297,7 @@ layers:
   - t: ▽
     type: trans
   - t: SCROLL
-    h: -10%
+    h: -5%
   - t: ▽
     type: trans
   - t: ▽
@@ -328,7 +328,7 @@ layers:
   - t: ▽
     type: trans
   - t: SNIPE
-    h: +10%
+    h: +5%
   - type: held
   - type: held
   - BOOT
@@ -364,7 +364,7 @@ layers:
   - t: ▽
     type: trans
   - t: SNIPE
-    h: -10%
+    h: -5%
   - t: ▽
     type: trans
   - t: ▽
@@ -395,7 +395,7 @@ layers:
   - t: ▽
     type: trans
   - t: FASTER
-    h: +10%
+    h: +5%
   - t: ▽
     type: trans
   - type: held
@@ -434,7 +434,7 @@ layers:
   - t: ▽
     type: trans
   - t: FASTER
-    h: -10%
+    h: -5%
   - t: ▽
     type: trans
   - t: ▽

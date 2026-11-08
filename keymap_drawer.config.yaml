@@ -7,19 +7,19 @@ parse_config:
   raw_binding_map:
     "&mouse_space_nav 0 0": {t: SPACE, h: "L1; release BASE"}
     "&mouse_tab": {t: TAB, s: "Ctrl+Alt: Win+Tab"}
-    "&mouse_ctrl_w": {t: "SPEED +10%", s: "Ctrl: Ctrl+W"}
+    "&mouse_ctrl_w": {t: "SPEED +5%", s: "Ctrl: Ctrl+W"}
     "&mouse_alt_back": {t: Shift, s: "Alt: Back"}
     "&mouse_alt_forward": {t: RMB, s: "Alt: Forward"}
-    "&ball_speed 7": {t: FASTER, h: "+10%"}
-    "&ball_speed 6": {t: FASTER, h: "-10%"}
+    "&ball_speed 7": {t: FASTER, h: "+5%"}
+    "&ball_speed 6": {t: FASTER, h: "-5%"}
     "&kp LC(LSHIFT)": "Ctrl+Shift"
-    "&ball_speed 3": {t: SCROLL, h: "+10%"}
-    "&ball_speed 2": {t: SCROLL, h: "-10%"}
-    "&ball_speed 5": {t: SNIPE, h: "+10%"}
-    "&ball_speed 4": {t: SNIPE, h: "-10%"}
+    "&ball_speed 3": {t: SCROLL, h: "+5%"}
+    "&ball_speed 2": {t: SCROLL, h: "-5%"}
+    "&ball_speed 5": {t: SNIPE, h: "+5%"}
+    "&ball_speed 4": {t: SNIPE, h: "-5%"}
     "&mouse_osl": "OSL"
-    "&ball_speed 1": {t: SPEED, h: "+10%"}
-    "&ball_speed 0": {t: SPEED, h: "-10%"}
+    "&ball_speed 1": {t: SPEED, h: "+5%"}
+    "&ball_speed 0": {t: SPEED, h: "-5%"}
     "&pomo 5": {t: TIMER, h: 5 min}
     "&pomo 10": {t: TIMER, h: 10 min}
     "&pomo 25": {t: TIMER, h: 25 min}

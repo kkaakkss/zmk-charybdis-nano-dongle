@@ -11,7 +11,7 @@ Charybdis Nano 35키를 기존 nRF52840 USB 동글에 연결하는 독립 ZMK �
 TOTEM 키맵에서 양쪽 바깥 Shift와 오른쪽 세 번째 엄지를 제외했습니다.
 QWERTY/NAV/NUM/OSL 뒤에 Keyball39의 MOUSE/SCROLL/SNIPE와 FASTER를 추가했습니다.
 MOUSE에서 위치 3을 누르는 동안 FASTER, 위치 2+3을 함께 누르는 동안 SNIPE가 켜집니다.
-FASTER의 1/21번은 일반 속도를 바꾸지 않는 전용 ±10%p 조절입니다.
+FASTER의 1/21번은 일반 속도를 바꾸지 않는 전용 ±5%p 조절입니다.
 
 - [8개 레이어 전체 그림](keymap-drawer/nano35.svg)
 - [콤보 그림](keymap-drawer/nano35-combos.svg)
