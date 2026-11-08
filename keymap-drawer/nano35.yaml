@@ -972,6 +972,16 @@ combos:
   w: 100
   h: 46
 - p:
+  - 10
+  - 11
+  k:
+    t: TAB
+    s: 'L4 / Ctrl+Alt: Win+Tab'
+  l:
+  - MOUSE
+  w: 100
+  h: 46
+- p:
   - 11
   - 12
   - 13

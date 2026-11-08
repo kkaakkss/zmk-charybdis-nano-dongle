@@ -52,6 +52,29 @@ for i,t in enumerate(yaml.safe_load((repo/'build.yaml').read_text())['include'])
             assert set(combo.props['layers'].val)=={0,1,2,4}
             binding=combo.props['bindings'].val[0]
             assert binding.controller.name=='key_press' and binding.data['param1']==keycode
+        tab_combo=combos['nano35_mouse_tab']
+        assert tab_combo.props['key-positions'].val==[10,11]
+        assert tab_combo.props['layers'].val==[4] and tab_combo.props['timeout-ms'].val==80
+        root=tab_combo.props['bindings'].val[0].controller
+        assert root==edt.get_node('/behaviors/mouse_tab')
+        # Pinned mod-morph tests explicit mods and REPLACES the current mask.
+        # Resolve all thumb combinations; Ctrl+Alt must suppress BOTH originals.
+        for explicit,expected_key,expected_mask in [(0,0x7002b,0),(1,0x7002b,0),(4,0x7002b,0),(5,0x0807002b,5)]:
+            node=root; mask=0
+            for depth in range(4):
+                mods=node.props['mods'].val
+                morphed=bool(explicit & mods)
+                if morphed:
+                    keep=node.props['keep-mods'].val if 'keep-mods' in node.props else 0
+                    mask=mods & ~keep
+                binding=node.props['bindings'].val[int(morphed)]
+                if binding.controller.matching_compat!='zmk,behavior-mod-morph':
+                    assert binding.controller.name=='key_press'
+                    assert binding.data['param1']==expected_key and mask==expected_mask
+                    break
+                node=binding.controller
+            else:
+                raise AssertionError('Mouse Tab morph chain does not terminate')
         assert 'R_q2' not in combos
         question=combos['question_mark']
         assert question.props['key-positions'].val==[18,27] and question.props['layers'].val==[0]

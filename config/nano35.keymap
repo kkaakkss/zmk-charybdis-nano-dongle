@@ -46,6 +46,29 @@
             mods = <MOD_LALT>;
             keep-mods = <MOD_LALT>;
         };
+        // Preserve ordinary Alt+Tab until BOTH thumb modifiers are held.
+        mouse_tab: mouse_tab {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&kp TAB>, <&mouse_tab_alt>;
+            mods = <MOD_LCTL>;
+            keep-mods = <MOD_LCTL>;
+        };
+        mouse_tab_alt: mouse_tab_alt {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            bindings = <&kp TAB>, <&mouse_win_tab>;
+            mods = <MOD_LALT>;
+            keep-mods = <MOD_LALT>;
+        };
+        mouse_win_tab: mouse_win_tab {
+            compatible = "zmk,behavior-mod-morph";
+            #binding-cells = <0>;
+            // A separate final morph is required: nested morph masks replace,
+            // rather than combine with, the previous mask in pinned ZMK.
+            bindings = <&kp LG(TAB)>, <&kp LG(TAB)>;
+            mods = <(MOD_LCTL | MOD_LALT)>;
+        };
         ball_speed: ball_speed {
             compatible = "nano35,ball-speed";
             #binding-cells = <1>;
@@ -634,6 +657,13 @@
         nano35_mouse_snipe {
             bindings = <&mo 6>;
             key-positions = <2 3>;
+            layers = <4>;
+            timeout-ms = <80>;
+        };
+
+        nano35_mouse_tab {
+            bindings = <&mouse_tab>;
+            key-positions = <10 11>;
             layers = <4>;
             timeout-ms = <80>;
         };

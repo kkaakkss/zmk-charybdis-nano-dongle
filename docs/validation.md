@@ -1,5 +1,14 @@
 # 현재 검증 상태
 
+## 2026-11-08: MOUSE 10+11 Tab / 작업 전환
+
+10+11은 Tab, 31(Alt) 홀드 시 Alt+Tab, 30(Ctrl)+31(Alt) 홀드 시 Win+Tab이다.
+콤보는 MOUSE(4) 한정 80ms이며 엄지 키는 미리 누른 채 유지할 수 있다.
+Ctrl→Alt 조건 분기 뒤 별도 최종 morph에서 두 modifier를 함께 마스킹한다.
+고정 ZMK의 mask 덮어쓰기 구현을 반영했으며 생성 DTS의 네 modifier 조합에서
+Tab/Win+Tab과 최종 mask를 검사한다. 실기기 창 전환과 손가락 타이밍은 확인 대기다.
+
+
 ## 2026-11-08: MOUSE 엄지 수정키 단축키
 
 30(Ctrl)을 먼저 누르고 1=Ctrl+W, 31(Alt)을 먼저 누르고 11=Alt+Left,
